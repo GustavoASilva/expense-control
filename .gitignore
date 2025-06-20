@@ -1,0 +1,48 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.pidb
+*.svclog
+*.pdb
+*.mdb
+*.cache
+*.log
+*.vspscc
+*.vssscc
+*.dbmdl
+*.bak
+*.backup
+*.log
+*.ldf
+*.ndf
+*.vshost.*
+_ReSharper*/
+*.[Rr]e[Ss]harper*/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.ncrunch*
+*.nunit*
+*.VisualState.xml
+TestResult.xml
+*.DotSettings.user
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+.history/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Docker
+**/bin/
+**/obj/

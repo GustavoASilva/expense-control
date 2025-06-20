@@ -1,0 +1,222 @@
+@page "/"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@inject ApiService Api
+@inject IJSRuntime JS
+
+<PageTitle>Dashboard - Expense Control</PageTitle>
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Dashboard</h1>
+        <DateRangePicker StartDate="@_startDate" EndDate="@_endDate" OnChanged="@(range => LoadData(range.start, range.end))" />
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-md-4">
+                <StatCard Title="Income"
+                         Value="@_balance.Income"
+                         Icon="bi-graph-up-arrow"
+                         PreviousValue="@_previousBalance?.Income" />
+            </div>
+            <div class="col-md-4">
+                <StatCard Title="Expenses"
+                         Value="@_balance.Expenses"
+                         Icon="bi-graph-down-arrow"
+                         PreviousValue="@_previousBalance?.Expenses" />
+            </div>
+            <div class="col-md-4">
+                <StatCard Title="Balance"
+                         Value="@_balance.CurrentBalance"
+                         Icon="bi-wallet2"
+                         Inverted="true"
+                         PreviousValue="@(_previousBalance is null ? null : _previousBalance.Income - _previousBalance.Expenses)" />
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Overview (@_monthlyBalance.Year)</h5>
+                        @if (!_monthlyBalance.HasTransactions)
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-bar-chart-line fs-1"></i>
+                                <p class="mt-2">No transactions recorded yet</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="chart-container" style="position: relative; height:300px;">
+                                <canvas id="monthlyChart" @ref="_chartCanvas"></canvas>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Top Categories</h5>
+                        @if (!_categoryBalances.Any())
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-pie-chart fs-1"></i>
+                                <p class="mt-2">No category data available</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var category in _categoryBalances.Take(5))
+                                {
+                                    <div class="list-group-item border-0 px-0">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-0">@category.CategoryName</h6>
+                                                <small class="text-muted">@category.Count transactions</small>
+                                            </div>
+                                            <span class="@(category.TransactionType == TransactionType.Income ? "text-success" : "text-danger")">
+                                                @(category.TransactionType == TransactionType.Income ? "+" : "-")@category.Total.ToString("C")
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Recent Transactions</h5>
+                    <a href="/transactions" class="btn btn-primary btn-sm">View All</a>
+                </div>
+                @if (!_recentTransactions.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-receipt fs-1"></i>
+                        <p class="mt-2">No transactions found</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in _recentTransactions)
+                                {
+                                    <tr>
+                                        <td>@transaction.Date.ToShortDateString()</td>
+                                        <td>@transaction.Description</td>
+                                        <td>@transaction.CategoryName</td>
+                                        <td class="text-end">
+                                            <span class="@(transaction.Type == TransactionType.Income ? "text-success" : "text-danger")">
+                                                @(transaction.Type == TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("C")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isLoading = true;
+    private DateTime _startDate = DateTime.Today.AddDays(-29);
+    private DateTime _endDate = DateTime.Today;
+    private Balance _balance = new();
+    private Balance? _previousBalance;
+    private List<CategoryBalance> _categoryBalances = new();
+    private MonthlyBalance _monthlyBalance = new();
+    private List<Transaction> _recentTransactions = new();
+    private ElementReference _chartCanvas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData(_startDate, _endDate);
+    }
+
+    private async Task LoadData(DateTime start, DateTime end)
+    {
+        _isLoading = true;
+        _startDate = start;
+        _endDate = end;
+
+        try
+        {
+            // Load current period data
+            var balanceTask = Api.GetBalanceAsync(start, end);
+            var categoryBalanceTask = Api.GetBalanceByCategoryAsync(start, end);
+            var monthlyBalanceTask = Api.GetMonthlyBalanceAsync(DateTime.Today.Year);
+            var recentTransactionsTask = Api.GetTransactionsAsync(start, end);
+
+            // Load previous period data for comparison
+            var periodLength = (end - start).Days + 1;
+            var previousStart = start.AddDays(-periodLength);
+            var previousEnd = start.AddDays(-1);
+            var previousBalanceTask = Api.GetBalanceAsync(previousStart, previousEnd);
+
+            await Task.WhenAll(
+                balanceTask,
+                categoryBalanceTask,
+                monthlyBalanceTask,
+                recentTransactionsTask,
+                previousBalanceTask
+            );
+
+            _balance = await balanceTask;
+            _categoryBalances = await categoryBalanceTask;
+            _monthlyBalance = await monthlyBalanceTask;
+            _recentTransactions = (await recentTransactionsTask)
+                .OrderByDescending(t => t.Date)
+                .Take(5)
+                .ToList();
+            _previousBalance = await previousBalanceTask;
+        }
+        finally
+        {
+            _isLoading = false;
+            await UpdateChartAsync();
+        }
+    }
+
+    private async Task UpdateChartAsync()
+    {
+        if (_monthlyBalance.HasTransactions)
+        {
+            var labels = _monthlyBalance.Months.Select(m => m.MonthName).ToArray();
+            var incomeData = _monthlyBalance.Months.Select(m => m.Income).ToArray();
+            var expenseData = _monthlyBalance.Months.Select(m => m.Expenses).ToArray();
+
+            await JS.InvokeVoidAsync("initMonthlyChart", "monthlyChart", labels, incomeData, expenseData);
+        }
+    }
+}

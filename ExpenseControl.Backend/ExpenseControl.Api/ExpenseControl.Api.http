@@ -1,0 +1,23 @@
+@ExpenseControl.Api_HostAddress = http://localhost:5293
+
+GET {{ExpenseControl.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### Create Expense Entry
+POST http://localhost:5293/api/expenses
+Content-Type: application/json
+
+{
+  "description": "Test expense",
+  "amount": 123.45,
+  "date": "2024-05-01T00:00:00",
+  "category": "Test Category"
+}
+
+### List Expense Entries (paginated)
+GET http://localhost:5293/api/expenses?page=1&pageSize=10
+
+### Delete Expense Entry
+DELETE http://localhost:5293/api/expenses/{{expenseId}}
