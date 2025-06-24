@@ -25,5 +25,7 @@ public class Transaction
 
     public string CategoryName { get; set; } = string.Empty;
 
+    public Category? Category { get; set; }
+
     public string? Notes { get; set; }
 }

@@ -131,7 +131,7 @@
                                     <tr>
                                         <td>@transaction.Date.ToShortDateString()</td>
                                         <td>@transaction.Description</td>
-                                        <td>@transaction.CategoryName</td>
+                                        <td>@transaction.Category!.Name </td>
                                         <td class="text-end">
                                             <span class="@(transaction.Type == TransactionType.Income ? "text-success" : "text-danger")">
                                                 @(transaction.Type == TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("C")
@@ -158,10 +158,20 @@
     private MonthlyBalance _monthlyBalance = new();
     private List<Transaction> _recentTransactions = new();
     private ElementReference _chartCanvas;
+    private bool _shouldUpdateChart = false;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData(_startDate, _endDate);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldUpdateChart && !_isLoading)
+        {
+            await UpdateChartAsync();
+            _shouldUpdateChart = false;
+        }
     }
 
     private async Task LoadData(DateTime start, DateTime end)
@@ -204,7 +214,8 @@
         finally
         {
             _isLoading = false;
-            await UpdateChartAsync();
+            _shouldUpdateChart = true;
+            StateHasChanged();
         }
     }
 
