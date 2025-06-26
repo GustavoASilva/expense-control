@@ -32,7 +32,6 @@ namespace ExpenseControl.Api.Persistence
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Description).HasMaxLength(500);
                 entity.Property(e => e.IconName).HasMaxLength(50);
-                entity.Property(e => e.ColorCode).HasMaxLength(7); // For hex color codes (#RRGGBB)
                 entity.Property(e => e.Type).HasConversion<string>();
 
                 // Index on Name and Type for faster lookups
