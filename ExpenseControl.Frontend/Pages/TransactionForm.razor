@@ -33,12 +33,12 @@
                                 <div class="col-12">
                                     <div class="btn-group w-100" role="group">
                                         <input type="radio" class="btn-check" name="type" id="income" value="@TransactionType.Income"
-                                            @onchange="@(e => _transaction.Type = TransactionType.Income)"
+                                            @onchange="() => OnTransactionTypeChanged(TransactionType.Income)"
                                             checked="@(_transaction.Type == TransactionType.Income)" />
                                         <label class="btn btn-outline-success" for="income">Income</label>
 
                                         <input type="radio" class="btn-check" name="type" id="expense" value="@TransactionType.Expense"
-                                            @onchange="@(e => _transaction.Type = TransactionType.Expense)"
+                                            @onchange="() => OnTransactionTypeChanged(TransactionType.Expense)"
                                             checked="@(_transaction.Type == TransactionType.Expense)" />
                                         <label class="btn btn-outline-danger" for="expense">Expense</label>
                                     </div>
@@ -66,7 +66,7 @@
                                     <label for="category" class="form-label">Category</label>
                                     <InputSelect @bind-Value="_transaction.CategoryId" class="form-select" id="category">
                                         <option value="">Select a category</option>
-                                        @foreach (var category in _categories)
+                                        @foreach (var category in _categories.Where(c => c.Type == _transaction.Type))
                                         {
                                             <option value="@category.Id">@category.Name</option>
                                         }
@@ -102,7 +102,7 @@
     private bool _isNew => !Id.HasValue;
     private bool _isLoading = true;
     private bool _isSaving;
-    private Transaction _transaction = new() { Date = DateTime.Today };
+    private Transaction _transaction = new() { Date = DateTime.Today, Type = TransactionType.Income };
     private List<Category> _categories = new();
 
     protected override async Task OnInitializedAsync()
@@ -145,5 +145,11 @@
         {
             _isSaving = false;
         }
+    }
+
+    private void OnTransactionTypeChanged(TransactionType type)
+    {
+        _transaction.Type = type;
+        _transaction.CategoryId = Guid.Empty; // Reset category selection
     }
 }
