@@ -12,6 +12,7 @@ using ExpenseControl.Api.Features.Transactions.List;
 using ExpenseControl.Api.Features.Transactions.Delete;
 using ExpenseControl.Api.Features.Transactions.Get;
 using ExpenseControl.Api.Features.Balance;
+using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,9 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddDbContext<ExpenseControl.Api.Persistence.ExpenseDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
+
+// Enable System.Text.Json enum serialization as strings for Minimal APIs
+builder.Services.Configure<JsonOptions>(options => options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
 var app = builder.Build();
 

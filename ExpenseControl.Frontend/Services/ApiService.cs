@@ -1,79 +1,122 @@
 using System.Net.Http.Json;
 using ExpenseControl.Frontend.Models;
+using ExpenseControl.Frontend.Models.ApiResponses;
+using Refit;
 
 namespace ExpenseControl.Frontend.Services;
 
 public class ApiService
 {
-    private readonly HttpClient _http;
-    private const string BaseUrl = "api";
+    private readonly IApiService _api;
 
-    public ApiService(HttpClient http)
+    public ApiService(IApiService api)
     {
-        _http = http;
+        _api = api;
     }
 
     // Transactions
-    public async Task<List<Transaction>> GetTransactionsAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<TransactionListItemModel>> GetTransactionsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var url = $"{BaseUrl}/transactions";
-        if (startDate.HasValue) url += $"?startDate={startDate.Value:yyyy-MM-dd}";
-        if (endDate.HasValue) url += $"{(startDate.HasValue ? "&" : "?")}endDate={endDate.Value:yyyy-MM-dd}";
-        return await _http.GetFromJsonAsync<List<Transaction>>(url) ?? new();
+        try
+        {
+            var apiList = await _api.GetTransactionsAsync(startDate, endDate);
+            return apiList.Select(x => x.ToListItemModel()).ToList();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load transactions", ex);
+        }
     }
 
-    public async Task<Transaction?> GetTransactionAsync(Guid id)
+    public async Task<TransactionFormModel?> GetTransactionAsync(Guid id)
     {
-        return await _http.GetFromJsonAsync<Transaction>($"{BaseUrl}/transactions/{id}");
+        try
+        {
+            var api = await _api.GetTransactionAsync(id);
+            return api?.ToFormModel();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load transaction", ex);
+        }
     }
 
-    public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+    public async Task<TransactionFormModel> CreateTransactionAsync(TransactionFormModel transaction)
     {
-        var response = await _http.PostAsJsonAsync($"{BaseUrl}/transactions", transaction);
-        return await response.Content.ReadFromJsonAsync<Transaction>() ?? throw new Exception("Failed to create transaction");
+        try
+        {
+            // Map to API request if needed, here assuming same as form model
+            var api = await _api.CreateTransactionAsync(transaction);
+            return api.ToFormModel();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to create transaction", ex);
+        }
     }
 
     public async Task DeleteTransactionAsync(Guid id)
     {
-        await _http.DeleteAsync($"{BaseUrl}/transactions/{id}");
+        try
+        {
+            await _api.DeleteTransactionAsync(id);
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to delete transaction", ex);
+        }
     }
 
     // Categories
     public async Task<List<Category>> GetCategoriesAsync()
     {
-        return await _http.GetFromJsonAsync<List<Category>>($"{BaseUrl}/categories") ?? new();
+        try
+        {
+            var apiList = await _api.GetCategoriesAsync();
+            return apiList.Select(x => x.ToCategoryModel()).ToList();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load categories", ex);
+        }
     }
 
     // Balance
     public async Task<Balance> GetBalanceAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var url = $"{BaseUrl}/balance";
-        if (startDate.HasValue) url += $"?startDate={startDate.Value:yyyy-MM-dd}";
-        if (endDate.HasValue) url += $"{(startDate.HasValue ? "&" : "?")}endDate={endDate.Value:yyyy-MM-dd}";
-        return await _http.GetFromJsonAsync<Balance>(url) ?? new();
+        try
+        {
+            var api = await _api.GetBalanceAsync(startDate, endDate);
+            return api.ToBalanceModel();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load balance", ex);
+        }
     }
 
     public async Task<List<CategoryBalance>> GetBalanceByCategoryAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var url = $"{BaseUrl}/balance/by-category";
-        if (startDate.HasValue) url += $"?startDate={startDate.Value:yyyy-MM-dd}";
-        if (endDate.HasValue) url += $"{(startDate.HasValue ? "&" : "?")}endDate={endDate.Value:yyyy-MM-dd}";
-        var response = await _http.GetFromJsonAsync<BalanceByCategoryResponse>(url);
-        return response?.Categories.ToList() ?? new();
+        try
+        {
+            var api = await _api.GetBalanceByCategoryAsync(startDate, endDate);
+            return api.Categories.Select(x => x.ToCategoryBalanceModel()).ToList();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load balance by category", ex);
+        }
     }
 
     public async Task<MonthlyBalance> GetMonthlyBalanceAsync(int? year = null)
     {
-        var url = $"{BaseUrl}/balance/monthly";
-        if (year.HasValue) url += $"?year={year.Value}";
-        return await _http.GetFromJsonAsync<MonthlyBalance>(url) ?? new();
+        try
+        {
+            return await _api.GetMonthlyBalanceAsync(year);
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load monthly balance", ex);
+        }
     }
-}
-
-public class BalanceByCategoryResponse
-{
-    public IEnumerable<CategoryBalance> Categories { get; set; } = Array.Empty<CategoryBalance>();
-    public DateTime PeriodStart { get; set; }
-    public DateTime PeriodEnd { get; set; }
-    public bool HasTransactions { get; set; }
 }

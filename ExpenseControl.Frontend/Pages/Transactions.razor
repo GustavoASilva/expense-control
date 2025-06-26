@@ -89,7 +89,7 @@
     private bool _isLoading = true;
     private DateTime _startDate = DateTime.Today.AddDays(-29);
     private DateTime _endDate = DateTime.Today;
-    private List<Transaction> _transactions = new();
+    private List<TransactionListItemModel> _transactions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -123,7 +123,7 @@
         Navigation.NavigateTo($"/transactions/{id}");
     }
 
-    private async Task DeleteTransaction(Transaction transaction)
+    private async Task DeleteTransaction(TransactionListItemModel transaction)
     {
         if (await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this transaction?\n\n{transaction.Description}\n{transaction.Amount:C}"))
         {
