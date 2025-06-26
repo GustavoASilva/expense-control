@@ -58,7 +58,9 @@
                                     <tr>
                                         <td>@transaction.Date.ToShortDateString()</td>
                                         <td>@transaction.Description</td>
-                                        <td>@transaction.CategoryName</td>
+                                        <td>
+                                            @transaction.CategoryName
+                                        </td>
                                         <td class="text-end">
                                             <span class="@(transaction.Type == TransactionType.Income ? "text-success" : "text-danger")">
                                                 @(transaction.Type == TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("C")

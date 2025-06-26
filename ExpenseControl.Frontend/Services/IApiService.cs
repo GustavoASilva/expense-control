@@ -19,6 +19,9 @@ public interface IApiService
     [Delete("/api/transactions/{id}")]
     Task DeleteTransactionAsync(Guid id);
 
+    [Patch("/api/transactions/{id}")]
+    Task<TransactionApiResponse> UpdateTransactionAsync(Guid id, [Body] TransactionFormModel transaction);
+
     // Categories
     [Get("/api/categories")]
     Task<List<CategoryApiResponse>> GetCategoriesAsync();

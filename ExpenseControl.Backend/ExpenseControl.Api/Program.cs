@@ -11,6 +11,7 @@ using ExpenseControl.Api.Features.Transactions.Create;
 using ExpenseControl.Api.Features.Transactions.List;
 using ExpenseControl.Api.Features.Transactions.Delete;
 using ExpenseControl.Api.Features.Transactions.Get;
+using ExpenseControl.Api.Features.Transactions.Update;
 using ExpenseControl.Api.Features.Balance;
 using Microsoft.AspNetCore.Http.Json;
 
@@ -87,6 +88,7 @@ app.MapCreateTransactionEndpoint();
 app.MapListTransactionsEndpoint();
 app.MapGetTransactionEndpoint();
 app.MapDeleteTransactionEndpoint();
+app.MapUpdateTransactionEndpoint();
 
 // Balance endpoints
 app.MapGetBalanceEndpoint();

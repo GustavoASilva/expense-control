@@ -1,6 +1,9 @@
 @page "/"
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
+@using ExpenseControl.Frontend.Models
+@using ExpenseControl.Frontend.Components
+@using Microsoft.AspNetCore.Components.Web
 @inject ApiService Api
 @inject IJSRuntime JS
 
@@ -9,7 +12,7 @@
 <div class="container-fluid py-3">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">Dashboard</h1>
-        <DateRangePicker StartDate="@_startDate" EndDate="@_endDate" OnChanged="@(range => LoadData(range.start, range.end))" />
+        <DateRangePicker StartDate="@_startDate" EndDate="@_endDate" OnChanged="OnDateRangeChanged" />
     </div>
 
     @if (_isLoading)
@@ -84,7 +87,10 @@
                                     <div class="list-group-item border-0 px-0">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-0">@category.CategoryName</h6>
+                                                <span style="color:@GetCategoryColor(category.CategoryName)">
+                                                    <i class="bi bi-@GetCategoryIcon(category.CategoryName)"></i>
+                                                </span>
+                                                <h6 class="mb-0 d-inline">@category.CategoryName</h6>
                                                 <small class="text-muted">@category.Count transactions</small>
                                             </div>
                                             <span class="@(category.TransactionType == TransactionType.Income ? "text-success" : "text-danger")">
@@ -159,10 +165,12 @@
     private List<TransactionListItemModel> _recentTransactions = new();
     private ElementReference _chartCanvas;
     private bool _shouldUpdateChart = false;
+    private List<Category> _categories = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData(_startDate, _endDate);
+        _categories = await Api.GetCategoriesAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -229,5 +237,19 @@
 
             await JS.InvokeVoidAsync("initMonthlyChart", "monthlyChart", labels, incomeData, expenseData);
         }
+    }
+
+    private string GetCategoryColor(string categoryName)
+    {
+        return _categories.FirstOrDefault(c => c.Name == categoryName)?.ColorCode ?? "inherit";
+    }
+    private string GetCategoryIcon(string categoryName)
+    {
+        return _categories.FirstOrDefault(c => c.Name == categoryName)?.IconName ?? "";
+    }
+
+    private async Task OnDateRangeChanged((DateTime start, DateTime end) range)
+    {
+        await LoadData(range.start, range.end);
     }
 }

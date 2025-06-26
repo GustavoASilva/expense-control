@@ -55,6 +55,19 @@ public class ApiService
         }
     }
 
+    public async Task<TransactionFormModel> UpdateTransactionAsync(Guid id, TransactionFormModel transaction)
+    {
+        try
+        {
+            var api = await _api.UpdateTransactionAsync(id, transaction);
+            return api.ToFormModel();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to update transaction", ex);
+        }
+    }
+
     public async Task DeleteTransactionAsync(Guid id)
     {
         try
