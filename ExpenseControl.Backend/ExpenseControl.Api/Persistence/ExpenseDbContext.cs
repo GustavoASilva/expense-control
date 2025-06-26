@@ -9,6 +9,7 @@ namespace ExpenseControl.Api.Persistence
 
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Budget> Budgets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +37,22 @@ namespace ExpenseControl.Api.Persistence
 
                 // Index on Name and Type for faster lookups
                 entity.HasIndex(e => new { e.Name, e.Type }).IsUnique();
+            });
+
+            // Budget Configuration
+            modelBuilder.Entity<Budget>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Amount).HasColumnType("numeric(18,2)");
+                entity.Property(e => e.Month).IsRequired();
+                entity.Property(e => e.Year).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.UpdatedAt).IsRequired();
+                entity.HasOne(e => e.Category)
+                    .WithMany()
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(e => new { e.CategoryId, e.Month, e.Year }).IsUnique();
             });
 
             // Relationships

@@ -14,6 +14,10 @@ using ExpenseControl.Api.Features.Transactions.Get;
 using ExpenseControl.Api.Features.Transactions.Update;
 using ExpenseControl.Api.Features.Balance;
 using Microsoft.AspNetCore.Http.Json;
+using ExpenseControl.Api.Features.Budgets;
+using ExpenseControl.Api.Features.Budgets.Create;
+using ExpenseControl.Api.Features.Budgets.List;
+using ExpenseControl.Api.Features.Budgets.Usage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +98,12 @@ app.MapUpdateTransactionEndpoint();
 app.MapGetBalanceEndpoint();
 app.MapGetBalanceByCategoryEndpoint();
 app.MapGetMonthlyBalanceEndpoint();
+
+// Budget endpoints
+app.MapBudgetEndpoints();
+app.MapCreateBudgetEndpoint();
+app.MapListBudgetsEndpoint();
+app.MapGetBudgetUsageEndpoint();
 
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())
