@@ -14,10 +14,10 @@ services:
       - expensecontrol-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d ExpenseControlDb -h localhost || exit 1; psql -U postgres -d ExpenseControlDb -c 'SELECT 1;' || exit 1"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 20s
+      start_period: 5s
 
   api:
     build:
@@ -36,9 +36,9 @@ services:
       - expensecontrol-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   frontend:
     build:

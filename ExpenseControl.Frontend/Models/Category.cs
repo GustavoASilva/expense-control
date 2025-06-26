@@ -7,5 +7,4 @@ public class Category
     public string? Description { get; set; }
     public TransactionType Type { get; set; }
     public string IconName { get; set; } = string.Empty;
-    public string ColorCode { get; set; } = string.Empty;
 }

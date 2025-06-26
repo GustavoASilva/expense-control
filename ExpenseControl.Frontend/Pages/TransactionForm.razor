@@ -68,10 +68,18 @@
                                         <option value="">Select a category</option>
                                         @foreach (var category in _categories.Where(c => c.Type == _transaction.Type))
                                         {
-                                            <option value="@category.Id">@category.Name</option>
+                                            <option value="@category.Id">
+                                                @category.Name
+                                            </option>
                                         }
                                     </InputSelect>
                                     <ValidationMessage For="@(() => _transaction.CategoryId)" />
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="notes" class="form-label">Notes</label>
+                                    <InputTextArea @bind-Value="_transaction.Notes" class="form-control" id="notes" rows="3" />
+                                    <ValidationMessage For="@(() => _transaction.Notes)" />
                                 </div>
                             </div>
                         </div>
@@ -102,7 +110,7 @@
     private bool _isNew => !Id.HasValue;
     private bool _isLoading = true;
     private bool _isSaving;
-    private TransactionFormModel _transaction = new() { Date = DateTime.Today, Type = TransactionType.Income };
+    private TransactionFormModel _transaction = new() { Date = DateOnly.FromDateTime(DateTime.Today), Type = TransactionType.Income };
     private List<Category> _categories = new();
 
     protected override async Task OnInitializedAsync()
@@ -138,7 +146,14 @@
         try
         {
             _isSaving = true;
-            await Api.CreateTransactionAsync(_transaction);
+            if (_isNew)
+            {
+                await Api.CreateTransactionAsync(_transaction);
+            }
+            else if (Id.HasValue)
+            {
+                await Api.UpdateTransactionAsync(Id.Value, _transaction);
+            }
             Navigation.NavigateTo("/transactions");
         }
         finally

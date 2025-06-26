@@ -58,7 +58,9 @@
                                     <tr>
                                         <td>@transaction.Date.ToShortDateString()</td>
                                         <td>@transaction.Description</td>
-                                        <td>@transaction.CategoryName</td>
+                                        <td>
+                                            @transaction.CategoryName
+                                        </td>
                                         <td class="text-end">
                                             <span class="@(transaction.Type == TransactionType.Income ? "text-success" : "text-danger")">
                                                 @(transaction.Type == TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("C")
@@ -87,8 +89,8 @@
 
 @code {
     private bool _isLoading = true;
-    private DateTime _startDate = DateTime.Today.AddDays(-29);
-    private DateTime _endDate = DateTime.Today;
+    private DateOnly _startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-29));
+    private DateOnly _endDate = DateOnly.FromDateTime(DateTime.Today);
     private List<TransactionListItemModel> _transactions = new();
 
     protected override async Task OnInitializedAsync()
@@ -96,7 +98,7 @@
         await LoadData(_startDate, _endDate);
     }
 
-    private async Task LoadData(DateTime start, DateTime end)
+    private async Task LoadData(DateOnly start, DateOnly end)
     {
         _isLoading = true;
         _startDate = start;

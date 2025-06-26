@@ -40,8 +40,7 @@ public static class ApiResponseMappingExtensions
             Name = api.Name,
             Description = api.Description,
             Type = api.Type,
-            IconName = api.IconName,
-            ColorCode = api.ColorCode
+            IconName = api.IconName
         };
     }
 
