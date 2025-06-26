@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseControl.Frontend", "ExpenseControl.Frontend\ExpenseControl.Frontend.csproj", "{BE9A70A9-9DBE-DFA4-60D1-5F6E73DA600A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExpenseControl.Backend", "ExpenseControl.Backend", "{1FCEB13B-3436-15B3-51C7-8AAEDB9F983F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseControl.Api", "ExpenseControl.Backend\ExpenseControl.Api\ExpenseControl.Api.csproj", "{26B2616A-88F6-90D7-6DE8-FEECCF636372}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE9A70A9-9DBE-DFA4-60D1-5F6E73DA600A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE9A70A9-9DBE-DFA4-60D1-5F6E73DA600A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE9A70A9-9DBE-DFA4-60D1-5F6E73DA600A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE9A70A9-9DBE-DFA4-60D1-5F6E73DA600A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26B2616A-88F6-90D7-6DE8-FEECCF636372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26B2616A-88F6-90D7-6DE8-FEECCF636372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26B2616A-88F6-90D7-6DE8-FEECCF636372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26B2616A-88F6-90D7-6DE8-FEECCF636372}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{26B2616A-88F6-90D7-6DE8-FEECCF636372} = {1FCEB13B-3436-15B3-51C7-8AAEDB9F983F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BEDC31F1-5280-41E2-AE17-92A412429BA2}
+	EndGlobalSection
+EndGlobal

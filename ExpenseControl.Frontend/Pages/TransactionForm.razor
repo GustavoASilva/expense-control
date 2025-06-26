@@ -1,5 +1,5 @@
 @page "/transactions/new"
-@page "/transactions/{Id:int}"
+@page "/transactions/{Id:guid}"
 @using ExpenseControl.Frontend.Models
 @using ExpenseControl.Frontend.Services
 @inject ApiService Api
@@ -102,7 +102,7 @@
     private bool _isNew => !Id.HasValue;
     private bool _isLoading = true;
     private bool _isSaving;
-    private Transaction _transaction = new() { Date = DateTime.Today, Type = TransactionType.Income };
+    private TransactionFormModel _transaction = new() { Date = DateTime.Today, Type = TransactionType.Income };
     private List<Category> _categories = new();
 
     protected override async Task OnInitializedAsync()

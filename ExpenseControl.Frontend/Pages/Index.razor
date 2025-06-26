@@ -131,7 +131,7 @@
                                     <tr>
                                         <td>@transaction.Date.ToShortDateString()</td>
                                         <td>@transaction.Description</td>
-                                        <td>@transaction.Category!.Name </td>
+                                        <td>@transaction.CategoryName </td>
                                         <td class="text-end">
                                             <span class="@(transaction.Type == TransactionType.Income ? "text-success" : "text-danger")">
                                                 @(transaction.Type == TransactionType.Income ? "+" : "-")@transaction.Amount.ToString("C")
@@ -156,7 +156,7 @@
     private Balance? _previousBalance;
     private List<CategoryBalance> _categoryBalances = new();
     private MonthlyBalance _monthlyBalance = new();
-    private List<Transaction> _recentTransactions = new();
+    private List<TransactionListItemModel> _recentTransactions = new();
     private ElementReference _chartCanvas;
     private bool _shouldUpdateChart = false;
 

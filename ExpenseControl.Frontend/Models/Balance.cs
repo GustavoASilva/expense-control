@@ -4,7 +4,7 @@ public class Balance
 {
     public decimal Income { get; set; }
     public decimal Expenses { get; set; }
-    public decimal CurrentBalance => Income - Expenses;
+    public decimal CurrentBalance { get; set; }
     public DateTime PeriodStart { get; set; }
     public DateTime PeriodEnd { get; set; }
     public bool HasTransactions { get; set; }
