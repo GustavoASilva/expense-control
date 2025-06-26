@@ -18,8 +18,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Housing",
                     Description = "Rent, mortgage, repairs, etc.",
                     Type = TransactionType.Expense,
-                    IconName = "house",
-                    ColorCode = "#FF8C00"
+                    IconName = "house"
                 },
                 new Category
                 {
@@ -27,8 +26,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Transportation",
                     Description = "Car, public transit, fuel, etc.",
                     Type = TransactionType.Expense,
-                    IconName = "car-front",
-                    ColorCode = "#4169E1"
+                    IconName = "car-front"
                 },
                 new Category
                 {
@@ -36,8 +34,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Food",
                     Description = "Groceries, dining out, etc.",
                     Type = TransactionType.Expense,
-                    IconName = "cart",
-                    ColorCode = "#32CD32"
+                    IconName = "cart"
                 },
                 new Category
                 {
@@ -45,8 +42,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Utilities",
                     Description = "Electricity, water, internet, etc.",
                     Type = TransactionType.Expense,
-                    IconName = "lightning",
-                    ColorCode = "#FFD700"
+                    IconName = "lightning"
                 },
                 new Category
                 {
@@ -54,8 +50,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Healthcare",
                     Description = "Medical expenses, insurance, etc.",
                     Type = TransactionType.Expense,
-                    IconName = "heart-pulse",
-                    ColorCode = "#FF69B4"
+                    IconName = "heart-pulse"
                 }
             };
 
@@ -68,8 +63,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Salary",
                     Description = "Regular employment income",
                     Type = TransactionType.Income,
-                    IconName = "wallet2",
-                    ColorCode = "#228B22"
+                    IconName = "wallet2"
                 },
                 new Category
                 {
@@ -77,8 +71,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Freelance",
                     Description = "Independent contractor income",
                     Type = TransactionType.Income,
-                    IconName = "briefcase",
-                    ColorCode = "#4682B4"
+                    IconName = "briefcase"
                 },
                 new Category
                 {
@@ -86,8 +79,7 @@ namespace ExpenseControl.Api.Persistence
                     Name = "Investments",
                     Description = "Dividends, interest, capital gains",
                     Type = TransactionType.Income,
-                    IconName = "graph-up-arrow",
-                    ColorCode = "#9370DB"
+                    IconName = "graph-up-arrow"
                 }
             };
 

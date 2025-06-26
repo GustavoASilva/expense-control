@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExpenseControl.Api.Migrations
 {
     [DbContext(typeof(ExpenseDbContext))]
-    [Migration("20250620130357_InitialCreate")]
+    [Migration("20250626205511_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,18 +31,11 @@ namespace ExpenseControl.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ColorCode")
-                        .IsRequired()
-                        .HasMaxLength(7)
-                        .HasColumnType("character varying(7)");
-
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("IconName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -65,62 +58,55 @@ namespace ExpenseControl.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a0802a65-3cfb-47fd-bbd3-b18cb1c79f50"),
-                            ColorCode = "#FF8C00",
+                            Id = new Guid("09860853-4c8d-45af-b2f8-c13252feeb28"),
                             Description = "Rent, mortgage, repairs, etc.",
-                            IconName = "home",
+                            IconName = "house",
                             Name = "Housing",
                             Type = "Expense"
                         },
                         new
                         {
-                            Id = new Guid("d70fd34e-eac3-4f1e-a96d-7edc8173beda"),
-                            ColorCode = "#4169E1",
+                            Id = new Guid("788cf435-f6f7-4bee-8954-e8f5a42bb4a6"),
                             Description = "Car, public transit, fuel, etc.",
-                            IconName = "car",
+                            IconName = "car-front",
                             Name = "Transportation",
                             Type = "Expense"
                         },
                         new
                         {
-                            Id = new Guid("6bccc921-a2f2-4a81-b162-aa71e9dc64cb"),
-                            ColorCode = "#32CD32",
+                            Id = new Guid("b5f100f7-990c-4dbb-8a49-9868b4694d4d"),
                             Description = "Groceries, dining out, etc.",
-                            IconName = "food",
+                            IconName = "cart",
                             Name = "Food",
                             Type = "Expense"
                         },
                         new
                         {
-                            Id = new Guid("8b307833-0802-4a50-990a-acd0df4f95db"),
-                            ColorCode = "#FFD700",
+                            Id = new Guid("eaba9ca2-c6c8-4fb2-85a7-3b31813cc8f9"),
                             Description = "Electricity, water, internet, etc.",
-                            IconName = "bolt",
+                            IconName = "lightning",
                             Name = "Utilities",
                             Type = "Expense"
                         },
                         new
                         {
-                            Id = new Guid("e1cb705a-05ff-440a-aae1-33242e9689a4"),
-                            ColorCode = "#FF69B4",
+                            Id = new Guid("a62e5b4c-2202-4dea-892c-bc439d5041c3"),
                             Description = "Medical expenses, insurance, etc.",
-                            IconName = "medical",
+                            IconName = "heart-pulse",
                             Name = "Healthcare",
                             Type = "Expense"
                         },
                         new
                         {
-                            Id = new Guid("cdcdadce-8f78-4c89-ac76-ea6e837dc7f1"),
-                            ColorCode = "#228B22",
+                            Id = new Guid("6129f445-8088-413c-a11f-c5ea70820e73"),
                             Description = "Regular employment income",
-                            IconName = "wallet",
+                            IconName = "wallet2",
                             Name = "Salary",
                             Type = "Income"
                         },
                         new
                         {
-                            Id = new Guid("c7551968-2c51-427d-a4f1-80ce3a4e6347"),
-                            ColorCode = "#4682B4",
+                            Id = new Guid("f841ed1c-0548-4a73-aaf2-25f274d8d603"),
                             Description = "Independent contractor income",
                             IconName = "briefcase",
                             Name = "Freelance",
@@ -128,10 +114,9 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e2da5652-4a3d-45db-8a59-7dd7c249f92e"),
-                            ColorCode = "#9370DB",
+                            Id = new Guid("f8af4340-31b2-4a7f-9f11-f08e3ed760ce"),
                             Description = "Dividends, interest, capital gains",
-                            IconName = "chart-line",
+                            IconName = "graph-up-arrow",
                             Name = "Investments",
                             Type = "Income"
                         });
@@ -149,8 +134,8 @@ namespace ExpenseControl.Api.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -158,7 +143,6 @@ namespace ExpenseControl.Api.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 

@@ -8,19 +8,13 @@ namespace ExpenseControl.Api.Features.Balance
     {
         public static RouteHandlerBuilder MapGetBalanceEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapGet("/api/balance", async (ExpenseDbContext db, DateTime? startDate, DateTime? endDate) =>
+            return app.MapGet("/api/balance", async (ExpenseDbContext db, DateOnly? startDate, DateOnly? endDate) =>
             {
-                // Normalize date filters to UTC
-                if (startDate.HasValue && startDate.Value.Kind != DateTimeKind.Utc)
-                    startDate = DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc);
-                if (endDate.HasValue && endDate.Value.Kind != DateTimeKind.Utc)
-                    endDate = DateTime.SpecifyKind(endDate.Value, DateTimeKind.Utc);
-
                 var query = db.Transactions.AsQueryable();
 
                 // Handle date range
-                var periodStart = startDate ?? DateTime.UtcNow.Date.AddMonths(-1);
-                var periodEnd = (endDate ?? DateTime.UtcNow.Date).Date.AddDays(1).AddTicks(-1);
+                var periodStart = startDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(-1));
+                var periodEnd = endDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
                 query = query.Where(t => t.Date >= periodStart && t.Date <= periodEnd);
 

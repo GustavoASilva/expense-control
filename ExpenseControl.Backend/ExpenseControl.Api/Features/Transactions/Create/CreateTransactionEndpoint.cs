@@ -5,7 +5,7 @@ namespace ExpenseControl.Api.Features.Transactions.Create
     public record CreateTransactionCommand(
         string Description,
         decimal Amount,
-        DateTime Date,
+        DateOnly Date,
         Guid CategoryId,
         TransactionType Type,
         string? Notes
@@ -31,7 +31,7 @@ namespace ExpenseControl.Api.Features.Transactions.Create
                 transaction.Id = Guid.NewGuid();
                 transaction.Description = command.Description;
                 transaction.Amount = command.Amount;
-                transaction.Date = DateTime.SpecifyKind(command.Date, DateTimeKind.Utc);
+                transaction.Date = command.Date;
                 transaction.CategoryId = command.CategoryId;
                 transaction.Notes = command.Notes ?? string.Empty;
 

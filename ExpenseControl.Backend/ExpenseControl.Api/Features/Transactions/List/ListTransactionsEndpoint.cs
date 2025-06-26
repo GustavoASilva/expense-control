@@ -6,8 +6,8 @@ namespace ExpenseControl.Api.Features.Transactions.List
     public record ListTransactionsQuery(
         TransactionType? Type = null,
         Guid? CategoryId = null,
-        DateTime? StartDate = null,
-        DateTime? EndDate = null,
+        DateOnly? StartDate = null,
+        DateOnly? EndDate = null,
         int? Limit = null,
         int? Offset = null
     );
@@ -20,17 +20,11 @@ namespace ExpenseControl.Api.Features.Transactions.List
                 ExpenseControl.Api.Persistence.ExpenseDbContext db,
                 TransactionType? type,
                 Guid? categoryId,
-                DateTime? startDate,
-                DateTime? endDate,
+                DateOnly? startDate,
+                DateOnly? endDate,
                 int? limit,
                 int? offset) =>
             {
-                // Normalize date filters to UTC
-                if (startDate.HasValue && startDate.Value.Kind != DateTimeKind.Utc)
-                    startDate = DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc);
-                if (endDate.HasValue && endDate.Value.Kind != DateTimeKind.Utc)
-                    endDate = DateTime.SpecifyKind(endDate.Value, DateTimeKind.Utc);
-
                 var query = db.Transactions
                     .Include(t => t.Category)
                     .AsQueryable();
@@ -45,10 +39,7 @@ namespace ExpenseControl.Api.Features.Transactions.List
                     query = query.Where(t => t.Date >= startDate.Value);
 
                 if (endDate.HasValue)
-                {
-                    var inclusiveEnd = endDate.Value.Date.AddDays(1).AddTicks(-1);
-                    query = query.Where(t => t.Date <= inclusiveEnd);
-                }
+                    query = query.Where(t => t.Date <= endDate.Value);
 
                 query = query.OrderByDescending(t => t.Date);
 
