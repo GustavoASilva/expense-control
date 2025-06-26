@@ -89,8 +89,8 @@
 
 @code {
     private bool _isLoading = true;
-    private DateTime _startDate = DateTime.Today.AddDays(-29);
-    private DateTime _endDate = DateTime.Today;
+    private DateOnly _startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-29));
+    private DateOnly _endDate = DateOnly.FromDateTime(DateTime.Today);
     private List<TransactionListItemModel> _transactions = new();
 
     protected override async Task OnInitializedAsync()
@@ -98,7 +98,7 @@
         await LoadData(_startDate, _endDate);
     }
 
-    private async Task LoadData(DateTime start, DateTime end)
+    private async Task LoadData(DateOnly start, DateOnly end)
     {
         _isLoading = true;
         _startDate = start;

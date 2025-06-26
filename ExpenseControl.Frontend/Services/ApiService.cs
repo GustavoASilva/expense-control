@@ -15,12 +15,12 @@ public class ApiService
     }
 
     // Transactions
-    public async Task<List<TransactionListItemModel>> GetTransactionsAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<TransactionListItemModel>> GetTransactionsAsync(DateOnly? startDate = null, DateOnly? endDate = null)
     {
         try
         {
             var apiList = await _api.GetTransactionsAsync(startDate, endDate);
-            return apiList.Select(x => x.ToListItemModel()).ToList();
+            return [.. apiList.Select(x => x.ToListItemModel())];
         }
         catch (ApiException ex)
         {
@@ -86,7 +86,7 @@ public class ApiService
         try
         {
             var apiList = await _api.GetCategoriesAsync();
-            return apiList.Select(x => x.ToCategoryModel()).ToList();
+            return [.. apiList.Select(x => x.ToCategoryModel())];
         }
         catch (ApiException ex)
         {
@@ -95,7 +95,7 @@ public class ApiService
     }
 
     // Balance
-    public async Task<Balance> GetBalanceAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<Balance> GetBalanceAsync(DateOnly? startDate = null, DateOnly? endDate = null)
     {
         try
         {
@@ -108,12 +108,12 @@ public class ApiService
         }
     }
 
-    public async Task<List<CategoryBalance>> GetBalanceByCategoryAsync(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<List<CategoryBalance>> GetBalanceByCategoryAsync(DateOnly? startDate = null, DateOnly? endDate = null)
     {
         try
         {
             var api = await _api.GetBalanceByCategoryAsync(startDate, endDate);
-            return api.Categories.Select(x => x.ToCategoryBalanceModel()).ToList();
+            return [.. api.Categories.Select(x => x.ToCategoryBalanceModel())];
         }
         catch (ApiException ex)
         {

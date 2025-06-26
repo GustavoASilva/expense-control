@@ -13,20 +13,20 @@
 </div>
 
 @code {
-    private record struct DatePeriod(string Label, DateTime Start, DateTime End);
+    private record struct DatePeriod(string Label, DateOnly Start, DateOnly End);
     private List<DatePeriod> _periods = new();
 
     [Parameter]
     public bool Small { get; set; }
 
     [Parameter]
-    public DateTime? StartDate { get; set; }
+    public DateOnly? StartDate { get; set; }
 
     [Parameter]
-    public DateTime? EndDate { get; set; }
+    public DateOnly? EndDate { get; set; }
 
     [Parameter]
-    public EventCallback<(DateTime start, DateTime end)> OnChanged { get; set; }
+    public EventCallback<(DateOnly start, DateOnly end)> OnChanged { get; set; }
 
     private async Task OnPeriodSelected(DatePeriod period)
     {
@@ -37,8 +37,8 @@
 
     protected override void OnInitialized()
     {
-        var today = DateTime.Today;
-        var firstDayOfMonth = new DateTime(today.Year, today.Month, 1);
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var firstDayOfMonth = new DateOnly(today.Year, today.Month, 1);
 
         _periods = new List<DatePeriod>
         {
@@ -47,10 +47,10 @@
             new DatePeriod("This month", firstDayOfMonth, today),
             new DatePeriod("Last month", firstDayOfMonth.AddMonths(-1), firstDayOfMonth.AddDays(-1)),
             new DatePeriod("Last 3 months", firstDayOfMonth.AddMonths(-2), today),
-            new DatePeriod("This year", new DateTime(today.Year, 1, 1), today)
+            new DatePeriod("This year", new DateOnly(today.Year, 1, 1), today)
         };
     }
 
     private bool IsSelected(DatePeriod period) => 
-        StartDate?.Date == period.Start.Date && EndDate?.Date == period.End.Date;
+        StartDate == period.Start && EndDate == period.End;
 }
