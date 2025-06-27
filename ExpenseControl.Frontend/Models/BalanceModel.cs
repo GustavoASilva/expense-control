@@ -1,6 +1,6 @@
 namespace ExpenseControl.Frontend.Models;
 
-public class Balance
+public class BalanceModel
 {
     public decimal Income { get; set; }
     public decimal Expenses { get; set; }

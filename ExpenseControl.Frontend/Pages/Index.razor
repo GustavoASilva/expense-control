@@ -156,14 +156,14 @@
     private bool _isLoading = true;
     private DateOnly _startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-29));
     private DateOnly _endDate = DateOnly.FromDateTime(DateTime.Today);
-    private Balance _balance = new();
-    private Balance? _previousBalance;
-    private List<CategoryBalance> _categoryBalances = new();
-    private MonthlyBalance _monthlyBalance = new();
+    private BalanceModel _balance = new();
+    private BalanceModel? _previousBalance;
+    private List<CategoryBalanceModel> _categoryBalances = new();
+    private MonthlyBalanceModel _monthlyBalance = new();
     private List<TransactionListItemModel> _recentTransactions = new();
     private ElementReference _chartCanvas;
     private bool _shouldUpdateChart = false;
-    private List<Category> _categories = new();
+    private List<CategoryModel> _categories = new();
 
     protected override async Task OnInitializedAsync()
     {

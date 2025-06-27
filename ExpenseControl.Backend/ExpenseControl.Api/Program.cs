@@ -100,7 +100,6 @@ app.MapGetBalanceByCategoryEndpoint();
 app.MapGetMonthlyBalanceEndpoint();
 
 // Budget endpoints
-app.MapBudgetEndpoints();
 app.MapCreateBudgetEndpoint();
 app.MapListBudgetsEndpoint();
 app.MapGetBudgetUsageEndpoint();

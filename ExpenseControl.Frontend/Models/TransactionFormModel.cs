@@ -23,5 +23,7 @@ public class TransactionFormModel
     [Required(ErrorMessage = "Please select a category")]
     public Guid CategoryId { get; set; }
 
+    public CategoryModel? Category { get; set; }
+
     public string? Notes { get; set; }
 }

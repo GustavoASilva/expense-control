@@ -10,5 +10,5 @@ public class TransactionListItemModel
     public DateOnly Date { get; set; }
     public TransactionType Type { get; set; }
     public Guid CategoryId { get; set; }
-    public string CategoryName { get; set; } = string.Empty;
+    public string CategoryName { get; set; }
 }

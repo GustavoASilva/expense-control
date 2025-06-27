@@ -1,0 +1,137 @@
+@page "/budgets"
+@using ExpenseControl.Frontend.Models
+@inject ApiService Api
+
+<PageTitle>Budgets</PageTitle>
+
+<div class="container py-3">
+    <h1 class="h3 mb-4">Budgets by Category</h1>
+    <button class="btn btn-primary mb-3" @onclick="ShowAddBudget">Add Budget</button>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Month</th>
+                <th>Year</th>
+                <th>Amount</th>
+                <th>Usage</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var budget in ExistingBudgets)
+            {
+                <tr>
+                    <td>@budget.CategoryName</td>
+                    <td>@budget.Month</td>
+                    <td>@budget.Year</td>
+                    <td>@budget.Amount.ToString("C")</td>
+                    <td>
+                        @if (BudgetUsages.TryGetValue(budget.Id, out var usage))
+                        {
+                            <span>@usage.Usage.ToString("C") / @budget.Amount.ToString("C") (@usage.Percent.ToString("F1")%)</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Loading...</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditBudget(budget)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (ShowForm)
+    {
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">@((EditingBudget?.Id == Guid.Empty) ? "Add Budget" : "Edit Budget")</h5>
+                <EditForm Model="@EditingBudget" OnValidSubmit="SaveBudget">
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <InputSelect @bind-Value="EditingBudget.CategoryId" class="form-select">
+                            <option value="">Select...</option>
+                            @foreach (var cat in Categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Month</label>
+                        <InputNumber @bind-Value="EditingBudget.Month" class="form-control" min="1" max="12" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <InputNumber @bind-Value="EditingBudget.Year" class="form-control" min="2000" max="2100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <InputNumber @bind-Value="EditingBudget.Amount" class="form-control" step="0.01" />
+                    </div>
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<BudgetModel> ExistingBudgets = new();
+    private List<CategoryModel> Categories = new();
+    private Dictionary<Guid, BudgetUsageModel> BudgetUsages = new();
+    private bool ShowForm = false;
+    private BudgetModel EditingBudget = new BudgetModel { Id = Guid.Empty, Month = @DateTime.Today.Month, Year = @DateTime.Today.Year };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await Api.GetCategoriesAsync();
+        await LoadBudgets();
+    }
+
+    private async Task LoadBudgets()
+    {
+        ExistingBudgets = await Api.GetBudgetsAsync();
+        BudgetUsages.Clear();
+        foreach (var budget in ExistingBudgets)
+        {
+            // Fetch usage for each budget
+            BudgetUsages[budget.Id] = await Api.GetBudgetUsageAsync(budget.CategoryId, budget.Year, budget.Month);
+        }
+    }
+
+    private void ShowAddBudget()
+    {
+        EditingBudget = new BudgetModel { Id = Guid.Empty, Month = DateTime.Today.Month, Year = DateTime.Today.Year };
+        ShowForm = true;
+    }
+
+    private void EditBudget(BudgetModel budget)
+    {
+        EditingBudget = new BudgetModel
+        {
+            Id = budget.Id,
+            CategoryId = budget.CategoryId,
+            Amount = budget.Amount,
+            Month = budget.Month,
+            Year = budget.Year
+        };
+        ShowForm = true;
+    }
+
+    private async Task SaveBudget()
+    {
+        await Api.CreateOrUpdateBudgetAsync(EditingBudget);
+        ShowForm = false;
+        await LoadBudgets();
+    }
+
+    private void CancelEdit()
+    {
+        ShowForm = false;
+    }
+}

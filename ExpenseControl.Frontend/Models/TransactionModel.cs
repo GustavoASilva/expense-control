@@ -3,7 +3,7 @@ using System;
 
 namespace ExpenseControl.Frontend.Models;
 
-public class Transaction
+public class TransactionModel
 {
     public Guid Id { get; set; }
 
@@ -25,7 +25,7 @@ public class Transaction
 
     public string CategoryName { get; set; } = string.Empty;
 
-    public Category? Category { get; set; }
+    public CategoryModel? Category { get; set; }
 
     public string? Notes { get; set; }
 }
