@@ -147,12 +147,12 @@ public class ApiService
         }
     }
 
-    public async Task<BudgetModel> CreateOrUpdateBudgetAsync(BudgetModel budget)
+    public async Task CreateOrUpdateBudgetAsync(BudgetModel budget)
     {
         try
         {
             var api = await _api.CreateOrUpdateBudgetAsync(budget);
-            return api.ToBudgetModel();
+            return;
         }
         catch (ApiException ex)
         {

@@ -69,6 +69,37 @@
                 </div>
             </div>
             <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Budgets Quick View</h5>
+                        @if (!_budgets.Any())
+                        {
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-speedometer2 fs-1"></i>
+                                <p class="mt-2">No budgets set for this month</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var budget in _budgets)
+                                {
+                                    <div class="list-group-item border-0 px-0 py-2">
+                                        @if (_budgetUsages.TryGetValue(budget.Id, out var usage))
+                                        {
+                                            <BudgetUsageCard Budget="budget" Usage="usage" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Loading...</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Top Categories</h5>
@@ -164,11 +195,19 @@
     private ElementReference _chartCanvas;
     private bool _shouldUpdateChart = false;
     private List<CategoryModel> _categories = new();
+    private List<BudgetModel> _budgets = new();
+    private Dictionary<Guid, BudgetUsageModel> _budgetUsages = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData(_startDate, _endDate);
         _categories = await Api.GetCategoriesAsync();
+        _budgets = await Api.GetBudgetsAsync(year: DateTime.Today.Year, month: DateTime.Today.Month);
+        _budgetUsages.Clear();
+        foreach (var budget in _budgets)
+        {
+            _budgetUsages[budget.Id] = await Api.GetBudgetUsageAsync(budget.CategoryId, budget.Year, budget.Month);
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

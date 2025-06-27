@@ -1,0 +1,61 @@
+@page "/budget-form/{Id:guid?}"
+@using Microsoft.AspNetCore.Components.Forms
+@using ExpenseControl.Frontend.Models
+@using ExpenseControl.Frontend.Services
+@inject ApiService Api
+@inject NavigationManager Navigation
+
+<EditForm Model="@EditingBudget" OnValidSubmit="SaveBudget">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label class="form-label">Category</label>
+        <InputSelect @bind-Value="EditingBudget.CategoryId" class="form-select">
+            <option value="">Select a category</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Month</label>
+        <InputNumber @bind-Value="EditingBudget.Month" class="form-control" min="1" max="12" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Year</label>
+        <InputNumber @bind-Value="EditingBudget.Year" class="form-control" min="2000" max="2100" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Amount</label>
+        <InputNumber @bind-Value="EditingBudget.Amount" class="form-control" step="0.01" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+    private BudgetModel EditingBudget = new BudgetModel { Id = Guid.Empty, Month = DateTime.Today.Month, Year = DateTime.Today.Year };
+    private List<CategoryModel> Categories = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var allCategories = await Api.GetCategoriesAsync();
+        Categories = allCategories.Where(c => c.Type == TransactionType.Expense).ToList();
+        if (Id.HasValue && Id.Value != Guid.Empty)
+        {
+            var budgets = await Api.GetBudgetsAsync();
+            var budget = budgets.FirstOrDefault(b => b.Id == Id.Value);
+            if (budget != null)
+                EditingBudget = budget;
+        }
+    }
+    private async Task SaveBudget()
+    {
+        if (EditingBudget != null)
+        {
+            await Api.CreateOrUpdateBudgetAsync(EditingBudget);
+            Navigation.NavigateTo("/budgets");
+        }
+    }
+}

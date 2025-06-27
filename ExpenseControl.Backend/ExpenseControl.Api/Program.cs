@@ -38,8 +38,7 @@ builder.Services.AddHealthChecks();
 // OpenTelemetry Meter and Counter
 const string MeterName = "ExpenseControl.Api.Metrics";
 builder.Services.AddSingleton<Meter>(_ => new Meter(MeterName));
-builder.Services.AddSingleton<Counter<int>>(sp =>
-{
+builder.Services.AddKeyedSingleton<Counter<int>>("TransactionsAdded", (sp, _) => {
     var meter = sp.GetRequiredService<Meter>();
     return meter.CreateCounter<int>("transactions_added", description: "Number of transactions added");
 });
@@ -104,18 +103,14 @@ app.MapCreateBudgetEndpoint();
 app.MapListBudgetsEndpoint();
 app.MapGetBudgetUsageEndpoint();
 
+// Expose Prometheus metrics endpoint
+app.MapPrometheusScrapingEndpoint();
+
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ExpenseControl.Api.Persistence.ExpenseDbContext>();
-    // var connection = db.Database.GetDbConnection();
-    // connection.Open();
-    // var anyTables = connection.GetSchema("Tables").Rows.Count > 0;
-    // if (!anyTables)
-    // {
-        db.Database.Migrate();
-    // }
-    // connection.Close();
+    db.Database.Migrate();
 }
 
 app.Run();
