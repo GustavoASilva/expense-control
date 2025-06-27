@@ -21,6 +21,14 @@ using ExpenseControl.Api.Features.Budgets.Usage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Explicitly set configuration base path and add config files from Configuration/
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile(Path.Combine("Configuration", "appsettings.json"), optional: false, reloadOnChange: true)
+    .AddJsonFile(Path.Combine("Configuration", $"appsettings.{builder.Environment.EnvironmentName}.json"), optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
