@@ -1,64 +1,101 @@
 @page "/budgets"
 @using ExpenseControl.Frontend.Models
-@using ExpenseControl.Frontend.Pages
 @using ExpenseControl.Frontend.Components
-@using System
-@using System.Collections.Generic
 @inject ApiService Api
 @inject NavigationManager Navigation
 
-<PageTitle>Budgets</PageTitle>
+<PageTitle>Budgets - Expense Control</PageTitle>
 
-<div class="container py-3">
-    <h1 class="h3 mb-4">Budgets by Category</h1>
-    <button class="btn btn-primary mb-3" @onclick="NavigateToAddBudget">Add Budget</button>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Month</th>
-                <th>Year</th>
-                <th>Amount</th>
-                <th>Usage</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var budget in ExistingBudgets)
-            {
-                <tr>
-                    <td>@budget.CategoryName</td>
-                    <td>@budget.Month</td>
-                    <td>@budget.Year</td>
-                    <td>@budget.Amount.ToString("C")</td>
-                    <td>
-                        @if (BudgetUsages.TryGetValue(budget.Id, out var usage))
-                        {
-                            <BudgetUsageCard Budget="budget" Usage="usage" />
-                        }
-                        else
-                        {
-                            <span class="text-muted">Loading...</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => NavigateToEditBudget(budget.Id)">Edit</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Budgets by Category</h1>
+        <button class="btn btn-primary btn-sm" @onclick="NavigateToAddBudget">
+            <i class="bi bi-plus"></i> Add Budget
+        </button>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+                @if (!ExistingBudgets.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-wallet2 fs-1"></i>
+                        <p class="mt-2">No budgets found</p>
+                        <button class="btn btn-primary" @onclick="NavigateToAddBudget">Create your first budget</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Month</th>
+                                    <th>Year</th>
+                                    <th>Amount</th>
+                                    <th>Usage</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var budget in ExistingBudgets)
+                                {
+                                    <tr>
+                                        <td>@budget.CategoryName</td>
+                                        <td>@System.Globalization.CultureInfo.GetCultureInfo("en-US").DateTimeFormat.GetMonthName(budget.Month)</td>
+                                        <td>@budget.Year</td>
+                                        <td>@budget.Amount.ToString("C")</td>
+                                        <td>
+                                            @if (BudgetUsages.TryGetValue(budget.Id, out var usage))
+                                            {
+                                                <BudgetUsageCard Budget="budget" Usage="usage" />
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Loading...</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" @onclick="() => NavigateToEditBudget(budget.Id)">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 </div>
 
 @code {
+    private bool _isLoading = true;
     private List<BudgetModel> ExistingBudgets = new();
     private List<CategoryModel> Categories = new();
     private Dictionary<Guid, BudgetUsageModel> BudgetUsages = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _isLoading = true;
         Categories = await Api.GetCategoriesAsync();
         await LoadBudgets();
+        _isLoading = false;
     }
 
     private async Task LoadBudgets()
@@ -67,7 +104,6 @@
         BudgetUsages.Clear();
         foreach (var budget in ExistingBudgets)
         {
-            // Fetch usage for each budget
             BudgetUsages[budget.Id] = await Api.GetBudgetUsageAsync(budget.CategoryId, budget.Year, budget.Month);
         }
     }

@@ -5,57 +5,127 @@
 @inject ApiService Api
 @inject NavigationManager Navigation
 
-<EditForm Model="@EditingBudget" OnValidSubmit="SaveBudget">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="mb-3">
-        <label class="form-label">Category</label>
-        <InputSelect @bind-Value="EditingBudget.CategoryId" class="form-select">
-            <option value="">Select a category</option>
-            @foreach (var category in Categories)
+<PageTitle>@(_isNew ? "New Budget" : "Edit Budget") - Expense Control</PageTitle>
+
+<div class="container-fluid py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">@(_isNew ? "New Budget" : "Edit Budget")</h1>
+            </div>
+
+            @if (_isLoading)
             {
-                <option value="@category.Id">@category.Name</option>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
             }
-        </InputSelect>
+            else
+            {
+                <EditForm Model="@EditingBudget" OnValidSubmit="SaveBudget">
+                    <DataAnnotationsValidator />
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Category</label>
+                                    <InputSelect @bind-Value="EditingBudget.CategoryId" class="form-select">
+                                        <option value="">Select a category</option>
+                                        @foreach (var category in Categories)
+                                        {
+                                            <option value="@category.Id">@category.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Month</label>
+                                    <InputSelect @bind-Value="EditingBudget.Month" class="form-select">
+                                        <option value="">Select a month</option>
+                                        @for (int m = 1; m <= 12; m++)
+                                        {
+                                            <option value="@m">@System.Globalization.CultureInfo.GetCultureInfo("en-US").DateTimeFormat.GetMonthName(m)</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Year</label>
+                                    <InputNumber @bind-Value="EditingBudget.Year" class="form-control" min="2000" max="2100" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Amount</label>
+                                    <InputNumber @bind-Value="EditingBudget.Amount" class="form-control" step="0.01" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" @onclick="Cancel">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                @if (_isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="ms-2">Saving...</span>
+                                }
+                                else
+                                {
+                                    <span>Save</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            }
+        </div>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Month</label>
-        <InputNumber @bind-Value="EditingBudget.Month" class="form-control" min="1" max="12" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Year</label>
-        <InputNumber @bind-Value="EditingBudget.Year" class="form-control" min="2000" max="2100" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Amount</label>
-        <InputNumber @bind-Value="EditingBudget.Amount" class="form-control" step="0.01" />
-    </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-</EditForm>
+</div>
 
 @code {
     [Parameter]
     public Guid? Id { get; set; }
+    private bool _isNew => !Id.HasValue || Id == Guid.Empty;
+    private bool _isLoading = true;
+    private bool _isSaving;
     private BudgetModel EditingBudget = new BudgetModel { Id = Guid.Empty, Month = DateTime.Today.Month, Year = DateTime.Today.Year };
     private List<CategoryModel> Categories = new();
     protected override async Task OnInitializedAsync()
     {
-        var allCategories = await Api.GetCategoriesAsync();
-        Categories = allCategories.Where(c => c.Type == TransactionType.Expense).ToList();
-        if (Id.HasValue && Id.Value != Guid.Empty)
+        try
         {
-            var budgets = await Api.GetBudgetsAsync();
-            var budget = budgets.FirstOrDefault(b => b.Id == Id.Value);
-            if (budget != null)
-                EditingBudget = budget;
+            var allCategories = await Api.GetCategoriesAsync();
+            Categories = allCategories.Where(c => c.Type == TransactionType.Expense).ToList();
+            if (!_isNew)
+            {
+                var budgets = await Api.GetBudgetsAsync();
+                var budget = budgets.FirstOrDefault(b => b.Id == Id!.Value);
+                if (budget != null)
+                    EditingBudget = budget;
+            }
         }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/budgets");
     }
     private async Task SaveBudget()
     {
-        if (EditingBudget != null)
+        if (_isSaving) return;
+        try
         {
-            await Api.CreateOrUpdateBudgetAsync(EditingBudget);
-            Navigation.NavigateTo("/budgets");
+            _isSaving = true;
+            if (EditingBudget != null)
+            {
+                await Api.CreateOrUpdateBudgetAsync(EditingBudget);
+                Navigation.NavigateTo("/budgets");
+            }
+        }
+        finally
+        {
+            _isSaving = false;
         }
     }
 }
