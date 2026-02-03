@@ -1,0 +1,83 @@
+@ExpenseControl_Api_Host = http://localhost:5293
+@categoryId = 3feb665e-56c5-4251-bda6-d665dbda65d3
+@transactionId = 0d958ff8-d43d-4e24-88fc-2fced1b62f12
+
+### Health Check
+GET {{ExpenseControl_Api_Host}}/health
+
+### Prometheus Metrics
+GET {{ExpenseControl_Api_Host}}/metrics
+
+### Categories
+GET {{ExpenseControl_Api_Host}}/api/categories
+Accept: application/json
+
+### Get Category by ID
+GET {{ExpenseControl_Api_Host}}/api/categories/{{categoryId}}
+Accept: application/json
+
+### Transactions
+GET {{ExpenseControl_Api_Host}}/api/transactions
+Accept: application/json
+
+### Get Transaction by ID
+GET {{ExpenseControl_Api_Host}}/api/transactions/{{transactionId}}
+Accept: application/json
+
+### Create Transaction
+POST {{ExpenseControl_Api_Host}}/api/transactions
+Content-Type: application/json
+{
+  "description": "Test transaction",
+  "amount": 100.0,
+  "date": "2025-06-27",
+  "categoryId": "{{categoryId}}",
+  "type": "Expense",
+  "notes": "Test note"
+}
+
+### Update Transaction
+PATCH {{ExpenseControl_Api_Host}}/api/transactions/{{transactionId}}
+Content-Type: application/json
+
+{
+  "description": "Updated transaction",
+  "amount": 150.0,
+  "date": "2025-06-27",
+  "categoryId": "{{categoryId}}",
+  "type": "Expense",
+  "notes": "Updated note"
+}
+
+### Delete Transaction
+DELETE {{ExpenseControl_Api_Host}}/api/transactions/{{transactionId}}
+
+### Balance
+GET {{ExpenseControl_Api_Host}}/api/balance
+Accept: application/json
+
+### Balance by Category
+GET {{ExpenseControl_Api_Host}}/api/balance/by-category
+Accept: application/json
+
+### Balance by Month
+GET {{ExpenseControl_Api_Host}}/api/balance/monthly
+Accept: application/json
+
+### Budgets
+GET {{ExpenseControl_Api_Host}}/api/budgets
+Accept: application/json
+
+### Create Budget
+POST {{ExpenseControl_Api_Host}}/api/budgets
+Content-Type: application/json
+{
+  "categoryId": "{{categoryId}}",
+  "year": 2025,
+  "month": 6,
+  "amount": 500.0
+}
+
+### Budget Usage
+GET {{ExpenseControl_Api_Host}}/api/budgets/usage?categoryId={{categoryId}}&year=2025&month=6
+Accept: application/json

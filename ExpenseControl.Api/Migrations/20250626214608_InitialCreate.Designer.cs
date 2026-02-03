@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExpenseControl.Api.Migrations
 {
     [DbContext(typeof(ExpenseDbContext))]
-    [Migration("20250626205511_InitialCreate")]
+    [Migration("20250626214608_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,6 +24,38 @@ namespace ExpenseControl.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ExpenseControl.Api.Entities.Budget", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId", "Month", "Year")
+                        .IsUnique();
+
+                    b.ToTable("Budgets");
+                });
 
             modelBuilder.Entity("ExpenseControl.Api.Entities.Category", b =>
                 {
@@ -58,7 +90,7 @@ namespace ExpenseControl.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("09860853-4c8d-45af-b2f8-c13252feeb28"),
+                            Id = new Guid("a48cde78-354e-4d5c-9159-cf28368fcaca"),
                             Description = "Rent, mortgage, repairs, etc.",
                             IconName = "house",
                             Name = "Housing",
@@ -66,7 +98,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("788cf435-f6f7-4bee-8954-e8f5a42bb4a6"),
+                            Id = new Guid("eb318b9d-aafc-421d-8041-64c6889ffc3c"),
                             Description = "Car, public transit, fuel, etc.",
                             IconName = "car-front",
                             Name = "Transportation",
@@ -74,7 +106,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("b5f100f7-990c-4dbb-8a49-9868b4694d4d"),
+                            Id = new Guid("c7e8d65f-f4b2-4162-ba57-04f52fb16d51"),
                             Description = "Groceries, dining out, etc.",
                             IconName = "cart",
                             Name = "Food",
@@ -82,7 +114,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("eaba9ca2-c6c8-4fb2-85a7-3b31813cc8f9"),
+                            Id = new Guid("ac800e65-9ae2-4274-8c8a-ae4658345c99"),
                             Description = "Electricity, water, internet, etc.",
                             IconName = "lightning",
                             Name = "Utilities",
@@ -90,7 +122,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a62e5b4c-2202-4dea-892c-bc439d5041c3"),
+                            Id = new Guid("92974cbf-e03c-4f33-9e36-9f9f0a97523e"),
                             Description = "Medical expenses, insurance, etc.",
                             IconName = "heart-pulse",
                             Name = "Healthcare",
@@ -98,7 +130,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6129f445-8088-413c-a11f-c5ea70820e73"),
+                            Id = new Guid("3feb665e-56c5-4251-bda6-d665dbda65d3"),
                             Description = "Regular employment income",
                             IconName = "wallet2",
                             Name = "Salary",
@@ -106,7 +138,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f841ed1c-0548-4a73-aaf2-25f274d8d603"),
+                            Id = new Guid("51630c3e-35be-4b55-87a9-68ef640f772c"),
                             Description = "Independent contractor income",
                             IconName = "briefcase",
                             Name = "Freelance",
@@ -114,7 +146,7 @@ namespace ExpenseControl.Api.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f8af4340-31b2-4a7f-9f11-f08e3ed760ce"),
+                            Id = new Guid("683eba8b-531b-465e-8be4-584e85abdfb8"),
                             Description = "Dividends, interest, capital gains",
                             IconName = "graph-up-arrow",
                             Name = "Investments",
@@ -155,6 +187,17 @@ namespace ExpenseControl.Api.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("ExpenseControl.Api.Entities.Budget", b =>
+                {
+                    b.HasOne("ExpenseControl.Api.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("ExpenseControl.Api.Entities.Transaction", b =>

@@ -81,7 +81,7 @@ public class ApiService
     }
 
     // Categories
-    public async Task<List<Category>> GetCategoriesAsync()
+    public async Task<List<CategoryModel>> GetCategoriesAsync()
     {
         try
         {
@@ -95,7 +95,7 @@ public class ApiService
     }
 
     // Balance
-    public async Task<Balance> GetBalanceAsync(DateOnly? startDate = null, DateOnly? endDate = null)
+    public async Task<BalanceModel> GetBalanceAsync(DateOnly? startDate = null, DateOnly? endDate = null)
     {
         try
         {
@@ -108,7 +108,7 @@ public class ApiService
         }
     }
 
-    public async Task<List<CategoryBalance>> GetBalanceByCategoryAsync(DateOnly? startDate = null, DateOnly? endDate = null)
+    public async Task<List<CategoryBalanceModel>> GetBalanceByCategoryAsync(DateOnly? startDate = null, DateOnly? endDate = null)
     {
         try
         {
@@ -121,7 +121,7 @@ public class ApiService
         }
     }
 
-    public async Task<MonthlyBalance> GetMonthlyBalanceAsync(int? year = null)
+    public async Task<MonthlyBalanceModel> GetMonthlyBalanceAsync(int? year = null)
     {
         try
         {
@@ -130,6 +130,46 @@ public class ApiService
         catch (ApiException ex)
         {
             throw new Exception("Failed to load monthly balance", ex);
+        }
+    }
+
+    // Budgets
+    public async Task<List<BudgetModel>> GetBudgetsAsync(int? year = null, int? month = null, Guid? categoryId = null)
+    {
+        try
+        {
+            var apiList = await _api.GetBudgetsAsync(year, month, categoryId);
+            return [.. apiList.Select(x => x.ToBudgetModel())];
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to load budgets", ex);
+        }
+    }
+
+    public async Task CreateOrUpdateBudgetAsync(BudgetModel budget)
+    {
+        try
+        {
+            var api = await _api.CreateOrUpdateBudgetAsync(budget);
+            return;
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to create or update budget", ex);
+        }
+    }
+
+    public async Task<BudgetUsageModel> GetBudgetUsageAsync(Guid categoryId, int year, int month)
+    {
+        try
+        {
+            var api = await _api.GetBudgetUsageAsync(categoryId, year, month);
+            return api.ToBudgetUsageModel();
+        }
+        catch (ApiException ex)
+        {
+            throw new Exception("Failed to get budget usage", ex);
         }
     }
 }

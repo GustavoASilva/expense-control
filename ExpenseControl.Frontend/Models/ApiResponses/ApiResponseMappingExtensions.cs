@@ -32,39 +32,61 @@ public static class ApiResponseMappingExtensions
         };
     }
 
-    public static Category ToCategoryModel(this CategoryApiResponse api)
+    public static CategoryModel ToCategoryModel(this CategoryApiResponse api)
     {
-        return new Category
+        return new CategoryModel
         {
             Id = api.Id,
-            Name = api.Name,
+            Name = api.Name ?? string.Empty,
             Description = api.Description,
             Type = api.Type,
-            IconName = api.IconName
+            IconName = api.IconName ?? string.Empty
         };
     }
 
-    public static Balance ToBalanceModel(this BalanceApiResponse api)
+    public static BalanceModel ToBalanceModel(this BalanceApiResponse api)
     {
-        return new Balance
+        return new BalanceModel
         {
             Income = api.Income,
             Expenses = api.Expenses,
-            PeriodStart = api.PeriodStart,
-            PeriodEnd = api.PeriodEnd,
-            HasTransactions = api.HasTransactions,
             CurrentBalance = api.Balance
         };
     }
 
-    public static CategoryBalance ToCategoryBalanceModel(this CategoryBalanceApiResponse api)
+    public static CategoryBalanceModel ToCategoryBalanceModel(this CategoryBalanceApiResponse api)
     {
-        return new CategoryBalance
+        return new CategoryBalanceModel
         {
-            CategoryName = api.CategoryName,
+            CategoryName = api.CategoryName ?? string.Empty,
             TransactionType = api.TransactionType,
             Total = api.Total,
             Count = api.Count
+        };
+    }
+
+    public static BudgetModel ToBudgetModel(this BudgetApiResponse api)
+    {
+        return new BudgetModel
+        {
+            Id = api.Id,
+            CategoryId = api.CategoryId,
+            CategoryName = api.Category.Name ?? string.Empty,
+            Amount = api.Amount,
+            Month = api.Month,
+            Year = api.Year,
+            CreatedAt = api.CreatedAt,
+            UpdatedAt = api.UpdatedAt
+        };
+    }
+
+    public static BudgetUsageModel ToBudgetUsageModel(this BudgetUsageApiResponse api)
+    {
+        return new BudgetUsageModel
+        {
+            Amount = api.Amount,
+            Usage = api.Usage,
+            Percent = api.Percent
         };
     }
 }

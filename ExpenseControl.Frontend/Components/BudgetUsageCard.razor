@@ -1,0 +1,15 @@
+@using ExpenseControl.Frontend.Components
+@using ExpenseControl.Frontend.Models
+
+<div style="display:flex;align-items:center;gap:16px;min-height:48px;">
+    <div class="small text-muted d-flex flex-column justify-content-center" style="height:48px;">
+        <strong>@Budget.CategoryName</strong>
+        @Usage.Usage.ToString("C") / @Budget.Amount.ToString("C") (@Usage.Percent.ToString("F1")%)
+    </div>
+    <BudgetGauge Usage="@Usage.Usage" Amount="@Budget.Amount" Percent="@Usage.Percent" />
+</div>
+
+@code {
+    [Parameter] public BudgetModel Budget { get; set; } = default!;
+    [Parameter] public BudgetUsageModel Usage { get; set; } = default!;
+}

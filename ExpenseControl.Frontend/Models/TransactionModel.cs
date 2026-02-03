@@ -3,7 +3,7 @@ using System;
 
 namespace ExpenseControl.Frontend.Models;
 
-public class TransactionFormModel
+public class TransactionModel
 {
     public Guid Id { get; set; }
 
@@ -22,6 +22,8 @@ public class TransactionFormModel
 
     [Required(ErrorMessage = "Please select a category")]
     public Guid CategoryId { get; set; }
+
+    public string CategoryName { get; set; } = string.Empty;
 
     public CategoryModel? Category { get; set; }
 
