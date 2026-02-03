@@ -8,7 +8,7 @@ This application follows a **microservices-inspired** architecture with clear se
 
 - **Backend**: .NET 8 Web API with Vertical Slice Architecture
 - **Frontend Options**:
-  - **React** (NEW): Modern React 18 with TypeScript, Vite, and Chart.js
+  - **React** (NEW): Modern React 19 with TypeScript, Vite, and Chart.js
   - **Blazor WebAssembly**: Original Blazor WASM implementation
 - **Database**: PostgreSQL (Docker)
 - **Observability**: OpenTelemetry with Prometheus metrics

@@ -2,7 +2,7 @@
 
 A modern React frontend for the Expense Control application, built with:
 
-- **React 18** with TypeScript
+- **React 19** with TypeScript
 - **Vite** for fast development and building
 - **React Router** for navigation
 - **Axios** for API communication
