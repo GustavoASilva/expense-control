@@ -7,8 +7,10 @@ A modern web application for managing personal or business expenses with a clean
 This application follows a **microservices-inspired** architecture with clear separation between backend and frontend:
 
 - **Backend**: .NET 8 Web API with Vertical Slice Architecture
-- **Frontend**: Blazor WebAssembly (WASM) with Bootstrap UI
-- **Database**: Currently In-Memory (configurable for production)
+- **Frontend Options**:
+  - **React** (NEW): Modern React 18 with TypeScript, Vite, and Chart.js
+  - **Blazor WebAssembly**: Original Blazor WASM implementation
+- **Database**: PostgreSQL (Docker)
 - **Observability**: OpenTelemetry with Prometheus metrics
 
 ## 📁 Project Structure
@@ -18,34 +20,35 @@ ExpenseControl/
 ├── ExpenseControl.Backend/
 │   └── ExpenseControl.Api/
 │       ├── Entities/
-│       │   └── ExpenseEntry.cs
 │       ├── Features/
-│       │   └── Expenses/
-│       │       ├── Create/
-│       │       ├── Delete/
-│       │       └── List/
+│       │   ├── Transactions/
+│       │   ├── Categories/
+│       │   └── Balance/
 │       ├── Persistence/
-│       │   └── ExpenseDbContext.cs
-│       ├── Program.cs
-│       └── ExpenseEndpoints.cs
-└── ExpenseControl.Frontend/
-    ├── Pages/
-    │   ├── ListExpenseEntries.razor
-    │   ├── CreateExpenseEntry.razor
-    │   └── BasePaginatedTable.razor
-    └── Layout/
-        └── NavMenu.razor
+│       └── Program.cs
+├── ExpenseControl.Frontend/         # Blazor WebAssembly
+│   ├── Pages/
+│   ├── Components/
+│   └── Layout/
+└── expense-control-react/           # React Frontend (NEW)
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   ├── services/
+    │   └── types/
+    └── package.json
 ```
 
 ## 🎯 Core Features
 
 ### ✅ Implemented Features
 
-1. **Expense Entry Management**
-   - ✅ Create new expense entries
-   - ✅ List all expenses with pagination
-   - ✅ Delete expense entries with confirmation
-   - ✅ Search and filter capabilities
+1. **Transaction Management**
+   - ✅ Create new income/expense transactions
+   - ✅ Edit existing transactions
+   - ✅ Delete transactions with confirmation
+   - ✅ Filter by date range
+   - ✅ Category-based organization
 
 2. **Data Model**
    - **ExpenseEntry Entity**:
@@ -101,11 +104,40 @@ ExpenseControl/
    - Swagger UI: `http://localhost:5293/swagger`
    - Prometheus Metrics: `http://localhost:5293/metrics`
 
-### Frontend Setup
+### Frontend Setup (Choose one)
 
-1. **Navigate to the frontend directory**:
+#### Option 1: React Frontend (Recommended - Modern Stack)
+
+1. **Navigate to the React frontend directory**:
    ```bash
-   cd /usr/repos/ExpenseControl.Frontend
+   cd expense-control-react
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment** (optional, defaults to localhost:5293):
+   ```bash
+   echo "VITE_API_URL=http://localhost:5293/api" > .env
+   ```
+
+4. **Run the frontend**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Access the application**:
+   - Frontend URL: `http://localhost:5173`
+
+See [expense-control-react/README.md](./expense-control-react/README.md) for more details.
+
+#### Option 2: Blazor WebAssembly Frontend (Original)
+
+1. **Navigate to the Blazor frontend directory**:
+   ```bash
+   cd ExpenseControl.Frontend
    ```
 
 2. **Restore dependencies**:
@@ -123,7 +155,7 @@ ExpenseControl/
 
 ## 📋 API Endpoints
 
-### Expense Management
+### Transaction Management
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DateRangePicker from '../components/DateRangePicker';
 import { getTransactions, deleteTransaction } from '../services/api';
-import { Transaction, TransactionType } from '../types';
+import { Transaction, TransactionType } from '../types/index';
 
 const Transactions: React.FC = () => {
   const navigate = useNavigate();

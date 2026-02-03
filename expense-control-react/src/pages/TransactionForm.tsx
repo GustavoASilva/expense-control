@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getCategories, getTransaction, createTransaction, updateTransaction } from '../services/api';
-import { Category, TransactionForm as TransactionFormType, TransactionType } from '../types';
+import { Category, TransactionForm as TransactionFormType, TransactionType } from '../types/index';
 
 const TransactionForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
