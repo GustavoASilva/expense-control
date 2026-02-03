@@ -111,7 +111,7 @@
     private bool _isLoading = true;
     private bool _isSaving;
     private TransactionFormModel _transaction = new() { Date = DateOnly.FromDateTime(DateTime.Today), Type = TransactionType.Income };
-    private List<Category> _categories = new();
+    private List<CategoryModel> _categories = new();
 
     protected override async Task OnInitializedAsync()
     {

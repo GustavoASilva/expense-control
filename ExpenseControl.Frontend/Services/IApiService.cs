@@ -34,5 +34,15 @@ public interface IApiService
     Task<BalanceByCategoryApiResponse> GetBalanceByCategoryAsync([Query] DateOnly? startDate = null, [Query] DateOnly? endDate = null);
 
     [Get("/api/balance/monthly")]
-    Task<MonthlyBalance> GetMonthlyBalanceAsync([Query] int? year = null);
+    Task<MonthlyBalanceModel> GetMonthlyBalanceAsync([Query] int? year = null);
+
+    // Budgets
+    [Get("/api/budgets")]
+    Task<List<BudgetApiResponse>> GetBudgetsAsync([Query] int? year = null, [Query] int? month = null, [Query] Guid? categoryId = null);
+
+    [Post("/api/budgets")]
+    Task<BudgetApiResponse> CreateOrUpdateBudgetAsync([Body] BudgetModel budget);
+
+    [Get("/api/budgets/usage")]
+    Task<BudgetUsageApiResponse> GetBudgetUsageAsync([Query] Guid categoryId, [Query] int year, [Query] int month);
 }

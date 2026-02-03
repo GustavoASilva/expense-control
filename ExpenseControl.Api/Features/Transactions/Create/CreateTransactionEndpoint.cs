@@ -1,4 +1,6 @@
 using ExpenseControl.Api.Entities;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Metrics;
 
 namespace ExpenseControl.Api.Features.Transactions.Create
 {
@@ -15,7 +17,10 @@ namespace ExpenseControl.Api.Features.Transactions.Create
     {
         public static void MapCreateTransactionEndpoint(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/transactions", async (CreateTransactionCommand command, ExpenseControl.Api.Persistence.ExpenseDbContext db) =>
+            app.MapPost("/api/transactions", async (
+                CreateTransactionCommand command,
+                ExpenseControl.Api.Persistence.ExpenseDbContext db,
+                [FromKeyedServices("TransactionsAdded")] Counter<int> transactionsAddedCounter) =>
             {
                 var category = await db.Categories.FindAsync(command.CategoryId);
                 if (category == null)
@@ -37,6 +42,8 @@ namespace ExpenseControl.Api.Features.Transactions.Create
 
                 db.Transactions.Add(transaction);
                 await db.SaveChangesAsync();
+
+                transactionsAddedCounter.Add(1); // Increment the named counter
 
                 return Results.Created($"/api/transactions/{transaction.Id}", transaction);
             })

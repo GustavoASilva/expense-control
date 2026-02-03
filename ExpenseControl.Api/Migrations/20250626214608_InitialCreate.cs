@@ -29,6 +29,29 @@ namespace ExpenseControl.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Budgets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Month = table.Column<int>(type: "integer", nullable: false),
+                    Year = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Budgets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Budgets_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -56,15 +79,21 @@ namespace ExpenseControl.Api.Migrations
                 columns: new[] { "Id", "Description", "IconName", "Name", "Type" },
                 values: new object[,]
                 {
-                    { new Guid("09860853-4c8d-45af-b2f8-c13252feeb28"), "Rent, mortgage, repairs, etc.", "house", "Housing", "Expense" },
-                    { new Guid("6129f445-8088-413c-a11f-c5ea70820e73"), "Regular employment income", "wallet2", "Salary", "Income" },
-                    { new Guid("788cf435-f6f7-4bee-8954-e8f5a42bb4a6"), "Car, public transit, fuel, etc.", "car-front", "Transportation", "Expense" },
-                    { new Guid("a62e5b4c-2202-4dea-892c-bc439d5041c3"), "Medical expenses, insurance, etc.", "heart-pulse", "Healthcare", "Expense" },
-                    { new Guid("b5f100f7-990c-4dbb-8a49-9868b4694d4d"), "Groceries, dining out, etc.", "cart", "Food", "Expense" },
-                    { new Guid("eaba9ca2-c6c8-4fb2-85a7-3b31813cc8f9"), "Electricity, water, internet, etc.", "lightning", "Utilities", "Expense" },
-                    { new Guid("f841ed1c-0548-4a73-aaf2-25f274d8d603"), "Independent contractor income", "briefcase", "Freelance", "Income" },
-                    { new Guid("f8af4340-31b2-4a7f-9f11-f08e3ed760ce"), "Dividends, interest, capital gains", "graph-up-arrow", "Investments", "Income" }
+                    { new Guid("3feb665e-56c5-4251-bda6-d665dbda65d3"), "Regular employment income", "wallet2", "Salary", "Income" },
+                    { new Guid("51630c3e-35be-4b55-87a9-68ef640f772c"), "Independent contractor income", "briefcase", "Freelance", "Income" },
+                    { new Guid("683eba8b-531b-465e-8be4-584e85abdfb8"), "Dividends, interest, capital gains", "graph-up-arrow", "Investments", "Income" },
+                    { new Guid("92974cbf-e03c-4f33-9e36-9f9f0a97523e"), "Medical expenses, insurance, etc.", "heart-pulse", "Healthcare", "Expense" },
+                    { new Guid("a48cde78-354e-4d5c-9159-cf28368fcaca"), "Rent, mortgage, repairs, etc.", "house", "Housing", "Expense" },
+                    { new Guid("ac800e65-9ae2-4274-8c8a-ae4658345c99"), "Electricity, water, internet, etc.", "lightning", "Utilities", "Expense" },
+                    { new Guid("c7e8d65f-f4b2-4162-ba57-04f52fb16d51"), "Groceries, dining out, etc.", "cart", "Food", "Expense" },
+                    { new Guid("eb318b9d-aafc-421d-8041-64c6889ffc3c"), "Car, public transit, fuel, etc.", "car-front", "Transportation", "Expense" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Budgets_CategoryId_Month_Year",
+                table: "Budgets",
+                columns: new[] { "CategoryId", "Month", "Year" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_Name_Type",
@@ -81,6 +110,9 @@ namespace ExpenseControl.Api.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Budgets");
+
             migrationBuilder.DropTable(
                 name: "Transactions");
 

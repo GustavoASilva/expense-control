@@ -21,8 +21,8 @@ services:
 
   api:
     build:
-      context: ExpenseControl.Backend
-      dockerfile: ExpenseControl.Api/Dockerfile
+      context: .
+      dockerfile: ./ExpenseControl.Api/docker/Dockerfile
     container_name: expensecontrol-api
     ports:
       - "5293:80"
@@ -62,7 +62,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./ExpenseControl.Backend/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./ExpenseControl.Api/Configuration/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
       - expensecontrol-network
@@ -86,7 +86,7 @@ services:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./ExpenseControl.Backend/grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning
     networks:
       - expensecontrol-network
     depends_on:
