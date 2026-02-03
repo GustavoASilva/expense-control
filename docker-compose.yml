@@ -39,46 +39,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: expensecontrol-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./ExpenseControl.Api/Configuration/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - expensecontrol-network
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: expensecontrol-grafana
+  frontend:
+    build:
+      context: .
+      dockerfile: ./expense-control-react/docker/Dockerfile
+    container_name: expensecontrol-frontend
     ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=ExpenseControl123!
-      - GF_INSTALL_PLUGINS=grafana-clock-panel
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
     networks:
       - expensecontrol-network
-    depends_on:
-      - prometheus
 
 volumes:
   postgres_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   expensecontrol-network:

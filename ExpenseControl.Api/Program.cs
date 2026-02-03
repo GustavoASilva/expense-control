@@ -1,11 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Logs;
-using OpenTelemetry;
-using System.Diagnostics.Metrics;
 using ExpenseControl.Api.Features.Categories;
 using ExpenseControl.Api.Features.Transactions.Create;
 using ExpenseControl.Api.Features.Transactions.List;
@@ -42,25 +36,6 @@ builder.Services.AddCors(options =>
 
 // Add health checks
 builder.Services.AddHealthChecks();
-
-// OpenTelemetry Meter and Counter
-const string MeterName = "ExpenseControl.Api.Metrics";
-builder.Services.AddSingleton<Meter>(_ => new Meter(MeterName));
-builder.Services.AddKeyedSingleton<Counter<int>>("TransactionsAdded", (sp, _) => {
-    var meter = sp.GetRequiredService<Meter>();
-    return meter.CreateCounter<int>("transactions_added", description: "Number of transactions added");
-});
-
-// Add OpenTelemetry
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
-    .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
-        .AddMeter(MeterName)
-        .AddPrometheusExporter())
-    .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation()
-        .AddConsoleExporter());
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -110,9 +85,6 @@ app.MapGetMonthlyBalanceEndpoint();
 app.MapCreateBudgetEndpoint();
 app.MapListBudgetsEndpoint();
 app.MapGetBudgetUsageEndpoint();
-
-// Expose Prometheus metrics endpoint
-app.MapPrometheusScrapingEndpoint();
 
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())
