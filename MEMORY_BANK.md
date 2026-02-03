@@ -7,13 +7,15 @@ This file captures architecture notes, decisions, rationale, and links to import
 Project Overview
 ----------------
 - Backend: .NET 8 Minimal API (ExpenseControl.Api)
+- Frontend: React + TypeScript + Vite (expense-control-react)
 - Database: PostgreSQL (docker-compose uses postgres:16)
-- Monitoring: OpenTelemetry + Prometheus + Grafana
 
 Tech Stack (explicit)
 ---------------------
 - .NET Target: net8.0 (API)
 - EF Core with Npgsql provider
+- React 19 with TypeScript
+- Vite for frontend build tooling
 
 Key Decisions (inferred / explicit)
 ----------------------------------
@@ -22,12 +24,13 @@ Key Decisions (inferred / explicit)
 - Use PostgreSQL as primary DB; migrations are applied at startup in `Program.cs`.
   - Consequence: docker-compose provides a postgres service and the API depends on its health.
 - Use EF Core with explicit model configuration in `ExpenseDbContext` (indexes, column types, TPH discriminator for Transaction type).
-- Include OpenTelemetry and expose a Prometheus scraping endpoint; Docker-compose wires Prometheus and Grafana.
+- Docker Compose orchestrates all services (postgres, api, frontend).
 
 Rationale & Notes
 -----------------
 - Migrations auto-run in startup to ease local development and CI.
 - CORS is permissive (AllowAnyOrigin/AnyHeader/AnyMethod) for development ease.
+- Frontend served via nginx in production Docker container.
 
 Unresolved Questions / To Decide
 -------------------------------
@@ -43,6 +46,7 @@ Links (key files)
 - API project file: ExpenseControl.Api/ExpenseControl.Api.csproj
 - API Program: ExpenseControl.Api/Program.cs
 - DbContext: ExpenseControl.Api/Persistence/ExpenseDbContext.cs
+- Frontend package.json: expense-control-react/package.json
 
 How to use this file
 --------------------
@@ -50,3 +54,4 @@ How to use this file
 - When a decision is implemented (code/config changes), add a short link to the PR or commit hash and mark the entry as implemented.
 
 Initial entries created on: 2026-02-02
+Updated on: 2026-02-03 (removed Prometheus/Grafana, added frontend to docker-compose)
