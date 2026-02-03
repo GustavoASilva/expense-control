@@ -1,0 +1,103 @@
+import axios from 'axios';
+import {
+  Transaction,
+  TransactionForm,
+  Category,
+  Balance,
+  CategoryBalance,
+  MonthlyBalance,
+} from '../types/index';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5293/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Helper to format dates for API
+const formatDate = (date: string | Date): string => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toISOString().split('T')[0];
+};
+
+// Transactions
+export const getTransactions = async (
+  startDate?: string,
+  endDate?: string
+): Promise<Transaction[]> => {
+  const params: Record<string, string> = {};
+  if (startDate) params.startDate = formatDate(startDate);
+  if (endDate) params.endDate = formatDate(endDate);
+
+  const response = await api.get<Transaction[]>('/transactions', { params });
+  return response.data;
+};
+
+export const getTransaction = async (id: string): Promise<Transaction> => {
+  const response = await api.get<Transaction>(`/transactions/${id}`);
+  return response.data;
+};
+
+export const createTransaction = async (
+  transaction: TransactionForm
+): Promise<Transaction> => {
+  const response = await api.post<Transaction>('/transactions', transaction);
+  return response.data;
+};
+
+export const updateTransaction = async (
+  id: string,
+  transaction: TransactionForm
+): Promise<Transaction> => {
+  const response = await api.patch<Transaction>(`/transactions/${id}`, transaction);
+  return response.data;
+};
+
+export const deleteTransaction = async (id: string): Promise<void> => {
+  await api.delete(`/transactions/${id}`);
+};
+
+// Categories
+export const getCategories = async (): Promise<Category[]> => {
+  const response = await api.get<Category[]>('/categories');
+  return response.data;
+};
+
+// Balance
+export const getBalance = async (
+  startDate?: string,
+  endDate?: string
+): Promise<Balance> => {
+  const params: Record<string, string> = {};
+  if (startDate) params.startDate = formatDate(startDate);
+  if (endDate) params.endDate = formatDate(endDate);
+
+  const response = await api.get<Balance>('/balance', { params });
+  return response.data;
+};
+
+export const getBalanceByCategory = async (
+  startDate?: string,
+  endDate?: string
+): Promise<CategoryBalance[]> => {
+  const params: Record<string, string> = {};
+  if (startDate) params.startDate = formatDate(startDate);
+  if (endDate) params.endDate = formatDate(endDate);
+
+  const response = await api.get<{ categories: CategoryBalance[] }>(
+    '/balance/by-category',
+    { params }
+  );
+  return response.data.categories;
+};
+
+export const getMonthlyBalance = async (year?: number): Promise<MonthlyBalance> => {
+  const params: Record<string, number> = {};
+  if (year) params.year = year;
+
+  const response = await api.get<MonthlyBalance>('/balance/monthly', { params });
+  return response.data;
+};
