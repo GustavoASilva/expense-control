@@ -6,6 +6,9 @@ import {
   Balance,
   CategoryBalance,
   MonthlyBalance,
+  Budget,
+  BudgetForm,
+  BudgetUsage,
 } from '../types/index';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5293/api';
@@ -99,5 +102,35 @@ export const getMonthlyBalance = async (year?: number): Promise<MonthlyBalance> 
   if (year) params.year = year;
 
   const response = await api.get<MonthlyBalance>('/balance/monthly', { params });
+  return response.data;
+};
+
+// Budgets
+export const getBudgets = async (
+  year?: number,
+  month?: number,
+  categoryId?: string
+): Promise<Budget[]> => {
+  const params: Record<string, string | number> = {};
+  if (year) params.year = year;
+  if (month) params.month = month;
+  if (categoryId) params.categoryId = categoryId;
+
+  const response = await api.get<Budget[]>('/budgets', { params });
+  return response.data;
+};
+
+export const createBudget = async (budget: BudgetForm): Promise<Budget> => {
+  const response = await api.post<Budget>('/budgets', budget);
+  return response.data;
+};
+
+export const getBudgetUsage = async (
+  categoryId: string,
+  year: number,
+  month: number
+): Promise<BudgetUsage> => {
+  const params = { categoryId, year, month };
+  const response = await api.get<BudgetUsage>('/budgets/usage', { params });
   return response.data;
 };
