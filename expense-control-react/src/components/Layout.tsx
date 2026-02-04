@@ -10,10 +10,6 @@ const Layout: React.FC = () => {
       </div>
 
       <main>
-        <div className="top-row px-4">
-          {/* Optional top bar content */}
-        </div>
-
         <article className="content px-4">
           <Outlet />
         </article>

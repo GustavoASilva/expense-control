@@ -35,7 +35,7 @@ const NavMenu: React.FC = () => {
               to="/"
               end
             >
-              <i className="bi bi-speedometer2 me-2"></i> Dashboard
+              <i className="bi bi-house-door me-2"></i> Home
             </NavLink>
           </div>
           <div className="nav-item px-3">
@@ -46,6 +46,16 @@ const NavMenu: React.FC = () => {
               to="/transactions"
             >
               <i className="bi bi-credit-card me-2"></i> Transactions
+            </NavLink>
+          </div>
+          <div className="nav-item px-3">
+            <NavLink
+              className={({ isActive }) =>
+                `nav-link ${isActive ? 'active' : ''}`
+              }
+              to="/budgets"
+            >
+              <i className="bi bi-wallet2 me-2"></i> Budgets
             </NavLink>
           </div>
         </nav>
