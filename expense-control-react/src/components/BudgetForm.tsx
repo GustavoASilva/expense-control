@@ -136,23 +136,31 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
 
   return (
     <>
-      <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-        <div className="modal-dialog modal-dialog-centered">
+      <div 
+        className="modal show d-block" 
+        tabIndex={-1} 
+        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        onClick={onClose}
+      >
+        <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
           <div className="modal-content">
             <form onSubmit={handleSubmit}>
               <div className="modal-header">
-                <h5 className="modal-title">{editBudget ? 'Edit Budget' : 'New Budget'}</h5>
+                <h5 className="modal-title">
+                  <i className="bi bi-pie-chart me-2"></i>
+                  {editBudget ? 'Edit Budget' : 'New Budget'}
+                </h5>
                 <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
               </div>
               <div className="modal-body">
                 {isLoading ? (
-                  <div className="text-center py-3">
+                  <div className="text-center py-4">
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Loading...</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="row g-3">
+                  <div className="row g-4">
                     <div className="col-12">
                       <label htmlFor="categoryId" className="form-label">
                         Category
@@ -224,39 +232,46 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
                       <label htmlFor="amount" className="form-label">
                         Budget Amount
                       </label>
-                      <input
-                        type="number"
-                        className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
-                        id="amount"
-                        name="amount"
-                        value={budget.amount || ''}
-                        onChange={handleInputChange}
-                        step="0.01"
-                        min="0"
-                      />
-                      {errors.amount && (
-                        <div className="invalid-feedback">{errors.amount}</div>
-                      )}
+                      <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
+                          id="amount"
+                          name="amount"
+                          value={budget.amount || ''}
+                          onChange={handleInputChange}
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                        {errors.amount && (
+                          <div className="invalid-feedback">{errors.amount}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={onClose}>
+                <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={isSaving || isLoading}>
                   {isSaving ? (
                     <>
                       <span
-                        className="spinner-border spinner-border-sm"
+                        className="spinner-border spinner-border-sm me-2"
                         role="status"
                         aria-hidden="true"
                       ></span>
-                      <span className="ms-2">Saving...</span>
+                      Saving...
                     </>
                   ) : (
-                    <span>Save Budget</span>
+                    <>
+                      <i className="bi bi-check-lg me-2"></i>
+                      {editBudget ? 'Save Changes' : 'Create Budget'}
+                    </>
                   )}
                 </button>
               </div>

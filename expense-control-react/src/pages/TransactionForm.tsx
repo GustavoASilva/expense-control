@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getCategories, getTransaction, createTransaction, updateTransaction } from '../services/api';
 import { Category, TransactionForm as TransactionFormType, TransactionType } from '../types/index';
 
@@ -15,7 +15,7 @@ const TransactionForm: React.FC = () => {
     amount: 0,
     description: '',
     date: new Date().toISOString().split('T')[0],
-    type: TransactionType.Income,
+    type: TransactionType.Expense,
     categoryId: '',
     notes: '',
   });
@@ -134,69 +134,80 @@ const TransactionForm: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="text-muted mb-0">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid py-3">
+    <div className="fade-in">
+      <div className="mb-4">
+        <Link to="/transactions" className="text-muted text-decoration-none d-inline-flex align-items-center mb-3">
+          <i className="bi bi-arrow-left me-2"></i>Back to Transactions
+        </Link>
+        <h1 className="page-title">{isNew ? 'New Transaction' : 'Edit Transaction'}</h1>
+      </div>
+
       <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3 mb-0">{isNew ? 'New Transaction' : 'Edit Transaction'}</h1>
-          </div>
-
+        <div className="col-lg-8 col-xl-6">
           <form onSubmit={handleSubmit}>
-            <div className="card shadow-sm">
+            <div className="card">
               <div className="card-body">
-                <div className="row g-3">
-                  <div className="col-12">
-                    <div className="btn-group w-100" role="group">
-                      <input
-                        type="radio"
-                        className="btn-check"
-                        name="type"
-                        id="income"
-                        checked={transaction.type === TransactionType.Income}
-                        onChange={() => handleTypeChange(TransactionType.Income)}
-                      />
-                      <label className="btn btn-outline-success" htmlFor="income">
-                        Income
-                      </label>
+                <div className="mb-4">
+                  <label className="form-label">Transaction Type</label>
+                  <div className="type-toggle">
+                    <input
+                      type="radio"
+                      className="btn-check"
+                      name="type"
+                      id="expense"
+                      checked={transaction.type === TransactionType.Expense}
+                      onChange={() => handleTypeChange(TransactionType.Expense)}
+                    />
+                    <label className="btn btn-outline-danger" htmlFor="expense">
+                      <i className="bi bi-arrow-up-right me-2"></i>Expense
+                    </label>
 
-                      <input
-                        type="radio"
-                        className="btn-check"
-                        name="type"
-                        id="expense"
-                        checked={transaction.type === TransactionType.Expense}
-                        onChange={() => handleTypeChange(TransactionType.Expense)}
-                      />
-                      <label className="btn btn-outline-danger" htmlFor="expense">
-                        Expense
-                      </label>
-                    </div>
+                    <input
+                      type="radio"
+                      className="btn-check"
+                      name="type"
+                      id="income"
+                      checked={transaction.type === TransactionType.Income}
+                      onChange={() => handleTypeChange(TransactionType.Income)}
+                    />
+                    <label className="btn btn-outline-success" htmlFor="income">
+                      <i className="bi bi-arrow-down-left me-2"></i>Income
+                    </label>
                   </div>
+                </div>
 
+                <div className="row g-4">
                   <div className="col-md-6">
                     <label htmlFor="amount" className="form-label">
                       Amount
                     </label>
-                    <input
-                      type="number"
-                      className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
-                      id="amount"
-                      name="amount"
-                      value={transaction.amount || ''}
-                      onChange={handleInputChange}
-                      step="0.01"
-                      min="0"
-                    />
-                    {errors.amount && <div className="invalid-feedback">{errors.amount}</div>}
+                    <div className="input-group">
+                      <span className="input-group-text">$</span>
+                      <input
+                        type="number"
+                        className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
+                        id="amount"
+                        name="amount"
+                        value={transaction.amount || ''}
+                        onChange={handleInputChange}
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                      />
+                      {errors.amount && <div className="invalid-feedback">{errors.amount}</div>}
+                    </div>
                   </div>
 
                   <div className="col-md-6">
@@ -225,6 +236,7 @@ const TransactionForm: React.FC = () => {
                       name="description"
                       value={transaction.description}
                       onChange={handleInputChange}
+                      placeholder="What was this transaction for?"
                     />
                     {errors.description && (
                       <div className="invalid-feedback">{errors.description}</div>
@@ -256,7 +268,7 @@ const TransactionForm: React.FC = () => {
 
                   <div className="col-12">
                     <label htmlFor="notes" className="form-label">
-                      Notes
+                      Notes <span className="text-muted">(optional)</span>
                     </label>
                     <textarea
                       className="form-control"
@@ -265,6 +277,7 @@ const TransactionForm: React.FC = () => {
                       value={transaction.notes || ''}
                       onChange={handleInputChange}
                       rows={3}
+                      placeholder="Add any additional notes..."
                     />
                   </div>
                 </div>
@@ -277,14 +290,17 @@ const TransactionForm: React.FC = () => {
                   {isSaving ? (
                     <>
                       <span
-                        className="spinner-border spinner-border-sm"
+                        className="spinner-border spinner-border-sm me-2"
                         role="status"
                         aria-hidden="true"
                       ></span>
-                      <span className="ms-2">Saving...</span>
+                      Saving...
                     </>
                   ) : (
-                    <span>Save</span>
+                    <>
+                      <i className="bi bi-check-lg me-2"></i>
+                      {isNew ? 'Create Transaction' : 'Save Changes'}
+                    </>
                   )}
                 </button>
               </div>

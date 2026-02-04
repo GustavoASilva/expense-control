@@ -10,10 +10,13 @@ const NavMenu: React.FC = () => {
 
   return (
     <>
-      <div className="top-row ps-3 navbar navbar-dark">
+      <div className="top-row navbar navbar-dark">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
-            Expense Control
+            <span className="brand-icon">
+              <i className="bi bi-wallet2"></i>
+            </span>
+            ExpenseCtrl
           </Link>
           <button
             title="Navigation menu"
@@ -27,7 +30,7 @@ const NavMenu: React.FC = () => {
 
       <div className={`${collapsed ? 'collapse' : ''} nav-scrollable`}>
         <nav className="flex-column">
-          <div className="nav-item px-3">
+          <div className="nav-item">
             <NavLink
               className={({ isActive }) =>
                 `nav-link ${isActive ? 'active' : ''}`
@@ -35,27 +38,30 @@ const NavMenu: React.FC = () => {
               to="/"
               end
             >
-              <i className="bi bi-house-door me-2"></i> Home
+              <i className="bi bi-grid-1x2-fill"></i>
+              <span>Dashboard</span>
             </NavLink>
           </div>
-          <div className="nav-item px-3">
+          <div className="nav-item">
             <NavLink
               className={({ isActive }) =>
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/transactions"
             >
-              <i className="bi bi-credit-card me-2"></i> Transactions
+              <i className="bi bi-arrow-left-right"></i>
+              <span>Transactions</span>
             </NavLink>
           </div>
-          <div className="nav-item px-3">
+          <div className="nav-item">
             <NavLink
               className={({ isActive }) =>
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/budgets"
             >
-              <i className="bi bi-wallet2 me-2"></i> Budgets
+              <i className="bi bi-pie-chart-fill"></i>
+              <span>Budgets</span>
             </NavLink>
           </div>
         </nav>
