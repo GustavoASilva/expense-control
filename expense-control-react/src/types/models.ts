@@ -64,3 +64,27 @@ export interface MonthlyBalance {
   totalExpenses: number;
   yearlyBalance: number;
 }
+
+export interface Budget {
+  id: string;
+  categoryId: string;
+  category: Category;
+  amount: number;
+  month: number;
+  year: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BudgetForm {
+  categoryId: string;
+  amount: number;
+  month: number;
+  year: number;
+}
+
+export interface BudgetUsage {
+  amount: number;
+  usage: number;
+  percent: number;
+}
