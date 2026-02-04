@@ -62,9 +62,17 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    let parsedValue: string | number = value;
+    
+    if (name === 'amount') {
+      parsedValue = parseFloat(value) || 0;
+    } else if (name === 'month' || name === 'year') {
+      parsedValue = parseInt(value) || 0;
+    }
+    
     setBudget((prev) => ({
       ...prev,
-      [name]: name === 'amount' ? parseFloat(value) || 0 : name === 'month' || name === 'year' ? parseInt(value) || 0 : value,
+      [name]: parsedValue,
     }));
     // Clear error for this field
     if (errors[name]) {

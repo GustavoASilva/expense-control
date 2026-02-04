@@ -25,15 +25,17 @@ const Budgets: React.FC = () => {
     try {
       const data = await getBudgets(selectedYear, selectedMonth);
       
-      // Load usage for each budget
+      // Load usage for each budget with error handling
       const budgetsWithUsage = await Promise.all(
         data.map(async (budget) => {
           try {
             const usage = await getBudgetUsage(budget.categoryId, budget.year, budget.month);
             return { ...budget, usage };
           } catch (error) {
+            // Log error but continue with other budgets
             console.error(`Failed to load usage for budget ${budget.id}:`, error);
-            return budget;
+            // Return budget without usage data
+            return { ...budget, usage: undefined };
           }
         })
       );
@@ -41,6 +43,8 @@ const Budgets: React.FC = () => {
       setBudgets(budgetsWithUsage);
     } catch (error) {
       console.error('Failed to load budgets:', error);
+      // Set empty budgets on error so UI shows empty state
+      setBudgets([]);
     } finally {
       setIsLoading(false);
     }
