@@ -4,7 +4,6 @@ interface StatCardProps {
   title: string;
   value: number;
   icon?: string;
-  inverted?: boolean;
   previousValue?: number;
   showChange?: boolean;
   type?: 'income' | 'expense' | 'balance';

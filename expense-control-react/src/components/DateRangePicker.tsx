@@ -9,7 +9,6 @@ interface DatePeriod {
 interface DateRangePickerProps {
   startDate?: string;
   endDate?: string;
-  small?: boolean;
   onChanged: (range: { start: string; end: string }) => void;
 }
 
