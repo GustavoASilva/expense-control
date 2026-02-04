@@ -52,6 +52,7 @@ main {
 
 .sidebar {
   background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+  display: block;
 }
 
 .top-row {
@@ -161,7 +162,7 @@ main {
   }
 
   .nav-scrollable {
-    height: calc(100vh - 3.5rem);
+    height: 100vh;
     overflow-y: auto;
   }
 
