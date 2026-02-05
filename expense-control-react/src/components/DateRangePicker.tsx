@@ -9,14 +9,12 @@ interface DatePeriod {
 interface DateRangePickerProps {
   startDate?: string;
   endDate?: string;
-  small?: boolean;
   onChanged: (range: { start: string; end: string }) => void;
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = ({
   startDate,
   endDate,
-  small = false,
   onChanged,
 }) => {
   const today = new Date();
@@ -40,12 +38,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   const periods: DatePeriod[] = [
     {
-      label: 'Last 7 days',
+      label: '7 days',
       start: formatDate(addDays(today, -6)),
       end: formatDate(today),
     },
     {
-      label: 'Last 30 days',
+      label: '30 days',
       start: formatDate(addDays(today, -29)),
       end: formatDate(today),
     },
@@ -60,7 +58,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       end: formatDate(addDays(firstDayOfMonth, -1)),
     },
     {
-      label: 'Last 3 months',
+      label: '3 months',
       start: formatDate(addMonths(firstDayOfMonth, -2)),
       end: formatDate(today),
     },
@@ -80,7 +78,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   return (
-    <div className={`btn-group ${small ? 'btn-group-sm' : ''} mb-3`}>
+    <div className="date-range-picker">
       {periods.map((period) => (
         <button
           key={period.label}

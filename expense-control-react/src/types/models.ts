@@ -34,7 +34,7 @@ export interface Category {
 export interface Balance {
   income: number;
   expenses: number;
-  currentBalance: number;
+  balance: number;
   periodStart: string;
   periodEnd: string;
   hasTransactions: boolean;

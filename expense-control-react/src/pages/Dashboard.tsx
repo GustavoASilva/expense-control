@@ -109,25 +109,30 @@ const Dashboard: React.FC = () => {
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
   const chartData = monthlyBalance && monthlyBalance.hasTransactions
     ? {
-        labels: monthlyBalance.months.map((m) => m.monthName),
+        labels: monthlyBalance.months.map((m) => m.monthName.substring(0, 3)),
         datasets: [
           {
             label: 'Income',
-            backgroundColor: 'rgba(40, 167, 69, 0.7)',
-            borderColor: 'rgba(40, 167, 69, 1)',
-            borderWidth: 1,
+            backgroundColor: 'rgba(72, 187, 120, 0.8)',
+            borderColor: 'rgba(72, 187, 120, 1)',
+            borderWidth: 0,
+            borderRadius: 4,
             data: monthlyBalance.months.map((m) => m.income),
           },
           {
             label: 'Expenses',
-            backgroundColor: 'rgba(220, 53, 69, 0.7)',
-            borderColor: 'rgba(220, 53, 69, 1)',
-            borderWidth: 1,
+            backgroundColor: 'rgba(245, 101, 101, 0.8)',
+            borderColor: 'rgba(245, 101, 101, 1)',
+            borderWidth: 0,
+            borderRadius: 4,
             data: monthlyBalance.months.map((m) => m.expenses),
           },
         ],
@@ -138,28 +143,61 @@ const Dashboard: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Monthly Income vs Expenses' },
+      legend: {
+        position: 'top' as const,
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 12,
+            weight: 500 as const,
+          },
+        },
+      },
+      title: { display: false },
     },
     scales: {
-      y: { beginAtZero: true },
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
+      },
     },
   };
 
   if (isLoading) {
     return (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="text-muted mb-0">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container-fluid py-3">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0">Dashboard</h1>
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Dashboard</h1>
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}
@@ -167,88 +205,96 @@ const Dashboard: React.FC = () => {
         />
       </div>
 
-      <div className="row g-4">
-        <div className="col-md-4">
-          <StatCard
-            title="Income"
-            value={balance?.income || 0}
-            icon="bi-graph-up-arrow"
-            previousValue={previousBalance?.income}
-          />
-        </div>
-        <div className="col-md-4">
-          <StatCard
-            title="Expenses"
-            value={balance?.expenses || 0}
-            icon="bi-graph-down-arrow"
-            previousValue={previousBalance?.expenses}
-          />
-        </div>
-        <div className="col-md-4">
-          <StatCard
-            title="Balance"
-            value={balance?.currentBalance || 0}
-            icon="bi-wallet2"
-            inverted={true}
-            previousValue={
-              previousBalance ? previousBalance.income - previousBalance.expenses : undefined
-            }
-          />
-        </div>
+      <div className="stat-card-grid">
+        <StatCard
+          title="Income"
+          value={balance?.income || 0}
+          icon="bi-arrow-down-circle"
+          type="income"
+          previousValue={previousBalance?.income}
+        />
+        <StatCard
+          title="Expenses"
+          value={balance?.expenses || 0}
+          icon="bi-arrow-up-circle"
+          type="expense"
+          previousValue={previousBalance?.expenses}
+        />
+        <StatCard
+          title="Balance"
+          value={balance?.balance || 0}
+          icon="bi-wallet2"
+          type="balance"
+          previousValue={
+            previousBalance ? previousBalance.income - previousBalance.expenses : undefined
+          }
+        />
       </div>
 
-      <div className="row mt-4">
+      <div className="row g-4">
         <div className="col-lg-8">
-          <div className="card shadow-sm">
+          <div className="card">
             <div className="card-body">
-              <h5 className="card-title">
-                Monthly Overview ({monthlyBalance?.year || new Date().getFullYear()})
-              </h5>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="card-title mb-0">
+                  Monthly Overview {monthlyBalance?.year || new Date().getFullYear()}
+                </h5>
+              </div>
               {!monthlyBalance?.hasTransactions ? (
-                <div className="text-center py-5 text-muted">
-                  <i className="bi bi-bar-chart-line fs-1"></i>
-                  <p className="mt-2">No transactions recorded yet</p>
+                <div className="empty-state">
+                  <div className="empty-state-icon">
+                    <i className="bi bi-bar-chart-line"></i>
+                  </div>
+                  <div className="empty-state-title">No data yet</div>
+                  <div className="empty-state-description">
+                    Start adding transactions to see your monthly overview
+                  </div>
                 </div>
               ) : (
-                <div className="chart-container" style={{ position: 'relative', height: '300px' }}>
+                <div className="chart-container">
                   {chartData && <Bar data={chartData} options={chartOptions} />}
                 </div>
               )}
             </div>
           </div>
         </div>
+
         <div className="col-lg-4">
-          <div className="card shadow-sm">
+          <div className="card h-100">
             <div className="card-body">
               <h5 className="card-title">Top Categories</h5>
               {categoryBalances.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  <i className="bi bi-pie-chart fs-1"></i>
-                  <p className="mt-2">No category data available</p>
+                <div className="empty-state py-4">
+                  <div className="empty-state-icon" style={{ width: '60px', height: '60px', fontSize: '1.5rem' }}>
+                    <i className="bi bi-pie-chart"></i>
+                  </div>
+                  <div className="empty-state-description mb-0">
+                    No category data available
+                  </div>
                 </div>
               ) : (
-                <div className="list-group list-group-flush">
+                <div className="d-flex flex-column gap-3">
                   {categoryBalances.slice(0, 5).map((category) => {
                     const cat = categories.find((c) => c.name === category.categoryName);
+                    const isIncome = category.transactionType === TransactionType.Income;
                     return (
-                      <div key={category.categoryName} className="list-group-item border-0 px-0">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div>
-                            {cat && <i className={`bi bi-${cat.iconName} me-2`}></i>}
-                            <h6 className="mb-0 d-inline">{category.categoryName}</h6>
-                            <br />
-                            <small className="text-muted">{category.count} transactions</small>
-                          </div>
-                          <span
-                            className={
-                              category.transactionType === TransactionType.Income
-                                ? 'text-success'
-                                : 'text-danger'
-                            }
+                      <div key={category.categoryName} className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex align-items-center gap-3">
+                          <div
+                            className={`transaction-icon ${isIncome ? 'income' : 'expense'}`}
+                            style={{ width: '36px', height: '36px', fontSize: '0.875rem' }}
                           >
-                            {category.transactionType === TransactionType.Income ? '+' : '-'}
-                            {formatCurrency(category.total)}
-                          </span>
+                            <i className={`bi bi-${cat?.iconName || 'tag'}`}></i>
+                          </div>
+                          <div>
+                            <div className="fw-medium">{category.categoryName}</div>
+                            <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                              {category.count} transactions
+                            </div>
+                          </div>
+                        </div>
+                        <div className={`fw-semibold ${isIncome ? 'text-success' : 'text-danger'}`}>
+                          {isIncome ? '+' : '-'}{formatCurrency(category.total)}
                         </div>
                       </div>
                     );
@@ -260,52 +306,51 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="card shadow-sm mt-4">
+      <div className="card mt-4">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h5 className="card-title mb-0">Recent Transactions</h5>
-            <Link to="/transactions" className="btn btn-primary btn-sm">
-              View All
+            <Link to="/transactions" className="btn btn-outline-primary btn-sm">
+              View All <i className="bi bi-arrow-right ms-1"></i>
             </Link>
           </div>
           {recentTransactions.length === 0 ? (
-            <div className="text-center py-5 text-muted">
-              <i className="bi bi-receipt fs-1"></i>
-              <p className="mt-2">No transactions found</p>
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <i className="bi bi-receipt"></i>
+              </div>
+              <div className="empty-state-title">No transactions yet</div>
+              <div className="empty-state-description">
+                Add your first transaction to get started
+              </div>
+              <Link to="/transactions/new" className="btn btn-primary">
+                <i className="bi bi-plus me-2"></i>Add Transaction
+              </Link>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th className="text-end">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentTransactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td>{formatDate(transaction.date)}</td>
-                      <td>{transaction.description}</td>
-                      <td>{transaction.categoryName}</td>
-                      <td className="text-end">
-                        <span
-                          className={
-                            transaction.type === TransactionType.Income
-                              ? 'text-success'
-                              : 'text-danger'
-                          }
-                        >
-                          {transaction.type === TransactionType.Income ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
+            <div>
+              {recentTransactions.map((transaction) => {
+                const isIncome = transaction.type === TransactionType.Income;
+                return (
+                  <div key={transaction.id} className="transaction-row">
+                    <div className={`transaction-icon ${isIncome ? 'income' : 'expense'}`}>
+                      <i className={`bi ${isIncome ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}`}></i>
+                    </div>
+                    <div className="transaction-details">
+                      <div className="transaction-description">{transaction.description}</div>
+                      <div className="transaction-meta">
+                        <span className="category-badge me-2" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
+                          {transaction.categoryName}
                         </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        {formatDate(transaction.date)}
+                      </div>
+                    </div>
+                    <div className={`transaction-amount ${isIncome ? 'income' : 'expense'}`}>
+                      {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

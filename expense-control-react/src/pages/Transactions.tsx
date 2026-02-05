@@ -70,95 +70,122 @@ const Transactions: React.FC = () => {
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
+  // Group transactions by date
+  const groupedTransactions = transactions.reduce((groups, transaction) => {
+    const date = transaction.date.split('T')[0];
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(transaction);
+    return groups;
+  }, {} as Record<string, Transaction[]>);
+
   return (
-    <div className="container-fluid py-3">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0">Transactions</h1>
-        <div className="d-flex gap-2">
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Transactions</h1>
+        <div className="d-flex gap-3 align-items-center flex-wrap">
           <DateRangePicker
-            small={true}
             startDate={startDate}
             endDate={endDate}
             onChanged={handleDateRangeChanged}
           />
-          <button className="btn btn-primary btn-sm" onClick={handleCreateTransaction}>
-            <i className="bi bi-plus"></i> New Transaction
+          <button className="btn btn-primary" onClick={handleCreateTransaction}>
+            <i className="bi bi-plus-lg me-2"></i>New Transaction
           </button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+        <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '300px' }}>
+          <div className="text-center">
+            <div className="spinner-border text-primary mb-3" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="text-muted mb-0">Loading transactions...</p>
+          </div>
+        </div>
+      ) : transactions.length === 0 ? (
+        <div className="card">
+          <div className="card-body">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <i className="bi bi-receipt"></i>
+              </div>
+              <div className="empty-state-title">No transactions found</div>
+              <div className="empty-state-description">
+                Get started by creating your first transaction
+              </div>
+              <button className="btn btn-primary" onClick={handleCreateTransaction}>
+                <i className="bi bi-plus-lg me-2"></i>Create Transaction
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="card shadow-sm">
-          <div className="card-body">
-            {transactions.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                <i className="bi bi-receipt fs-1"></i>
-                <p className="mt-2">No transactions found</p>
-                <button className="btn btn-primary" onClick={handleCreateTransaction}>
-                  Create your first transaction
-                </button>
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Description</th>
-                      <th>Category</th>
-                      <th className="text-end">Amount</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((transaction) => (
-                      <tr key={transaction.id}>
-                        <td>{formatDate(transaction.date)}</td>
-                        <td>{transaction.description}</td>
-                        <td>{transaction.categoryName}</td>
-                        <td className="text-end">
-                          <span
-                            className={
-                              transaction.type === TransactionType.Income
-                                ? 'text-success'
-                                : 'text-danger'
-                            }
-                          >
-                            {transaction.type === TransactionType.Income ? '+' : '-'}
-                            {formatCurrency(transaction.amount)}
+        <div className="card">
+          <div className="card-body p-0">
+            {Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
+              <div key={date}>
+                <div
+                  className="px-4 py-2 bg-light border-bottom"
+                  style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-secondary)' }}
+                >
+                  {formatDate(date)}
+                </div>
+                {dayTransactions.map((transaction) => {
+                  const isIncome = transaction.type === TransactionType.Income;
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="transaction-row"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleEditTransaction(transaction.id)}
+                    >
+                      <div className={`transaction-icon ${isIncome ? 'income' : 'expense'}`}>
+                        <i className={`bi ${isIncome ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}`}></i>
+                      </div>
+                      <div className="transaction-details">
+                        <div className="transaction-description">{transaction.description}</div>
+                        <div className="transaction-meta">
+                          <span className="category-badge" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
+                            {transaction.categoryName}
                           </span>
-                        </td>
-                        <td className="text-end">
-                          <div className="btn-group btn-group-sm">
-                            <button
-                              className="btn btn-outline-primary"
-                              onClick={() => handleEditTransaction(transaction.id)}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-                            <button
-                              className="btn btn-outline-danger"
-                              onClick={() => handleDeleteTransaction(transaction)}
-                            >
-                              <i className="bi bi-trash"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+                      <div className={`transaction-amount ${isIncome ? 'income' : 'expense'}`}>
+                        {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      </div>
+                      <div className="ms-3 d-flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          style={{ padding: '0.25rem 0.5rem' }}
+                          onClick={() => handleEditTransaction(transaction.id)}
+                          title="Edit"
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          style={{ padding: '0.25rem 0.5rem' }}
+                          onClick={() => handleDeleteTransaction(transaction)}
+                          title="Delete"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            ))}
           </div>
         </div>
       )}

@@ -82,6 +82,13 @@ const Budgets: React.FC = () => {
     return 'success';
   };
 
+  const getStatusText = (percent: number): string => {
+    if (percent >= 100) return 'Over budget';
+    if (percent >= 80) return 'Almost spent';
+    if (percent >= 50) return 'On track';
+    return 'Under budget';
+  };
+
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -91,122 +98,144 @@ const Budgets: React.FC = () => {
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   return (
-    <div className="container-fluid py-3">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 className="h3 mb-0">Budgets</h1>
-        <div className="d-flex gap-2">
-          <select
-            className="form-select form-select-sm"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-          >
-            {monthNames.map((name, index) => (
-              <option key={index + 1} value={index + 1}>
-                {name}
-              </option>
-            ))}
-          </select>
-          <select
-            className="form-select form-select-sm"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-          <button className="btn btn-primary btn-sm" onClick={handleCreateBudget}>
-            <i className="bi bi-plus"></i> New Budget
+    <div className="fade-in">
+      <div className="page-header">
+        <h1 className="page-title">Budgets</h1>
+        <div className="d-flex gap-3 align-items-center flex-wrap">
+          <div className="d-flex gap-2">
+            <select
+              className="form-select"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              style={{ width: 'auto' }}
+            >
+              {monthNames.map((name, index) => (
+                <option key={index + 1} value={index + 1}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="form-select"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              style={{ width: 'auto' }}
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button className="btn btn-primary" onClick={handleCreateBudget}>
+            <i className="bi bi-plus-lg me-2"></i>New Budget
           </button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+        <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '300px' }}>
+          <div className="text-center">
+            <div className="spinner-border text-primary mb-3" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="text-muted mb-0">Loading budgets...</p>
+          </div>
+        </div>
+      ) : budgets.length === 0 ? (
+        <div className="card">
+          <div className="card-body">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <i className="bi bi-pie-chart"></i>
+              </div>
+              <div className="empty-state-title">No budgets found</div>
+              <div className="empty-state-description">
+                Create a budget for {monthNames[selectedMonth - 1]} {selectedYear} to track your spending
+              </div>
+              <button className="btn btn-primary" onClick={handleCreateBudget}>
+                <i className="bi bi-plus-lg me-2"></i>Create Budget
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="card shadow-sm">
-          <div className="card-body">
-            {budgets.length === 0 ? (
-              <div className="text-center py-5 text-muted">
-                <i className="bi bi-wallet2 fs-1"></i>
-                <p className="mt-2">No budgets found for {monthNames[selectedMonth - 1]} {selectedYear}</p>
-                <button className="btn btn-primary" onClick={handleCreateBudget}>
-                  Create your first budget
-                </button>
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Category</th>
-                      <th>Period</th>
-                      <th className="text-end">Budget</th>
-                      <th className="text-end">Spent</th>
-                      <th className="text-end">Remaining</th>
-                      <th style={{ width: '30%' }}>Usage</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {budgets.map((budget) => {
-                      const usage = budget.usage;
-                      const spent = usage?.usage || 0;
-                      const remaining = budget.amount - spent;
-                      const percent = usage?.percent || 0;
-                      const percentColor = getPercentageColor(percent);
+        <div className="row g-4">
+          {budgets.map((budget) => {
+            const usage = budget.usage;
+            const spent = usage?.usage || 0;
+            const remaining = budget.amount - spent;
+            const percent = usage?.percent || 0;
+            const percentColor = getPercentageColor(percent);
+            const statusText = getStatusText(percent);
 
-                      return (
-                        <tr key={budget.id}>
-                          <td>{budget.category?.name || 'Unknown'}</td>
-                          <td>
-                            {monthNames[budget.month - 1]} {budget.year}
-                          </td>
-                          <td className="text-end">{formatCurrency(budget.amount)}</td>
-                          <td className="text-end">{formatCurrency(spent)}</td>
-                          <td className="text-end">
-                            <span className={`text-${remaining < 0 ? 'danger' : 'success'}`}>
-                              {formatCurrency(remaining)}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="d-flex align-items-center gap-2">
-                              <div className="progress flex-grow-1" style={{ height: '20px' }}>
-                                <div
-                                  className={`progress-bar bg-${percentColor}`}
-                                  role="progressbar"
-                                  style={{ width: `${Math.min(percent, 100)}%` }}
-                                  aria-valuenow={percent}
-                                  aria-valuemin={0}
-                                  aria-valuemax={100}
-                                >
-                                  {percent.toFixed(0)}%
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="text-end">
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => handleEditBudget(budget)}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            return (
+              <div key={budget.id} className="col-md-6 col-lg-4">
+                <div 
+                  className="card h-100" 
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleEditBudget(budget)}
+                >
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <h5 className="mb-1">{budget.category?.name || 'Unknown'}</h5>
+                        <span className={`badge bg-${percentColor}`} style={{ fontSize: '0.75rem' }}>
+                          {statusText}
+                        </span>
+                      </div>
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditBudget(budget);
+                        }}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                    </div>
+
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between mb-2">
+                        <span className="text-muted" style={{ fontSize: '0.8125rem' }}>
+                          {formatCurrency(spent)} spent
+                        </span>
+                        <span className="text-muted" style={{ fontSize: '0.8125rem' }}>
+                          {formatCurrency(budget.amount)}
+                        </span>
+                      </div>
+                      <div className="progress" style={{ height: '8px' }}>
+                        <div
+                          className={`progress-bar bg-${percentColor}`}
+                          role="progressbar"
+                          style={{ width: `${Math.min(percent, 100)}%` }}
+                          aria-valuenow={percent}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span className="text-muted" style={{ fontSize: '0.75rem' }}>Remaining</span>
+                        <div className={`fw-semibold ${remaining < 0 ? 'text-danger' : 'text-success'}`}>
+                          {formatCurrency(remaining)}
+                        </div>
+                      </div>
+                      <div className="text-end">
+                        <span className="text-muted" style={{ fontSize: '0.75rem' }}>Used</span>
+                        <div className={`fw-semibold text-${percentColor}`}>
+                          {percent.toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+            );
+          })}
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Category, BudgetForm as BudgetFormType, Budget, TransactionType } from '../types/index';
 import { getCategories, createBudget } from '../services/api';
 
@@ -134,137 +135,153 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
 
   if (!show) return null;
 
-  return (
-    <>
-      <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <form onSubmit={handleSubmit}>
-              <div className="modal-header">
-                <h5 className="modal-title">{editBudget ? 'Edit Budget' : 'New Budget'}</h5>
-                <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
-              </div>
-              <div className="modal-body">
-                {isLoading ? (
-                  <div className="text-center py-3">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
+  return createPortal(
+    <div 
+      className="modal show d-block" 
+      tabIndex={-1} 
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
+      <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content">
+          <form onSubmit={handleSubmit}>
+            <div className="modal-header">
+              <h5 className="modal-title">
+                <i className="bi bi-pie-chart me-2"></i>
+                {editBudget ? 'Edit Budget' : 'New Budget'}
+              </h5>
+              <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              {isLoading ? (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
                   </div>
+                </div>
+              ) : (
+                <div className="row g-4">
+                  <div className="col-12">
+                    <label htmlFor="categoryId" className="form-label">
+                      Category
+                    </label>
+                    <select
+                      className={`form-select ${errors.categoryId ? 'is-invalid' : ''}`}
+                      id="categoryId"
+                      name="categoryId"
+                      value={budget.categoryId}
+                      onChange={handleInputChange}
+                      disabled={!!editBudget}
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.categoryId && (
+                      <div className="invalid-feedback">{errors.categoryId}</div>
+                    )}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label htmlFor="month" className="form-label">
+                      Month
+                    </label>
+                    <select
+                      className={`form-select ${errors.month ? 'is-invalid' : ''}`}
+                      id="month"
+                      name="month"
+                      value={budget.month}
+                      onChange={handleInputChange}
+                      disabled={!!editBudget}
+                    >
+                      {monthNames.map((name, index) => (
+                        <option key={index + 1} value={index + 1}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.month && (
+                      <div className="invalid-feedback">{errors.month}</div>
+                    )}
+                  </div>
+
+                  <div className="col-md-6">
+                    <label htmlFor="year" className="form-label">
+                      Year
+                    </label>
+                    <input
+                      type="number"
+                      className={`form-control ${errors.year ? 'is-invalid' : ''}`}
+                      id="year"
+                      name="year"
+                      value={budget.year}
+                      onChange={handleInputChange}
+                      min="2000"
+                      max="2100"
+                      disabled={!!editBudget}
+                    />
+                    {errors.year && (
+                      <div className="invalid-feedback">{errors.year}</div>
+                    )}
+                  </div>
+
+                  <div className="col-12">
+                    <label htmlFor="amount" className="form-label">
+                      Budget Amount
+                    </label>
+                    <div className={errors.amount ? 'is-invalid' : ''}>
+                      <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input
+                          type="number"
+                          className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
+                          id="amount"
+                          name="amount"
+                          value={budget.amount || ''}
+                          onChange={handleInputChange}
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                    {errors.amount && (
+                      <div className="invalid-feedback d-block">{errors.amount}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={isSaving || isLoading}>
+                {isSaving ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Saving...
+                  </>
                 ) : (
-                  <div className="row g-3">
-                    <div className="col-12">
-                      <label htmlFor="categoryId" className="form-label">
-                        Category
-                      </label>
-                      <select
-                        className={`form-select ${errors.categoryId ? 'is-invalid' : ''}`}
-                        id="categoryId"
-                        name="categoryId"
-                        value={budget.categoryId}
-                        onChange={handleInputChange}
-                        disabled={!!editBudget}
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.categoryId && (
-                        <div className="invalid-feedback">{errors.categoryId}</div>
-                      )}
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="month" className="form-label">
-                        Month
-                      </label>
-                      <select
-                        className={`form-select ${errors.month ? 'is-invalid' : ''}`}
-                        id="month"
-                        name="month"
-                        value={budget.month}
-                        onChange={handleInputChange}
-                        disabled={!!editBudget}
-                      >
-                        {monthNames.map((name, index) => (
-                          <option key={index + 1} value={index + 1}>
-                            {name}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.month && (
-                        <div className="invalid-feedback">{errors.month}</div>
-                      )}
-                    </div>
-
-                    <div className="col-md-6">
-                      <label htmlFor="year" className="form-label">
-                        Year
-                      </label>
-                      <input
-                        type="number"
-                        className={`form-control ${errors.year ? 'is-invalid' : ''}`}
-                        id="year"
-                        name="year"
-                        value={budget.year}
-                        onChange={handleInputChange}
-                        min="2000"
-                        max="2100"
-                        disabled={!!editBudget}
-                      />
-                      {errors.year && (
-                        <div className="invalid-feedback">{errors.year}</div>
-                      )}
-                    </div>
-
-                    <div className="col-12">
-                      <label htmlFor="amount" className="form-label">
-                        Budget Amount
-                      </label>
-                      <input
-                        type="number"
-                        className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
-                        id="amount"
-                        name="amount"
-                        value={budget.amount || ''}
-                        onChange={handleInputChange}
-                        step="0.01"
-                        min="0"
-                      />
-                      {errors.amount && (
-                        <div className="invalid-feedback">{errors.amount}</div>
-                      )}
-                    </div>
-                  </div>
+                  <>
+                    <i className="bi bi-check-lg me-2"></i>
+                    {editBudget ? 'Save Changes' : 'Create Budget'}
+                  </>
                 )}
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={onClose}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={isSaving || isLoading}>
-                  {isSaving ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                      <span className="ms-2">Saving...</span>
-                    </>
-                  ) : (
-                    <span>Save Budget</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 

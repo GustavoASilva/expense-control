@@ -4,18 +4,18 @@ interface StatCardProps {
   title: string;
   value: number;
   icon?: string;
-  inverted?: boolean;
   previousValue?: number;
   showChange?: boolean;
+  type?: 'income' | 'expense' | 'balance';
 }
 
 const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   icon = 'bi-cash',
-  inverted = false,
   previousValue,
   showChange = true,
+  type = 'balance',
 }) => {
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
@@ -37,31 +37,19 @@ const StatCard: React.FC<StatCardProps> = ({
   const changeData = calculateChange();
 
   return (
-    <div className={`card shadow-sm mb-4 ${inverted ? 'bg-primary text-white' : ''}`}>
-      <div className="card-body">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 className={`card-subtitle mb-2 ${inverted ? 'text-white-50' : 'text-muted'}`}>
-              {title}
-            </h6>
-            <h2 className="card-title mb-0">{formatCurrency(value)}</h2>
-          </div>
-          <div className={inverted ? 'text-white-50' : 'text-muted'}>
-            <i className={`bi ${icon} fs-1`}></i>
-          </div>
-        </div>
-        {changeData && (
-          <div className="mt-3">
-            <small className={inverted ? 'text-white-50' : 'text-muted'}>
-              vs previous period{' '}
-              <span className={changeData.isPositive ? 'text-success' : 'text-danger'}>
-                {changeData.isPositive ? '+' : ''}
-                {changeData.change.toFixed(1)}%
-              </span>
-            </small>
-          </div>
-        )}
+    <div className={`stat-card ${type}`}>
+      <div className="stat-card-icon">
+        <i className={`bi ${icon}`}></i>
       </div>
+      <div className="stat-card-label">{title}</div>
+      <div className="stat-card-value">{formatCurrency(value)}</div>
+      {changeData && changeData.change !== 0 && (
+        <div className={`stat-card-change ${changeData.isPositive ? 'positive' : 'negative'}`}>
+          <i className={`bi ${changeData.isPositive ? 'bi-arrow-up' : 'bi-arrow-down'}`}></i>
+          <span>{Math.abs(changeData.change).toFixed(1)}%</span>
+          <span style={{ opacity: 0.7, marginLeft: '0.25rem' }}>vs prev</span>
+        </div>
+      )}
     </div>
   );
 };
