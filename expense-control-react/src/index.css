@@ -394,8 +394,8 @@ main {
   color: white;
 }
 
-/* Mobile styles */
-@media (max-width: 640.98px) {
+/* Mobile styles - screens smaller than 641px */
+@media (max-width: 640px) {
   .top-row {
     justify-content: space-between;
   }
