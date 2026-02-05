@@ -222,7 +222,7 @@ const Dashboard: React.FC = () => {
         />
         <StatCard
           title="Balance"
-          value={balance?.currentBalance || 0}
+          value={balance?.balance || 0}
           icon="bi-wallet2"
           type="balance"
           previousValue={

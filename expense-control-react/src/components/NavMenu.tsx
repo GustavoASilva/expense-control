@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 const NavMenu: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   const toggleNavMenu = () => {
     setCollapsed(!collapsed);
@@ -28,7 +28,7 @@ const NavMenu: React.FC = () => {
         </div>
       </div>
 
-      <div className={`${collapsed ? 'collapse' : ''} nav-scrollable`}>
+      <div className={`${collapsed ? 'collapse' : ''} nav-scrollable show`}>
         <nav className="flex-column">
           <div className="nav-item">
             <NavLink
