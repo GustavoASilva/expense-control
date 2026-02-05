@@ -19,8 +19,7 @@ namespace ExpenseControl.Api.Features.Transactions.Create
         {
             app.MapPost("/api/transactions", async (
                 CreateTransactionCommand command,
-                ExpenseControl.Api.Persistence.ExpenseDbContext db,
-                [FromKeyedServices("TransactionsAdded")] Counter<int> transactionsAddedCounter) =>
+                ExpenseControl.Api.Persistence.ExpenseDbContext db) =>
             {
                 var category = await db.Categories.FindAsync(command.CategoryId);
                 if (category == null)
@@ -42,8 +41,6 @@ namespace ExpenseControl.Api.Features.Transactions.Create
 
                 db.Transactions.Add(transaction);
                 await db.SaveChangesAsync();
-
-                transactionsAddedCounter.Add(1); // Increment the named counter
 
                 return Results.Created($"/api/transactions/{transaction.Id}", transaction);
             })
