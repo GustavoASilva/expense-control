@@ -232,23 +232,25 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
                       <label htmlFor="amount" className="form-label">
                         Budget Amount
                       </label>
-                      <div className="input-group">
-                        <span className="input-group-text">$</span>
-                        <input
-                          type="number"
-                          className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
-                          id="amount"
-                          name="amount"
-                          value={budget.amount || ''}
-                          onChange={handleInputChange}
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                        />
-                        {errors.amount && (
-                          <div className="invalid-feedback">{errors.amount}</div>
-                        )}
+                      <div className={errors.amount ? 'is-invalid' : ''}>
+                        <div className="input-group">
+                          <span className="input-group-text">$</span>
+                          <input
+                            type="number"
+                            className={`form-control ${errors.amount ? 'is-invalid' : ''}`}
+                            id="amount"
+                            name="amount"
+                            value={budget.amount || ''}
+                            onChange={handleInputChange}
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
+                          />
+                        </div>
                       </div>
+                      {errors.amount && (
+                        <div className="invalid-feedback d-block">{errors.amount}</div>
+                      )}
                     </div>
                   </div>
                 )}
