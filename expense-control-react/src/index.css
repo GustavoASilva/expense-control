@@ -395,7 +395,7 @@ main {
 }
 
 /* Mobile styles */
-@media (max-width: 767.98px) {
+@media (max-width: 640.98px) {
   .top-row {
     justify-content: space-between;
   }
@@ -436,8 +436,8 @@ main {
   }
 }
 
-/* Tablet and up */
-@media (min-width: 768px) {
+/* Tablet and up - sidebar shows at 641px+ */
+@media (min-width: 641px) {
   .page {
     flex-direction: row;
   }
