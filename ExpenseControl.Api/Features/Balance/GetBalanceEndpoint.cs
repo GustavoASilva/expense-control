@@ -8,9 +8,10 @@ namespace ExpenseControl.Api.Features.Balance
     {
         public static RouteHandlerBuilder MapGetBalanceEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapGet("/api/balance", async (ExpenseDbContext db, DateOnly? startDate, DateOnly? endDate) =>
+            return app.MapGet("/api/balance", async (ExpenseDbContext db, Guid householdId, DateOnly? startDate, DateOnly? endDate) =>
             {
-                var query = db.Transactions.AsQueryable();
+                var query = db.Transactions
+                    .Where(t => t.HouseholdId == householdId);
 
                 // Handle date range
                 var periodStart = startDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(-1));

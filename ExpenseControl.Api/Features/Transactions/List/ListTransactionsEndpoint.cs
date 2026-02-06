@@ -18,6 +18,7 @@ namespace ExpenseControl.Api.Features.Transactions.List
         {
             app.MapGet("/api/transactions", async (
                 ExpenseControl.Api.Persistence.ExpenseDbContext db,
+                Guid householdId,
                 TransactionType? type,
                 Guid? categoryId,
                 DateOnly? startDate,
@@ -27,7 +28,7 @@ namespace ExpenseControl.Api.Features.Transactions.List
             {
                 var query = db.Transactions
                     .Include(t => t.Category)
-                    .AsQueryable();
+                    .Where(t => t.HouseholdId == householdId);
 
                 if (type.HasValue)
                     query = query.Where(t => t.Type == type.Value);

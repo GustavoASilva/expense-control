@@ -7,9 +7,11 @@ namespace ExpenseControl.Api.Features.Transactions.Delete
     {
         public static RouteHandlerBuilder MapDeleteTransactionEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, Guid id) =>
+            return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Guid householdId) =>
             {
-                var transaction = await db.Transactions.FindAsync(id);
+                var transaction = await db.Transactions
+                    .Where(t => t.HouseholdId == householdId)
+                    .FirstOrDefaultAsync(t => t.Id == id);
                 if (transaction == null)
                     return Results.NotFound();
 

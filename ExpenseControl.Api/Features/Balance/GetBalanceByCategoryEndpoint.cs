@@ -8,17 +8,18 @@ namespace ExpenseControl.Api.Features.Balance
     {
         public static RouteHandlerBuilder MapGetBalanceByCategoryEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapGet("/api/balance/by-category", async (ExpenseDbContext db, DateOnly? startDate, DateOnly? endDate) =>
+            return app.MapGet("/api/balance/by-category", async (ExpenseDbContext db, Guid householdId, DateOnly? startDate, DateOnly? endDate) =>
             {
                 var periodStart = startDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date.AddMonths(-1));
                 var periodEnd = endDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
-                var query = db.Transactions
+                var transactionQuery = db.Transactions
                     .Include(t => t.Category)
-                    .Where(t => t.Date >= periodStart && t.Date <= periodEnd);
+                    .Where(t => t.Date >= periodStart && t.Date <= periodEnd)
+                    .Where(t => t.HouseholdId == householdId);
 
                 var categories = await db.Categories.ToListAsync();
-                var transactions = await query.ToListAsync();
+                var transactions = await transactionQuery.ToListAsync();
 
                 var result = categories.SelectMany(c => new[]
                 {

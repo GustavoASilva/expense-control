@@ -12,6 +12,7 @@ using ExpenseControl.Api.Features.Budgets;
 using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Features.Budgets.List;
 using ExpenseControl.Api.Features.Budgets.Usage;
+using ExpenseControl.Api.Features.Households;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,6 +86,9 @@ app.MapGetMonthlyBalanceEndpoint();
 app.MapCreateBudgetEndpoint();
 app.MapListBudgetsEndpoint();
 app.MapGetBudgetUsageEndpoint();
+
+// Household endpoints
+app.MapHouseholdEndpoints();
 
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())
