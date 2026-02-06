@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import DateRangePicker from '../components/DateRangePicker';
+import TransactionForm from '../components/TransactionForm';
 import { getTransactions, deleteTransaction } from '../services/api';
 import { Transaction, TransactionType } from '../types/index';
 
 const Transactions: React.FC = () => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [recordForEdit, setRecordForEdit] = useState<Transaction | null>(null);
   const today = new Date();
   const defaultStart = new Date(today);
   defaultStart.setDate(today.getDate() - 29);
@@ -38,12 +39,23 @@ const Transactions: React.FC = () => {
     setEndDate(range.end);
   };
 
-  const handleCreateTransaction = () => {
-    navigate('/transactions/new');
+  const openFormForNew = () => {
+    setRecordForEdit(null);
+    setDialogOpen(true);
   };
 
-  const handleEditTransaction = (id: string) => {
-    navigate(`/transactions/${id}`);
+  const openFormForEdit = (txn: Transaction) => {
+    setRecordForEdit(txn);
+    setDialogOpen(true);
+  };
+
+  const hideForm = () => {
+    setDialogOpen(false);
+    setRecordForEdit(null);
+  };
+
+  const reloadAfterSave = async () => {
+    await loadData(startDate, endDate);
   };
 
   const handleDeleteTransaction = async (transaction: Transaction) => {
@@ -97,7 +109,7 @@ const Transactions: React.FC = () => {
             endDate={endDate}
             onChanged={handleDateRangeChanged}
           />
-          <button className="btn btn-primary" onClick={handleCreateTransaction}>
+          <button className="btn btn-primary" onClick={openFormForNew}>
             <i className="bi bi-plus-lg me-2"></i>New Transaction
           </button>
         </div>
@@ -123,7 +135,7 @@ const Transactions: React.FC = () => {
               <div className="empty-state-description">
                 Get started by creating your first transaction
               </div>
-              <button className="btn btn-primary" onClick={handleCreateTransaction}>
+              <button className="btn btn-primary" onClick={openFormForNew}>
                 <i className="bi bi-plus-lg me-2"></i>Create Transaction
               </button>
             </div>
@@ -147,7 +159,7 @@ const Transactions: React.FC = () => {
                       key={transaction.id}
                       className="transaction-row"
                       style={{ cursor: 'pointer' }}
-                      onClick={() => handleEditTransaction(transaction.id)}
+                      onClick={() => openFormForEdit(transaction)}
                     >
                       <div className={`transaction-icon ${isIncome ? 'income' : 'expense'}`}>
                         <i className={`bi ${isIncome ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}`}></i>
@@ -167,7 +179,7 @@ const Transactions: React.FC = () => {
                         <button
                           className="btn btn-sm btn-outline-primary"
                           style={{ padding: '0.25rem 0.5rem' }}
-                          onClick={() => handleEditTransaction(transaction.id)}
+                          onClick={() => openFormForEdit(transaction)}
                           title="Edit"
                         >
                           <i className="bi bi-pencil"></i>
@@ -189,6 +201,13 @@ const Transactions: React.FC = () => {
           </div>
         </div>
       )}
+
+      <TransactionForm
+        isVisible={dialogOpen}
+        handleClose={hideForm}
+        refreshData={reloadAfterSave}
+        recordToUpdate={recordForEdit}
+      />
     </div>
   );
 };
