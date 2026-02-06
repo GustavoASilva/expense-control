@@ -10,7 +10,8 @@ namespace ExpenseControl.Api.Features.Transactions.Create
         DateOnly Date,
         Guid CategoryId,
         TransactionType Type,
-        string? Notes
+        string? Notes,
+        Guid? HouseholdId
     );
 
     public static class CreateTransactionEndpoint
@@ -25,6 +26,13 @@ namespace ExpenseControl.Api.Features.Transactions.Create
                 if (category == null)
                     return Results.NotFound("Category not found");
 
+                if (command.HouseholdId.HasValue)
+                {
+                    var household = await db.Households.FindAsync(command.HouseholdId.Value);
+                    if (household == null)
+                        return Results.NotFound("Household not found");
+                }
+
                 Transaction transaction = command.Type switch
                 {
                     TransactionType.Expense => new Expense(),
@@ -38,6 +46,7 @@ namespace ExpenseControl.Api.Features.Transactions.Create
                 transaction.Date = command.Date;
                 transaction.CategoryId = command.CategoryId;
                 transaction.Notes = command.Notes ?? string.Empty;
+                transaction.HouseholdId = command.HouseholdId;
 
                 db.Transactions.Add(transaction);
                 await db.SaveChangesAsync();

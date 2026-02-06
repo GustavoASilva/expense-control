@@ -12,5 +12,7 @@ namespace ExpenseControl.Api.Entities
         public int Year { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public Guid? HouseholdId { get; set; }
+        public Household? Household { get; set; }
     }
 }

@@ -8,13 +8,17 @@ namespace ExpenseControl.Api.Features.Balance
     {
         public static RouteHandlerBuilder MapGetMonthlyBalanceEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapGet("/api/balance/monthly", async (ExpenseDbContext db, int? year) =>
+            return app.MapGet("/api/balance/monthly", async (ExpenseDbContext db, int? year, Guid? householdId) =>
             {
                 // No date filter from client, but ensure all transaction dates are UTC
                 var targetYear = year ?? DateTime.UtcNow.Year;
                 var currentMonth = DateTime.UtcNow.Month;
 
                 var query = db.Transactions.Where(t => t.Date.Year == targetYear);
+
+                if (householdId.HasValue)
+                    query = query.Where(t => t.HouseholdId == householdId.Value);
+
                 var transactions = await query.ToListAsync();
 
                 // If no transactions and requesting current year, show last 3 months

@@ -7,11 +7,16 @@ namespace ExpenseControl.Api.Features.Transactions.Get
     {
         public static RouteHandlerBuilder MapGetTransactionEndpoint(this IEndpointRouteBuilder app)
         {
-            return app.MapGet("/api/transactions/{id}", async (ExpenseDbContext db, Guid id) =>
+            return app.MapGet("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Guid? householdId) =>
             {
-                var transaction = await db.Transactions
+                var query = db.Transactions
                     .Include(t => t.Category)
-                    .FirstOrDefaultAsync(t => t.Id == id);
+                    .AsQueryable();
+
+                if (householdId.HasValue)
+                    query = query.Where(t => t.HouseholdId == householdId.Value);
+
+                var transaction = await query.FirstOrDefaultAsync(t => t.Id == id);
 
                 return transaction is null ? Results.NotFound() : Results.Ok(transaction);
             })

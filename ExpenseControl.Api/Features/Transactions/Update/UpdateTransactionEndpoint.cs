@@ -8,9 +8,14 @@ public static class UpdateTransactionEndpoint
 {
     public static RouteHandlerBuilder MapUpdateTransactionEndpoint(this IEndpointRouteBuilder app)
     {
-        return app.MapPatch("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Transaction updated) =>
+        return app.MapPatch("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Transaction updated, Guid? householdId) =>
         {
-            var transaction = await db.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            var query = db.Transactions.AsQueryable();
+
+            if (householdId.HasValue)
+                query = query.Where(t => t.HouseholdId == householdId.Value);
+
+            var transaction = await query.FirstOrDefaultAsync(t => t.Id == id);
             if (transaction == null)
                 return Results.NotFound();
 

@@ -9,7 +9,8 @@ namespace ExpenseControl.Api.Features.Transactions.List
         DateOnly? StartDate = null,
         DateOnly? EndDate = null,
         int? Limit = null,
-        int? Offset = null
+        int? Offset = null,
+        Guid? HouseholdId = null
     );
 
     public static class ListTransactionsEndpoint
@@ -23,11 +24,15 @@ namespace ExpenseControl.Api.Features.Transactions.List
                 DateOnly? startDate,
                 DateOnly? endDate,
                 int? limit,
-                int? offset) =>
+                int? offset,
+                Guid? householdId) =>
             {
                 var query = db.Transactions
                     .Include(t => t.Category)
                     .AsQueryable();
+
+                if (householdId.HasValue)
+                    query = query.Where(t => t.HouseholdId == householdId.Value);
 
                 if (type.HasValue)
                     query = query.Where(t => t.Type == type.Value);
