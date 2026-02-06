@@ -87,8 +87,8 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     setErrorContainer(createEmptyErrors());
   }, [isVisible, recordToUpdate]);
 
-  const modifyFormField = (key: keyof FormDataContainer, val: any) => {
-    setFormContainer(prev => ({ ...prev, [key]: val }));
+  const modifyFormField = (key: keyof FormDataContainer, value: string | number) => {
+    setFormContainer(prev => ({ ...prev, [key]: value }));
     if (key in errorContainer) {
       setErrorContainer(prev => ({ ...prev, [key]: '' }));
     }
@@ -168,7 +168,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     }
   };
 
-  const filteredCatList = availableCats.filter(c => c.type === formContainer.flowType);
+  const filteredCatList = availableCats.filter(category => category.type === formContainer.flowType);
 
   if (!isVisible) return null;
 
