@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExpenseControl.Api.Migrations
 {
     [DbContext(typeof(ExpenseDbContext))]
-    [Migration("20260206003409_AddHouseholdSupport")]
+    [Migration("20260206095711_AddHouseholdSupport")]
     partial class AddHouseholdSupport
     {
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace ExpenseControl.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("HouseholdId")
+                    b.Property<Guid>("HouseholdId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Month")
@@ -198,7 +198,7 @@ namespace ExpenseControl.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<Guid?>("HouseholdId")
+                    b.Property<Guid>("HouseholdId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Notes")
@@ -229,7 +229,8 @@ namespace ExpenseControl.Api.Migrations
                     b.HasOne("ExpenseControl.Api.Entities.Household", "Household")
                         .WithMany()
                         .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -247,7 +248,8 @@ namespace ExpenseControl.Api.Migrations
                     b.HasOne("ExpenseControl.Api.Entities.Household", "Household")
                         .WithMany()
                         .HasForeignKey("HouseholdId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 

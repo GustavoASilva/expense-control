@@ -10,21 +10,16 @@ namespace ExpenseControl.Api.Features.Budgets.Create
         {
             app.MapPost("/api/budgets", async (ExpenseDbContext db, Budget budget) =>
             {
-                if (budget.HouseholdId.HasValue)
-                {
-                    var household = await db.Households.FindAsync(budget.HouseholdId.Value);
-                    if (household == null)
-                        return Results.NotFound("Household not found");
-                }
+                var household = await db.Households.FindAsync(budget.HouseholdId);
+                if (household == null)
+                    return Results.NotFound("Household not found");
 
-                var existingQuery = db.Budgets.Where(b => b.CategoryId == budget.CategoryId && b.Month == budget.Month && b.Year == budget.Year);
+                var existing = await db.Budgets.FirstOrDefaultAsync(b =>
+                    b.CategoryId == budget.CategoryId &&
+                    b.Month == budget.Month &&
+                    b.Year == budget.Year &&
+                    b.HouseholdId == budget.HouseholdId);
 
-                if (budget.HouseholdId.HasValue)
-                    existingQuery = existingQuery.Where(b => b.HouseholdId == budget.HouseholdId.Value);
-                else
-                    existingQuery = existingQuery.Where(b => b.HouseholdId == null);
-
-                var existing = await existingQuery.FirstOrDefaultAsync();
                 if (existing != null)
                 {
                     existing.Amount = budget.Amount;

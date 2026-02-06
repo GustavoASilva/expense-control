@@ -12,7 +12,7 @@ namespace ExpenseControl.Api.Entities
         public Category? Category { get; set; }
         public TransactionType Type { get; set; }
         public string? Notes { get; set; }
-        public Guid? HouseholdId { get; set; }
-        public Household? Household { get; set; }
+        public Guid HouseholdId { get; set; }
+        public Household Household { get; set; } = null!;
     }
 }

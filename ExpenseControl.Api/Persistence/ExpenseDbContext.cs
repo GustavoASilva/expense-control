@@ -37,6 +37,7 @@ namespace ExpenseControl.Api.Persistence
                 entity.HasOne(e => e.Household)
                     .WithMany()
                     .HasForeignKey(e => e.HouseholdId)
+                    .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(e => e.HouseholdId);
@@ -71,6 +72,7 @@ namespace ExpenseControl.Api.Persistence
                 entity.HasOne(e => e.Household)
                     .WithMany()
                     .HasForeignKey(e => e.HouseholdId)
+                    .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(e => new { e.CategoryId, e.Month, e.Year, e.HouseholdId }).IsUnique();
                 entity.HasIndex(e => e.HouseholdId);

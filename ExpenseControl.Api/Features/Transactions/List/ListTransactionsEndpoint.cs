@@ -9,8 +9,7 @@ namespace ExpenseControl.Api.Features.Transactions.List
         DateOnly? StartDate = null,
         DateOnly? EndDate = null,
         int? Limit = null,
-        int? Offset = null,
-        Guid? HouseholdId = null
+        int? Offset = null
     );
 
     public static class ListTransactionsEndpoint
@@ -19,20 +18,17 @@ namespace ExpenseControl.Api.Features.Transactions.List
         {
             app.MapGet("/api/transactions", async (
                 ExpenseControl.Api.Persistence.ExpenseDbContext db,
+                Guid householdId,
                 TransactionType? type,
                 Guid? categoryId,
                 DateOnly? startDate,
                 DateOnly? endDate,
                 int? limit,
-                int? offset,
-                Guid? householdId) =>
+                int? offset) =>
             {
                 var query = db.Transactions
                     .Include(t => t.Category)
-                    .AsQueryable();
-
-                if (householdId.HasValue)
-                    query = query.Where(t => t.HouseholdId == householdId.Value);
+                    .Where(t => t.HouseholdId == householdId);
 
                 if (type.HasValue)
                     query = query.Where(t => t.Type == type.Value);
