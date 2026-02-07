@@ -1,10 +1,9 @@
-namespace ExpenseControl.Api.Entities
+namespace ExpenseControl.Api.Entities;
+
+public class Expense : Transaction
 {
-    public class Expense : Transaction
+    public Expense()
     {
-        public Expense()
-        {
-            Type = TransactionType.Expense;
-        }
+        Type = TransactionType.Expense;
     }
 }

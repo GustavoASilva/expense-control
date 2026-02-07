@@ -1,8 +1,7 @@
-namespace ExpenseControl.Api.Entities
+namespace ExpenseControl.Api.Entities;
+
+public enum TransactionType
 {
-    public enum TransactionType
-    {
-        Expense,
-        Income
-    }
+    Expense,
+    Income
 }

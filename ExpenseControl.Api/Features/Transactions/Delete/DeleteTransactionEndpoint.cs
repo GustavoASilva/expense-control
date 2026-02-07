@@ -1,27 +1,26 @@
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseControl.Api.Features.Transactions.Delete
+namespace ExpenseControl.Api.Features.Transactions.Delete;
+
+public static class DeleteTransactionEndpoint
 {
-    public static class DeleteTransactionEndpoint
+    public static RouteHandlerBuilder MapDeleteTransactionEndpoint(this IEndpointRouteBuilder app)
     {
-        public static RouteHandlerBuilder MapDeleteTransactionEndpoint(this IEndpointRouteBuilder app)
+        return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Guid householdId) =>
         {
-            return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Guid householdId) =>
-            {
-                var transaction = await db.Transactions
-                    .Where(t => t.HouseholdId == householdId)
-                    .FirstOrDefaultAsync(t => t.Id == id);
-                if (transaction == null)
-                    return Results.NotFound();
+            var transaction = await db.Transactions
+                .Where(t => t.HouseholdId == householdId)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (transaction == null)
+                return Results.NotFound();
 
-                db.Transactions.Remove(transaction);
-                await db.SaveChangesAsync();
+            db.Transactions.Remove(transaction);
+            await db.SaveChangesAsync();
 
-                return Results.NoContent();
-            })
-            .WithName("DeleteTransaction")
-            .WithOpenApi();
-        }
+            return Results.NoContent();
+        })
+        .WithName("DeleteTransaction")
+        .WithOpenApi();
     }
 }
