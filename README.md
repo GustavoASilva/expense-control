@@ -69,7 +69,41 @@ This starts:
 ## Key Technologies
 - **Backend**: .NET 8 Minimal APIs, EF Core
 - **Frontend**: React, TypeScript, Vite, Bootstrap
+- **Testing**: Playwright (end-to-end)
 - **Database**: PostgreSQL
+
+## Running Tests
+
+### Frontend End-to-End Tests (Playwright)
+
+The React frontend includes end-to-end tests built with [Playwright](https://playwright.dev/). Tests cover navigation, the Dashboard, Transactions, and Budgets pages.
+
+#### Prerequisites
+- [Node.js 20+](https://nodejs.org/)
+
+#### Setup
+1. Install dependencies (includes Playwright):
+   ```bash
+   cd expense-control-react
+   npm install
+   ```
+2. Install Playwright browsers:
+   ```bash
+   npx playwright install chromium
+   ```
+
+#### Running the tests
+Run all end-to-end tests:
+```bash
+npm run test:e2e
+```
+
+This automatically starts the Vite development server and runs the tests against it. API calls are mocked, so the backend does not need to be running.
+
+To see the HTML test report after a run:
+```bash
+npx playwright show-report
+```
 
 ## Customization
 - Add new categories, budgets, or transaction types via the UI
