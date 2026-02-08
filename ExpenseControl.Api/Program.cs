@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using FluentValidation;
+using Microsoft.AspNetCore.Http.Json;
+using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Features.Categories;
 using ExpenseControl.Api.Features.Transactions.Create;
 using ExpenseControl.Api.Features.Transactions.List;
@@ -7,8 +8,6 @@ using ExpenseControl.Api.Features.Transactions.Delete;
 using ExpenseControl.Api.Features.Transactions.Get;
 using ExpenseControl.Api.Features.Transactions.Update;
 using ExpenseControl.Api.Features.Balance;
-using Microsoft.AspNetCore.Http.Json;
-using ExpenseControl.Api.Features.Budgets;
 using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Features.Budgets.List;
 using ExpenseControl.Api.Features.Budgets.Usage;
@@ -38,15 +37,13 @@ builder.Services.AddCors(options =>
 // Add health checks
 builder.Services.AddHealthChecks();
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure DbContext
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddDbContext<ExpenseControl.Api.Persistence.ExpenseDbContext>(options =>
+    builder.Services.AddDbContext<ExpenseDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
@@ -93,7 +90,7 @@ app.MapHouseholdEndpoints();
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ExpenseControl.Api.Persistence.ExpenseDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
     db.Database.Migrate();
 }
 
