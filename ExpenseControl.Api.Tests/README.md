@@ -27,34 +27,6 @@ cd ExpenseControl.Api.Tests
 dotnet test
 ```
 
-## Test Structure
-
-Tests are organized by feature area to mirror the API structure:
-
-```
-ExpenseControl.Api.Tests/
-├── Features/
-│   ├── Transactions/
-│   │   ├── CreateTransactionEndpointTests.cs
-│   │   ├── ListTransactionsEndpointTests.cs
-│   │   ├── GetTransactionEndpointTests.cs
-│   │   ├── UpdateTransactionEndpointTests.cs
-│   │   └── DeleteTransactionEndpointTests.cs
-│   ├── Balance/
-│   │   ├── GetBalanceEndpointTests.cs
-│   │   └── GetMonthlyBalanceEndpointTests.cs
-│   ├── Budgets/
-│   │   ├── CreateBudgetEndpointTests.cs
-│   │   ├── ListBudgetsEndpointTests.cs
-│   │   └── GetBudgetUsageEndpointTests.cs
-│   ├── Categories/
-│   │   └── CategoryEndpointsTests.cs
-│   └── Households/
-│       └── HouseholdEndpointsTests.cs
-└── TestHelpers/
-    └── DbContextHelper.cs
-```
-
 ## Test Coverage
 
 The test suite covers:
