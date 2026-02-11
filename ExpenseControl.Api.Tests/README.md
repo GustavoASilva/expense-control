@@ -27,39 +27,11 @@ cd ExpenseControl.Api.Tests
 dotnet test
 ```
 
-## Test Structure
-
-Tests are organized by feature area to mirror the API structure:
-
-```
-ExpenseControl.Api.Tests/
-├── Features/
-│   ├── Transactions/
-│   │   ├── CreateTransactionEndpointTests.cs (6 tests)
-│   │   ├── ListTransactionsEndpointTests.cs (7 tests)
-│   │   ├── GetTransactionEndpointTests.cs (4 tests)
-│   │   ├── UpdateTransactionEndpointTests.cs (4 tests)
-│   │   └── DeleteTransactionEndpointTests.cs (4 tests)
-│   ├── Balance/
-│   │   ├── GetBalanceEndpointTests.cs (6 tests)
-│   │   └── GetMonthlyBalanceEndpointTests.cs (6 tests)
-│   ├── Budgets/
-│   │   ├── CreateBudgetEndpointTests.cs (6 tests)
-│   │   ├── ListBudgetsEndpointTests.cs (5 tests)
-│   │   └── GetBudgetUsageEndpointTests.cs (6 tests)
-│   ├── Categories/
-│   │   └── CategoryEndpointsTests.cs (6 tests)
-│   └── Households/
-│       └── HouseholdEndpointsTests.cs (8 tests)
-└── TestHelpers/
-    └── DbContextHelper.cs
-```
-
 ## Test Coverage
 
-The test suite includes **68 tests** covering:
+The test suite covers:
 
-### Transaction Endpoints (25 tests)
+### Transaction Endpoints
 - Creating transactions (expenses and income)
 - Listing transactions with various filters
 - Getting individual transactions
@@ -67,26 +39,26 @@ The test suite includes **68 tests** covering:
 - Deleting transactions
 - Household isolation
 
-### Balance Endpoints (12 tests)
+### Balance Endpoints
 - Overall balance calculation
 - Balance by category
 - Monthly balance summaries
 - Date range filtering
 - Income vs expense tracking
 
-### Budget Endpoints (17 tests)
+### Budget Endpoints
 - Creating and updating budgets
 - Listing budgets with filters
 - Budget usage calculation
 - Percentage tracking
 - Over-budget scenarios
 
-### Category Endpoints (6 tests)
+### Category Endpoints
 - Listing categories with type filtering
 - Getting individual categories
 - Category properties validation
 
-### Household Endpoints (8 tests)
+### Household Endpoints
 - Creating households
 - Listing households with ordering
 - Getting individual households
@@ -142,7 +114,7 @@ All tests follow the AAA pattern for clarity:
 ## Continuous Integration
 
 These tests are designed to run in CI/CD pipelines:
-- Fast execution (< 2 seconds for all 68 tests)
+- Fast execution
 - No external dependencies
 - Deterministic results
 - Isolated test runs
