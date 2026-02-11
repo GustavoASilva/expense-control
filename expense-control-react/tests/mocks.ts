@@ -1,5 +1,52 @@
 import { Page } from '@playwright/test';
 
+// Mock Cognito auth session in localStorage so Amplify treats the user as authenticated.
+// The key format matches what amazon-cognito-identity-js stores internally.
+const MOCK_CLIENT_ID = 'YOUR_APP_CLIENT_ID';
+const MOCK_USERNAME = 'testuser';
+
+// Minimal JWT-like token for mock purposes (not a real token, just enough for Amplify to parse)
+const mockIdToken = [
+  btoa(JSON.stringify({ alg: 'RS256', kid: 'mock' })),
+  btoa(JSON.stringify({
+    sub: '00000000-0000-0000-0000-000000000001',
+    'cognito:username': MOCK_USERNAME,
+    email: 'test@example.com',
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000),
+    iss: 'https://cognito-idp.us-east-1.amazonaws.com/YOUR_USER_POOL_ID',
+    aud: MOCK_CLIENT_ID,
+    token_use: 'id',
+  })),
+  'mock-signature',
+].join('.');
+
+const mockAccessToken = [
+  btoa(JSON.stringify({ alg: 'RS256', kid: 'mock' })),
+  btoa(JSON.stringify({
+    sub: '00000000-0000-0000-0000-000000000001',
+    'cognito:username': MOCK_USERNAME,
+    client_id: MOCK_CLIENT_ID,
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000),
+    iss: 'https://cognito-idp.us-east-1.amazonaws.com/YOUR_USER_POOL_ID',
+    token_use: 'access',
+    scope: 'openid profile email',
+  })),
+  'mock-signature',
+].join('.');
+
+export async function setupAuthMock(page: Page) {
+  const prefix = `CognitoIdentityServiceProvider.${MOCK_CLIENT_ID}`;
+  await page.addInitScript(({ prefix, username, idToken, accessToken }) => {
+    localStorage.setItem(`${prefix}.LastAuthUser`, username);
+    localStorage.setItem(`${prefix}.${username}.idToken`, idToken);
+    localStorage.setItem(`${prefix}.${username}.accessToken`, accessToken);
+    localStorage.setItem(`${prefix}.${username}.refreshToken`, 'mock-refresh-token');
+    localStorage.setItem(`${prefix}.${username}.clockDrift`, '0');
+  }, { prefix, username: MOCK_USERNAME, idToken: mockIdToken, accessToken: mockAccessToken });
+}
+
 export const mockCategories = [
   { id: 'cat-1', name: 'Groceries', type: 'Expense', iconName: 'cart' },
   { id: 'cat-2', name: 'Rent', type: 'Expense', iconName: 'house' },
@@ -112,6 +159,9 @@ export const mockBudgetUsageRent = {
 };
 
 export async function setupApiMocks(page: Page) {
+  // Set up auth mock so the app treats the user as authenticated
+  await setupAuthMock(page);
+
   await page.route('**/api/categories', (route) => {
     route.fulfill({ json: mockCategories });
   });

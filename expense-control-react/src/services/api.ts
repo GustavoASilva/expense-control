@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   Transaction,
   TransactionForm,
@@ -19,6 +20,31 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Attach Cognito access token to every request
+api.interceptors.request.use(async (config) => {
+  try {
+    const session = await fetchAuthSession();
+    const token = session.tokens?.accessToken?.toString();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch {
+    // If session fetch fails, proceed without token
+  }
+  return config;
+});
+
+// Redirect to login on 401 responses
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Helper to format dates for API
 const formatDate = (date: string | Date): string => {
