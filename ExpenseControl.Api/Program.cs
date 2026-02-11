@@ -12,6 +12,7 @@ using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Features.Budgets.List;
 using ExpenseControl.Api.Features.Budgets.Usage;
 using ExpenseControl.Api.Features.Households;
+using ExpenseControl.Api.Features.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,9 @@ builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Configure AWS Cognito authentication
+builder.Services.AddCognitoAuthentication(builder.Configuration);
+
 // Configure DbContext
 if (builder.Environment.IsDevelopment())
 {
@@ -61,31 +65,37 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Map health check endpoint
 app.MapHealthChecks("/health");
 
+// All API endpoints require authorization
+var api = app.MapGroup("").RequireAuthorization();
+
 // Map API endpoints
-app.MapCategoryEndpoints();
+api.MapCategoryEndpoints();
 
 // Transaction endpoints
-app.MapCreateTransactionEndpoint();
-app.MapListTransactionsEndpoint();
-app.MapGetTransactionEndpoint();
-app.MapDeleteTransactionEndpoint();
-app.MapUpdateTransactionEndpoint();
+api.MapCreateTransactionEndpoint();
+api.MapListTransactionsEndpoint();
+api.MapGetTransactionEndpoint();
+api.MapDeleteTransactionEndpoint();
+api.MapUpdateTransactionEndpoint();
 
 // Balance endpoints
-app.MapGetBalanceEndpoint();
-app.MapGetBalanceByCategoryEndpoint();
-app.MapGetMonthlyBalanceEndpoint();
+api.MapGetBalanceEndpoint();
+api.MapGetBalanceByCategoryEndpoint();
+api.MapGetMonthlyBalanceEndpoint();
 
 // Budget endpoints
-app.MapCreateBudgetEndpoint();
-app.MapListBudgetsEndpoint();
-app.MapGetBudgetUsageEndpoint();
+api.MapCreateBudgetEndpoint();
+api.MapListBudgetsEndpoint();
+api.MapGetBudgetUsageEndpoint();
 
 // Household endpoints
-app.MapHouseholdEndpoints();
+api.MapHouseholdEndpoints();
 
 // Run EF Core migrations at startup
 using (var scope = app.Services.CreateScope())

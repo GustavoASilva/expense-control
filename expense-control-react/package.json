@@ -11,6 +11,7 @@
     "test:e2e": "playwright test --project=chromium"
   },
   "dependencies": {
+    "aws-amplify": "^6.16.2",
     "axios": "^1.13.4",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
