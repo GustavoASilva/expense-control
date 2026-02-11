@@ -16,6 +16,7 @@ public static class GetTransactionEndpoint
 
             return transaction is null ? Results.NotFound() : Results.Ok(transaction);
         })
+        .RequireAuthorization()
         .WithName("GetTransaction")
         .WithOpenApi();
     }

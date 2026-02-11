@@ -24,6 +24,7 @@ public static class HouseholdEndpoints
 
             return Results.Created($"/api/households/{household.Id}", household);
         })
+        .RequireAuthorization()
         .WithName("CreateHousehold")
         .WithOpenApi();
 
@@ -35,6 +36,7 @@ public static class HouseholdEndpoints
 
             return Results.Ok(households);
         })
+        .RequireAuthorization()
         .WithName("ListHouseholds")
         .WithOpenApi();
 
@@ -43,6 +45,7 @@ public static class HouseholdEndpoints
             var household = await db.Households.FindAsync(id);
             return household is null ? Results.NotFound() : Results.Ok(household);
         })
+        .RequireAuthorization()
         .WithName("GetHousehold")
         .WithOpenApi();
     }

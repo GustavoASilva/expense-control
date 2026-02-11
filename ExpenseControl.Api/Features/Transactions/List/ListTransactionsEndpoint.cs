@@ -45,6 +45,7 @@ public static class ListTransactionsEndpoint
             var transactions = await query.ToListAsync();
             return Results.Ok(transactions);
         })
+        .RequireAuthorization()
         .WithName("ListTransactions")
         .WithOpenApi();
     }

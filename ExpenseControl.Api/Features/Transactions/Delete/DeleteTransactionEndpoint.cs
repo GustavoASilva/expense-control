@@ -20,6 +20,7 @@ public static class DeleteTransactionEndpoint
 
             return Results.NoContent();
         })
+        .RequireAuthorization()
         .WithName("DeleteTransaction")
         .WithOpenApi();
     }

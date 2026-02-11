@@ -26,6 +26,7 @@ public static class UpdateTransactionEndpoint
             await db.SaveChangesAsync();
             return Results.Ok(transaction);
         })
+        .RequireAuthorization()
         .WithName("UpdateTransaction")
         .WithOpenApi();
     }

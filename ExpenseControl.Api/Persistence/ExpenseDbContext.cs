@@ -9,6 +9,8 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
     public DbSet<Category> Categories { get; set; }
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Household> Households { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,6 +84,52 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
             .WithMany() // No navigation property on Category
             .HasForeignKey(t => t.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // User Configuration
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.GoogleId).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.PictureUrl).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasIndex(e => e.GoogleId).IsUnique();
+            entity.HasIndex(e => e.Email);
+        });
+
+        // Role Configuration
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        // UserRole Configuration (Many-to-Many)
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            entity.HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Seed default roles
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = WellKnownRoles.AdminRoleId, Name = WellKnownRoles.Admin },
+            new Role { Id = WellKnownRoles.MemberRoleId, Name = WellKnownRoles.Member }
+        );
 
         modelBuilder.ConfigureSeedData();
     }

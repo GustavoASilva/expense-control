@@ -25,6 +25,11 @@ Key Decisions (inferred / explicit)
   - Consequence: docker-compose provides a postgres service and the API depends on its health.
 - Use EF Core with explicit model configuration in `ExpenseDbContext` (indexes, column types, TPH discriminator for Transaction type).
 - Docker Compose orchestrates all services (postgres, api, frontend).
+- (2026-02-11) Authentication: Google OAuth with JWT Bearer tokens.
+  - Frontend obtains a Google ID token, backend validates it via Google's tokeninfo endpoint, issues a JWT.
+  - RBAC infrastructure: User, Role, UserRole entities with seeded "Admin" and "Member" roles.
+  - All API endpoints require authentication; roles are not enforced yet.
+  - Auth config: `Authentication:Google:ClientId`, `Authentication:Jwt:*` in appsettings.
 
 Rationale & Notes
 -----------------
@@ -35,8 +40,9 @@ Rationale & Notes
 Unresolved Questions / To Decide
 -------------------------------
 - Production settings: connection strings, secrets, and CORS policy need tightening.
-- Authentication/authorization is not present — decide on approach (OIDC, JWT, local tokens).
+- ~~Authentication/authorization is not present — decide on approach (OIDC, JWT, local tokens).~~ **Resolved** — Google OAuth + JWT Bearer implemented (2026-02-11).
 - Backup / migration strategy for production Postgres (volume + backups).
+- Role-based authorization enforcement on individual endpoints (RBAC policies are defined but not yet applied).
 
 Links (key files)
 ------------------
@@ -47,6 +53,8 @@ Links (key files)
 - API Program: ExpenseControl.Api/Program.cs
 - DbContext: ExpenseControl.Api/Persistence/ExpenseDbContext.cs
 - Frontend package.json: expense-control-react/package.json
+- Auth services: ExpenseControl.Api/Features/Auth/
+- Auth entities: ExpenseControl.Api/Entities/User.cs, Role.cs, UserRole.cs
 
 How to use this file
 --------------------
@@ -55,3 +63,4 @@ How to use this file
 
 Initial entries created on: 2026-02-02
 Updated on: 2026-02-03 (removed Prometheus/Grafana, added frontend to docker-compose)
+Updated on: 2026-02-11 (added Google OAuth + JWT authentication with RBAC infrastructure)

@@ -55,6 +55,7 @@ public static class GetMonthlyBalanceEndpoint
                 TotalExpenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount)
             });
         })
+        .RequireAuthorization()
         .WithName("GetMonthlyBalance")
         .WithOpenApi();
     }

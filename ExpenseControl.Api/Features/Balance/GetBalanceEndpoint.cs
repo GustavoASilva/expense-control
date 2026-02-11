@@ -35,6 +35,7 @@ public static class GetBalanceEndpoint
                 HasTransactions = result.Any()
             });
         })
+        .RequireAuthorization()
         .WithName("GetBalance")
         .WithOpenApi();
     }

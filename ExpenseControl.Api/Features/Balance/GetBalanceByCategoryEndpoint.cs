@@ -55,6 +55,7 @@ public static class GetBalanceByCategoryEndpoint
                 HasTransactions = transactions.Any()
             });
         })
+        .RequireAuthorization()
         .WithName("GetBalanceByCategory")
         .WithOpenApi();
     }

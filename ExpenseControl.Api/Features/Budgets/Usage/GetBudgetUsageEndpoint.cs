@@ -26,6 +26,7 @@ public static class GetBudgetUsageEndpoint
                 .SumAsync(t => t.Amount);
             var percent = budget.Amount > 0 ? (usage / budget.Amount) * 100m : 0m;
             return Results.Ok(new { budget.Amount, usage, percent });
-        });
+        })
+        .RequireAuthorization();
     }
 }

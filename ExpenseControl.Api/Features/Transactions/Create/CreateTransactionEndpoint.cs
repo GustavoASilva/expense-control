@@ -49,6 +49,7 @@ public static class CreateTransactionEndpoint
 
             return Results.Created($"/api/transactions/{transaction.Id}", transaction);
         })
+        .RequireAuthorization()
         .WithName("CreateTransaction")
         .WithOpenApi();
     }

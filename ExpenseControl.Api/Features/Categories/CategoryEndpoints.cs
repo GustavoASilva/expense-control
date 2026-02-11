@@ -19,6 +19,7 @@ public static class CategoryEndpoints
 
             return await query.ToListAsync();
         })
+        .RequireAuthorization()
         .WithName("GetCategories")
         .WithOpenApi();
 
@@ -27,6 +28,7 @@ public static class CategoryEndpoints
             var category = await db.Categories.FindAsync(id);
             return category is null ? Results.NotFound() : Results.Ok(category);
         })
+        .RequireAuthorization()
         .WithName("GetCategoryById")
         .WithOpenApi();
     }

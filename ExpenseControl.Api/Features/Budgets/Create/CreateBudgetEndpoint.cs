@@ -34,6 +34,7 @@ public static class CreateBudgetEndpoint
             }
             await db.SaveChangesAsync();
             return Results.Ok(budget);
-        });
+        })
+        .RequireAuthorization();
     }
 }

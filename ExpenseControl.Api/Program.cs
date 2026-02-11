@@ -12,6 +12,7 @@ using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Features.Budgets.List;
 using ExpenseControl.Api.Features.Budgets.Usage;
 using ExpenseControl.Api.Features.Households;
+using ExpenseControl.Api.Features.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,9 @@ if (builder.Environment.IsDevelopment())
         options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 
+// Add authentication and authorization services
+builder.Services.AddAuthServices(builder.Configuration);
+
 // Enable System.Text.Json enum serialization as strings for Minimal APIs
 builder.Services.Configure<JsonOptions>(options => options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
@@ -60,9 +64,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Map health check endpoint
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health").AllowAnonymous();
+
+// Map auth endpoints
+app.MapGoogleAuthEndpoint();
+app.MapGetCurrentUserEndpoint();
 
 // Map API endpoints
 app.MapCategoryEndpoints();
