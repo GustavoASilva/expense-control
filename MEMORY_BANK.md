@@ -35,8 +35,15 @@ Rationale & Notes
 Unresolved Questions / To Decide
 -------------------------------
 - Production settings: connection strings, secrets, and CORS policy need tightening.
-- Authentication/authorization is not present — decide on approach (OIDC, JWT, local tokens).
 - Backup / migration strategy for production Postgres (volume + backups).
+
+Resolved Decisions
+------------------
+- Authentication: AWS Cognito with JWT Bearer tokens.
+  - Backend: `Microsoft.AspNetCore.Authentication.JwtBearer` validates Cognito-issued tokens.
+  - Frontend: `aws-amplify` v6 handles sign-in/sign-out and attaches access tokens via axios interceptor.
+  - All API endpoints require authorization via route group.
+  - Configuration: `Cognito:Region`, `Cognito:UserPoolId`, `Cognito:AppClientId` in appsettings; `VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_APP_CLIENT_ID` in frontend env.
 
 Links (key files)
 ------------------

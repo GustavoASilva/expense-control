@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 
 // Mock Cognito auth session in localStorage so Amplify treats the user as authenticated.
 // The key format matches what amazon-cognito-identity-js stores internally.
+// MOCK_CLIENT_ID must match VITE_COGNITO_APP_CLIENT_ID in .env (Amplify uses it as localStorage key prefix).
 const MOCK_CLIENT_ID = 'YOUR_APP_CLIENT_ID';
 const MOCK_USERNAME = 'testuser';
 

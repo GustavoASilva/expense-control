@@ -18,9 +18,8 @@ const Login: React.FC = () => {
     try {
       await login(username, password);
       navigate('/');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed. Please try again.';
-      setError(message);
+    } catch {
+      setError('Invalid username or password. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
