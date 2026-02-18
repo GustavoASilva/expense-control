@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +10,9 @@ public static class GetBudgetUsageEndpoint
 {
     public static void MapGetBudgetUsageEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/budgets/usage", async (ExpenseDbContext db, Guid householdId, Guid categoryId, int year, int month) =>
+        app.MapGet("/api/budgets/usage", async (ExpenseDbContext db, ClaimsPrincipal user, Guid categoryId, int year, int month) =>
         {
+            var householdId = user.GetHouseholdId();
             var budget = await db.Budgets.FirstOrDefaultAsync(b =>
                 b.CategoryId == categoryId &&
                 b.Year == year &&

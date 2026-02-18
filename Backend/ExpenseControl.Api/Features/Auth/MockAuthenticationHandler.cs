@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using ExpenseControl.Api.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
@@ -21,7 +22,8 @@ public class MockAuthenticationHandler : AuthenticationHandler<AuthenticationSch
         {
             new Claim(ClaimTypes.NameIdentifier, "mock-user-id"),
             new Claim(ClaimTypes.Name, "Mock User"),
-            new Claim(ClaimTypes.Email, "mock@example.com")
+            new Claim(ClaimTypes.Email, "mock@example.com"),
+            new Claim(ClaimsPrincipalExtensions.HouseholdIdClaimType, DevSeedData.MockHouseholdId.ToString())
         };
 
         var identity = new ClaimsIdentity(claims, "Mock");

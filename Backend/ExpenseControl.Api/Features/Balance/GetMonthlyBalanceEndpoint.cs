@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +10,9 @@ public static class GetMonthlyBalanceEndpoint
 {
     public static RouteHandlerBuilder MapGetMonthlyBalanceEndpoint(this IEndpointRouteBuilder app)
     {
-        return app.MapGet("/api/balance/monthly", async (ExpenseDbContext db, Guid householdId, int? year) =>
+        return app.MapGet("/api/balance/monthly", async (ExpenseDbContext db, ClaimsPrincipal user, int? year) =>
         {
+            var householdId = user.GetHouseholdId();
             var targetYear = year ?? DateTime.UtcNow.Year;
             var currentMonth = DateTime.UtcNow.Month;
 

@@ -75,11 +75,15 @@ For complex features (Transactions, Budgets), each operation gets its own sub-fo
 
 ## 7. Household-Based Multi-Tenancy
 
-**Decision:** All data (transactions, budgets) is scoped by a `HouseholdId`. The household ID is passed as a query parameter or in the request body by the client.
+**Decision:** All data (transactions, budgets) is scoped by a `HouseholdId`. The household ID is embedded in the authenticated user's JWT token as a `householdId` claim and is automatically extracted from the token on the backend for every request.
 
-**Why:** Supports shared household expense tracking. The household concept allows multiple users to collaborate on the same financial data.
+**Why:** Tying the household to the user's identity token removes the need for clients to send the household ID on every request, eliminates a whole class of cross-household data leaks, and makes tenant isolation automatic rather than trust-based.
 
-**Known limitation:** There is currently no server-side verification that the authenticated user belongs to the requested household. This is a trust-based model suitable for the current stage of the project.
+**Backend:** All endpoints inject `ClaimsPrincipal` and call `user.GetHouseholdId()` (see `ClaimsPrincipalExtensions`) to resolve the household for the current request.
+
+**Mock auth:** The `MockAuthenticationHandler` automatically injects `DevSeedData.MockHouseholdId` as the `householdId` claim, so development works without Cognito.
+
+**Cognito (production):** The Cognito user pool must be configured to include a `householdId` custom attribute in the access token. When a user signs up or is assigned to a household, the `householdId` attribute is set on their Cognito profile.
 
 ---
 

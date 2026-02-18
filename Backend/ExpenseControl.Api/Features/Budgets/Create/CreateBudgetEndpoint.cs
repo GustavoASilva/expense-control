@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +10,12 @@ public static class CreateBudgetEndpoint
 {
     public static void MapCreateBudgetEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/budgets", async (ExpenseDbContext db, Budget budget) =>
+        app.MapPost("/api/budgets", async (ExpenseDbContext db, ClaimsPrincipal user, Budget budget) =>
         {
-            var household = await db.Households.FindAsync(budget.HouseholdId);
+            var householdId = user.GetHouseholdId();
+            budget.HouseholdId = householdId;
+
+            var household = await db.Households.FindAsync(householdId);
             if (household == null)
                 return Results.NotFound("Household not found");
 

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +9,9 @@ public static class DeleteTransactionEndpoint
 {
     public static RouteHandlerBuilder MapDeleteTransactionEndpoint(this IEndpointRouteBuilder app)
     {
-        return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Guid householdId) =>
+        return app.MapDelete("/api/transactions/{id}", async (ExpenseDbContext db, ClaimsPrincipal user, Guid id) =>
         {
+            var householdId = user.GetHouseholdId();
             var transaction = await db.Transactions
                 .Where(t => t.HouseholdId == householdId)
                 .FirstOrDefaultAsync(t => t.Id == id);

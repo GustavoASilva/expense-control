@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using ExpenseControl.Api.Features.Auth;
+using ExpenseControl.Api.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -77,6 +78,7 @@ public class MockAuthenticationHandlerTests
         var nameIdentifierClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         var nameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
         var emailClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+        var householdIdClaim = claims.FirstOrDefault(c => c.Type == ClaimsPrincipalExtensions.HouseholdIdClaimType);
 
         Assert.NotNull(nameIdentifierClaim);
         Assert.Equal("mock-user-id", nameIdentifierClaim.Value);
@@ -86,6 +88,9 @@ public class MockAuthenticationHandlerTests
         
         Assert.NotNull(emailClaim);
         Assert.Equal("mock@example.com", emailClaim.Value);
+
+        Assert.NotNull(householdIdClaim);
+        Assert.Equal(DevSeedData.MockHouseholdId.ToString(), householdIdClaim.Value);
     }
 
     [Fact]
@@ -168,11 +173,12 @@ public class MockAuthenticationHandlerTests
         Assert.True(result.Succeeded);
         var claims = result.Ticket!.Principal.Claims.ToList();
         
-        // Verify all three required claims are present
-        Assert.Equal(3, claims.Count);
+        // Verify all four required claims are present
+        Assert.Equal(4, claims.Count);
         Assert.Contains(claims, c => c.Type == ClaimTypes.NameIdentifier);
         Assert.Contains(claims, c => c.Type == ClaimTypes.Name);
         Assert.Contains(claims, c => c.Type == ClaimTypes.Email);
+        Assert.Contains(claims, c => c.Type == ClaimsPrincipalExtensions.HouseholdIdClaimType);
     }
 
     private async Task InitializeHandler(MockAuthenticationHandler handler)

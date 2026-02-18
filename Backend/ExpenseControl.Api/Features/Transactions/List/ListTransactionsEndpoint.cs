@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +12,7 @@ public static class ListTransactionsEndpoint
     {
         app.MapGet("/api/transactions", async (
             ExpenseDbContext db,
-            Guid householdId,
+            ClaimsPrincipal user,
             TransactionType? type,
             Guid? categoryId,
             DateOnly? startDate,
@@ -18,6 +20,7 @@ public static class ListTransactionsEndpoint
             int? limit,
             int? offset) =>
         {
+            var householdId = user.GetHouseholdId();
             var query = db.Transactions
                 .Include(t => t.Category)
                 .Where(t => t.HouseholdId == householdId);

@@ -46,12 +46,11 @@ public class CreateTransactionEndpointTests
             Date: DateOnly.FromDateTime(DateTime.UtcNow),
             CategoryId: category.Id,
             Type: TransactionType.Expense,
-            Notes: "Weekly groceries",
-            HouseholdId: household.Id
+            Notes: "Weekly groceries"
         );
 
         // Act
-        var result = await ExecuteCreateTransaction(db, command);
+        var result = await ExecuteCreateTransaction(db, household.Id, command);
 
         // Assert
         var createdResult = Assert.IsType<Created<Transaction>>(result);
@@ -90,12 +89,11 @@ public class CreateTransactionEndpointTests
             Date: DateOnly.FromDateTime(DateTime.UtcNow),
             CategoryId: category.Id,
             Type: TransactionType.Income,
-            Notes: "Salary payment",
-            HouseholdId: household.Id
+            Notes: "Salary payment"
         );
 
         // Act
-        var result = await ExecuteCreateTransaction(db, command);
+        var result = await ExecuteCreateTransaction(db, household.Id, command);
 
         // Assert
         var createdResult = Assert.IsType<Created<Transaction>>(result);
@@ -126,12 +124,11 @@ public class CreateTransactionEndpointTests
             Date: DateOnly.FromDateTime(DateTime.UtcNow),
             CategoryId: Guid.NewGuid(), // Non-existent category
             Type: TransactionType.Expense,
-            Notes: null,
-            HouseholdId: household.Id
+            Notes: null
         );
 
         // Act
-        var result = await ExecuteCreateTransaction(db, command);
+        var result = await ExecuteCreateTransaction(db, household.Id, command);
 
         // Assert
         var notFoundResult = Assert.IsType<NotFound<string>>(result);
@@ -160,12 +157,11 @@ public class CreateTransactionEndpointTests
             Date: DateOnly.FromDateTime(DateTime.UtcNow),
             CategoryId: category.Id,
             Type: TransactionType.Expense,
-            Notes: null,
-            HouseholdId: Guid.NewGuid() // Non-existent household
+            Notes: null
         );
 
         // Act
-        var result = await ExecuteCreateTransaction(db, command);
+        var result = await ExecuteCreateTransaction(db, Guid.NewGuid(), command); // Non-existent household
 
         // Assert
         var notFoundResult = Assert.IsType<NotFound<string>>(result);
@@ -203,25 +199,24 @@ public class CreateTransactionEndpointTests
             Date: DateOnly.FromDateTime(DateTime.UtcNow),
             CategoryId: category.Id,
             Type: TransactionType.Expense,
-            Notes: null,
-            HouseholdId: household.Id
+            Notes: null
         );
 
         // Act
-        var result = await ExecuteCreateTransaction(db, command);
+        var result = await ExecuteCreateTransaction(db, household.Id, command);
 
         // Assert
         var createdResult = Assert.IsType<Created<Transaction>>(result);
         Assert.Equal(amount, createdResult.Value!.Amount);
     }
 
-    private async Task<IResult> ExecuteCreateTransaction(ExpenseDbContext db, CreateTransactionCommand command)
+    private async Task<IResult> ExecuteCreateTransaction(ExpenseDbContext db, Guid householdId, CreateTransactionCommand command)
     {
         var category = await db.Categories.FindAsync(command.CategoryId);
         if (category == null)
             return Results.NotFound("Category not found");
 
-        var household = await db.Households.FindAsync(command.HouseholdId);
+        var household = await db.Households.FindAsync(householdId);
         if (household == null)
             return Results.NotFound("Household not found");
 
@@ -238,7 +233,7 @@ public class CreateTransactionEndpointTests
         transaction.Date = command.Date;
         transaction.CategoryId = command.CategoryId;
         transaction.Notes = command.Notes ?? string.Empty;
-        transaction.HouseholdId = command.HouseholdId;
+        transaction.HouseholdId = householdId;
 
         db.Transactions.Add(transaction);
         await db.SaveChangesAsync();
