@@ -6,17 +6,17 @@ This document records the key architectural decisions made in the Expense Contro
 
 ## 1. Monorepo with Two Projects
 
-**Decision:** Keep the backend API and the React frontend in a single repository, each in its own top-level folder (`ExpenseControl.Api/` and `expense-control-react/`).
+**Decision:** Keep the backend API and the React frontend in a single repository. Backend projects live under `Backend/` (`Backend/ExpenseControl.Api/` and `Backend/ExpenseControl.Api.Tests/`), and the frontend lives under `Frontend/` (`Frontend/ExpenseControl.React/`).
 
-**Why:** Simplifies coordination between frontend and backend changes. A single PR can update both sides when an API contract changes. Docker Compose orchestrates everything from one place.
+**Why:** Simplifies coordination between frontend and backend changes. A single PR can update both sides when an API contract changes. Docker Compose orchestrates everything from one place. The `Backend/` and `Frontend/` subfolders keep the repo root clean as the number of projects grows.
 
 ---
 
-## 2. .NET 8 Minimal APIs (Backend)
+## 2. .NET 10 Minimal APIs (Backend)
 
-**Decision:** Use ASP.NET Core Minimal APIs instead of traditional controllers.
+**Decision:** Use ASP.NET Core Minimal APIs on .NET 10 instead of traditional controllers. The solution uses the XML-based `.slnx` format.
 
-**Why:** Less boilerplate, faster to develop, and fits the project's current scope. Each endpoint is a small, self-contained static class with a `Map*Endpoint` extension method. No need for controller base classes, filters, or attribute routing.
+**Why:** Less boilerplate, faster to develop, and fits the project's current scope. Each endpoint is a small, self-contained static class with a `Map*Endpoint` extension method. No need for controller base classes, filters, or attribute routing. .NET 10 brings the latest C# 14 features and performance improvements.
 
 ---
 
