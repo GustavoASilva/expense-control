@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 
 namespace ExpenseControl.Api.Features.Transactions.Create;
@@ -9,8 +11,7 @@ public record CreateTransactionCommand(
     DateOnly Date,
     Guid CategoryId,
     TransactionType Type,
-    string? Notes,
-    Guid HouseholdId
+    string? Notes
 );
 
 public static class CreateTransactionEndpoint
@@ -19,13 +20,16 @@ public static class CreateTransactionEndpoint
     {
         app.MapPost("/api/transactions", async (
             CreateTransactionCommand command,
+            ClaimsPrincipal user,
             ExpenseDbContext db) =>
         {
+            var householdId = user.GetHouseholdId();
+
             var category = await db.Categories.FindAsync(command.CategoryId);
             if (category == null)
                 return Results.NotFound("Category not found");
 
-            var household = await db.Households.FindAsync(command.HouseholdId);
+            var household = await db.Households.FindAsync(householdId);
             if (household == null)
                 return Results.NotFound("Household not found");
 
@@ -42,7 +46,7 @@ public static class CreateTransactionEndpoint
             transaction.Date = command.Date;
             transaction.CategoryId = command.CategoryId;
             transaction.Notes = command.Notes ?? string.Empty;
-            transaction.HouseholdId = command.HouseholdId;
+            transaction.HouseholdId = householdId;
 
             db.Transactions.Add(transaction);
             await db.SaveChangesAsync();

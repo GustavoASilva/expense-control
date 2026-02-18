@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +9,9 @@ public static class ListBudgetsEndpoint
 {
     public static void MapListBudgetsEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/budgets", async (ExpenseDbContext db, Guid householdId, int? year, int? month, Guid? categoryId) =>
+        app.MapGet("/api/budgets", async (ExpenseDbContext db, ClaimsPrincipal user, int? year, int? month, Guid? categoryId) =>
         {
+            var householdId = user.GetHouseholdId();
             var query = db.Budgets.Include(b => b.Category)
                 .Where(b => b.HouseholdId == householdId);
             if (year.HasValue) query = query.Where(b => b.Year == year);

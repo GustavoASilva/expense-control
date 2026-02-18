@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +10,9 @@ public static class UpdateTransactionEndpoint
 {
     public static RouteHandlerBuilder MapUpdateTransactionEndpoint(this IEndpointRouteBuilder app)
     {
-        return app.MapPatch("/api/transactions/{id}", async (ExpenseDbContext db, Guid id, Transaction updated, Guid householdId) =>
+        return app.MapPatch("/api/transactions/{id}", async (ExpenseDbContext db, ClaimsPrincipal user, Guid id, Transaction updated) =>
         {
+            var householdId = user.GetHouseholdId();
             var transaction = await db.Transactions
                 .Where(t => t.HouseholdId == householdId)
                 .FirstOrDefaultAsync(t => t.Id == id);

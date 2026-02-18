@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +10,9 @@ public static class GetBalanceEndpoint
 {
     public static RouteHandlerBuilder MapGetBalanceEndpoint(this IEndpointRouteBuilder app)
     {
-        return app.MapGet("/api/balance", async (ExpenseDbContext db, Guid householdId, DateOnly? startDate, DateOnly? endDate) =>
+        return app.MapGet("/api/balance", async (ExpenseDbContext db, ClaimsPrincipal user, DateOnly? startDate, DateOnly? endDate) =>
         {
+            var householdId = user.GetHouseholdId();
             var query = db.Transactions
                 .Where(t => t.HouseholdId == householdId);
 
