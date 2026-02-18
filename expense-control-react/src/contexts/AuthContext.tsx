@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getAccessToken = async (): Promise<string | undefined> => {
     if (isMock) {
-      return "mock-access-token";
+      return 'mock-access-token';
     }
 
     try {
