@@ -1,6 +1,6 @@
 ---
 description: 'Playwright test generation instructions'
-applyTo: '**'
+applyTo: 'tests/**/*.ts'
 ---
 
 ## Test Writing Guidelines
