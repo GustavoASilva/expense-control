@@ -44,6 +44,10 @@ Resolved Decisions
   - Frontend: `aws-amplify` v6 handles sign-in/sign-out and attaches access tokens via axios interceptor.
   - All API endpoints require authorization via route group.
   - Configuration: `Cognito:Region`, `Cognito:UserPoolId`, `Cognito:AppClientId` in appsettings; `VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_APP_CLIENT_ID` in frontend env.
+- Development seed data: `DevSeedData.SeedAsync` runs at startup in development mode.
+  - Creates a household (`MockHouseholdId = 11111111-1111-1111-1111-111111111111`) for the mock user.
+  - Seeds 3 months of income/expense transactions and budgets for the current month.
+  - Idempotent: skips seeding when the mock household already exists.
 
 Links (key files)
 ------------------
@@ -62,3 +66,4 @@ How to use this file
 
 Initial entries created on: 2026-02-02
 Updated on: 2026-02-03 (removed Prometheus/Grafana, added frontend to docker-compose)
+Updated on: 2026-02-18 (added DevSeedData for mock user)

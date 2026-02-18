@@ -97,11 +97,14 @@ api.MapGetBudgetUsageEndpoint();
 // Household endpoints
 api.MapHouseholdEndpoints();
 
-// Run EF Core migrations at startup
+// Run EF Core migrations at startup and seed development data when applicable
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
     db.Database.Migrate();
+
+    if (app.Environment.IsDevelopment())
+        await DevSeedData.SeedAsync(db);
 }
 
 app.Run();
