@@ -1,6 +1,6 @@
 # Expense Control
 
-A modern web application for tracking expenses, incomes, and budgets, featuring a .NET 8 Web API backend and a React frontend.
+A modern web application for tracking expenses, incomes, and budgets, featuring a .NET 10 Web API backend and a React frontend.
 
 ## Features
 - **Dashboard**: Overview of balances, recent transactions, top categories, and a quick view of monthly budgets with visual gauges.
@@ -10,15 +10,18 @@ A modern web application for tracking expenses, incomes, and budgets, featuring 
 
 ## Project Structure
 ```
-ExpenseControl.Api/         # .NET 8 Web API (Minimal APIs)
-  Features/                 # Endpoints for Transactions, Budgets, Balance, etc.
-  Entities/                 # EF Core entities
-  Persistence/              # DbContext and migrations
-  Program.cs                # API setup, endpoints
+Backend/
+  ExpenseControl.Api/       # .NET 10 Web API (Minimal APIs)
+    Features/               # Endpoints for Transactions, Budgets, Balance, etc.
+    Entities/               # EF Core entities
+    Persistence/            # DbContext and migrations
+    Program.cs              # API setup, endpoints
+  ExpenseControl.Api.Tests/ # xUnit unit tests
 
-expense-control-react/      # React frontend (Vite + TypeScript)
-  src/                      # Source code
-  docker/                   # Docker configuration
+Frontend/
+  ExpenseControl.React/     # React frontend (Vite + TypeScript)
+    src/                    # Source code
+    docker/                 # Docker configuration
 ```
 
 ## Getting Started
@@ -39,7 +42,7 @@ This starts:
 ### Running Locally (Development)
 
 #### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Node.js 20+](https://nodejs.org/)
 - Docker (for PostgreSQL)
 
@@ -50,14 +53,14 @@ This starts:
    ```
 2. Run the API:
    ```bash
-   dotnet run --project ExpenseControl.Api
+   dotnet run --project Backend/ExpenseControl.Api
    ```
 3. API will be available at `http://localhost:5293`
 
 #### Frontend
 1. Install dependencies:
    ```bash
-   cd expense-control-react
+   cd Frontend/ExpenseControl.React
    npm install
    ```
 2. Start the development server:
@@ -67,7 +70,7 @@ This starts:
 3. Frontend will be available at `http://localhost:5173`
 
 ## Key Technologies
-- **Backend**: .NET 8 Minimal APIs, EF Core
+- **Backend**: .NET 10 Minimal APIs, EF Core
 - **Frontend**: React, TypeScript, Vite, Bootstrap
 - **Testing**: xUnit (backend unit tests), Playwright (frontend end-to-end tests)
 - **Database**: PostgreSQL
@@ -79,7 +82,7 @@ This starts:
 The .NET backend includes comprehensive unit tests using [xUnit](https://xunit.net/) with AutoFixture, Moq, and EF Core InMemory for testing.
 
 #### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 
 #### Running the tests
 Run all backend unit tests:
@@ -87,7 +90,7 @@ Run all backend unit tests:
 dotnet test
 ```
 
-This runs 68 unit tests covering Transactions, Budgets, Balance, Categories, and Households features.
+This runs 82 unit tests covering Transactions, Budgets, Balance, Categories, and Households features.
 
 ### Frontend End-to-End Tests (Playwright)
 
@@ -99,7 +102,7 @@ The React frontend includes end-to-end tests built with [Playwright](https://pla
 #### Setup
 1. Install dependencies (includes Playwright):
    ```bash
-   cd expense-control-react
+   cd Frontend/ExpenseControl.React
    npm install
    ```
 2. Install Playwright browsers:

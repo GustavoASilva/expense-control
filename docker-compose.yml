@@ -22,7 +22,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./ExpenseControl.Api/docker/Dockerfile
+      dockerfile: ./Backend/ExpenseControl.Api/docker/Dockerfile
     container_name: expensecontrol-api
     ports:
       - "5293:80"
@@ -43,7 +43,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: ./expense-control-react/docker/Dockerfile
+      dockerfile: ./Frontend/ExpenseControl.React/docker/Dockerfile
     container_name: expensecontrol-frontend
     ports:
       - "3000:80"
