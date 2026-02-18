@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExpenseControl.Api.Migrations
 {
     [DbContext(typeof(ExpenseDbContext))]
-    [Migration("20250626214608_InitialCreate")]
+    [Migration("20260213175446_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,6 +40,9 @@ namespace ExpenseControl.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Month")
                         .HasColumnType("integer");
 
@@ -51,7 +54,9 @@ namespace ExpenseControl.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId", "Month", "Year")
+                    b.HasIndex("HouseholdId");
+
+                    b.HasIndex("CategoryId", "Month", "Year", "HouseholdId")
                         .IsUnique();
 
                     b.ToTable("Budgets");
@@ -154,6 +159,25 @@ namespace ExpenseControl.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ExpenseControl.Api.Entities.Household", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Households");
+                });
+
             modelBuilder.Entity("ExpenseControl.Api.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -174,6 +198,9 @@ namespace ExpenseControl.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid>("HouseholdId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -186,6 +213,8 @@ namespace ExpenseControl.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("HouseholdId");
+
                     b.ToTable("Transactions");
                 });
 
@@ -197,7 +226,15 @@ namespace ExpenseControl.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ExpenseControl.Api.Entities.Household", "Household")
+                        .WithMany()
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Household");
                 });
 
             modelBuilder.Entity("ExpenseControl.Api.Entities.Transaction", b =>
@@ -208,7 +245,15 @@ namespace ExpenseControl.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ExpenseControl.Api.Entities.Household", "Household")
+                        .WithMany()
+                        .HasForeignKey("HouseholdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Household");
                 });
 #pragma warning restore 612, 618
         }

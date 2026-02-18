@@ -29,6 +29,19 @@ namespace ExpenseControl.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Households",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Households", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Budgets",
                 columns: table => new
                 {
@@ -38,7 +51,8 @@ namespace ExpenseControl.Api.Migrations
                     Month = table.Column<int>(type: "integer", nullable: false),
                     Year = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    HouseholdId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,6 +61,12 @@ namespace ExpenseControl.Api.Migrations
                         name: "FK_Budgets_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Budgets_Households_HouseholdId",
+                        column: x => x.HouseholdId,
+                        principalTable: "Households",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -61,7 +81,8 @@ namespace ExpenseControl.Api.Migrations
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "text", nullable: false),
-                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
+                    Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    HouseholdId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,6 +93,12 @@ namespace ExpenseControl.Api.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Transactions_Households_HouseholdId",
+                        column: x => x.HouseholdId,
+                        principalTable: "Households",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -90,10 +117,15 @@ namespace ExpenseControl.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Budgets_CategoryId_Month_Year",
+                name: "IX_Budgets_CategoryId_Month_Year_HouseholdId",
                 table: "Budgets",
-                columns: new[] { "CategoryId", "Month", "Year" },
+                columns: new[] { "CategoryId", "Month", "Year", "HouseholdId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Budgets_HouseholdId",
+                table: "Budgets",
+                column: "HouseholdId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_Name_Type",
@@ -105,6 +137,11 @@ namespace ExpenseControl.Api.Migrations
                 name: "IX_Transactions_CategoryId",
                 table: "Transactions",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_HouseholdId",
+                table: "Transactions",
+                column: "HouseholdId");
         }
 
         /// <inheritdoc />
@@ -118,6 +155,9 @@ namespace ExpenseControl.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Households");
         }
     }
 }
