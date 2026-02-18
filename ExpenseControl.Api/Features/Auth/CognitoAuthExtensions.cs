@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ExpenseControl.Api.Features.Auth;
 
@@ -11,11 +12,30 @@ public static class CognitoAuthExtensions
     /// <summary>
     /// Adds AWS Cognito JWT Bearer authentication and authorization services.
     /// </summary>
-    public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        var region = configuration["Cognito:Region"];
-        var userPoolId = configuration["Cognito:UserPoolId"];
-        var appClientId = configuration["Cognito:AppClientId"];
+        var authType = builder.Configuration["Authentication:Type"];
+        if (authType == "Mock")
+        {
+            if (!builder.Environment.IsDevelopment())
+            {
+                throw new InvalidOperationException("Mock authentication cannot be used in non-development environments");
+            }
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Mock";
+                options.DefaultChallengeScheme = "Mock";
+            })
+            .AddScheme<AuthenticationSchemeOptions, MockAuthenticationHandler>("Mock", options => { });
+
+            services.AddAuthorization();
+            return services;
+        }
+
+        var region = builder.Configuration["Cognito:Region"];
+        var userPoolId = builder.Configuration["Cognito:UserPoolId"];
+        var appClientId = builder.Configuration["Cognito:AppClientId"];
 
         ArgumentException.ThrowIfNullOrWhiteSpace(region, nameof(region));
         ArgumentException.ThrowIfNullOrWhiteSpace(userPoolId, nameof(userPoolId));
