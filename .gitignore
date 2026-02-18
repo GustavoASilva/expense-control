@@ -46,3 +46,6 @@ Thumbs.db
 # Docker
 **/bin/
 **/obj/
+
+# Node.js
+node_modules/

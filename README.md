@@ -28,7 +28,7 @@ expense-control-react/      # React frontend (Vite + TypeScript)
 The easiest way to run the entire application:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 This starts:
@@ -46,7 +46,7 @@ This starts:
 #### Backend
 1. Start PostgreSQL:
    ```bash
-   docker-compose up expensecontrol-postgres
+   docker compose up expensecontrol-postgres
    ```
 2. Run the API:
    ```bash
@@ -69,10 +69,25 @@ This starts:
 ## Key Technologies
 - **Backend**: .NET 8 Minimal APIs, EF Core
 - **Frontend**: React, TypeScript, Vite, Bootstrap
-- **Testing**: Playwright (end-to-end)
+- **Testing**: xUnit (backend unit tests), Playwright (frontend end-to-end tests)
 - **Database**: PostgreSQL
 
 ## Running Tests
+
+### Backend Unit Tests (xUnit)
+
+The .NET backend includes comprehensive unit tests using [xUnit](https://xunit.net/) with AutoFixture, Moq, and EF Core InMemory for testing.
+
+#### Prerequisites
+- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+
+#### Running the tests
+Run all backend unit tests:
+```bash
+dotnet test
+```
+
+This runs 68 unit tests covering Transactions, Budgets, Balance, Categories, and Households features.
 
 ### Frontend End-to-End Tests (Playwright)
 
@@ -98,7 +113,7 @@ Run all end-to-end tests:
 npm run test:e2e
 ```
 
-This automatically starts the Vite development server and runs the tests against it. API calls are mocked, so the backend does not need to be running.
+This automatically starts the Vite development server and runs the tests against it. API calls are mocked, so the backend does not need to be running. This runs 40 end-to-end tests covering navigation, Dashboard, Transactions, and Budgets pages.
 
 To see the HTML test report after a run:
 ```bash
