@@ -12,11 +12,16 @@ public static class CognitoAuthExtensions
     /// <summary>
     /// Adds AWS Cognito JWT Bearer authentication and authorization services.
     /// </summary>
-    public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        var authType = configuration["Authentication:Type"];
+        var authType = builder.Configuration["Authentication:Type"];
         if (authType == "Mock")
         {
+            if (!builder.Environment.IsDevelopment())
+            {
+                throw new InvalidOperationException("Mock authentication cannot be used in non-development environments");
+            }
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = "Mock";
@@ -28,9 +33,9 @@ public static class CognitoAuthExtensions
             return services;
         }
 
-        var region = configuration["Cognito:Region"];
-        var userPoolId = configuration["Cognito:UserPoolId"];
-        var appClientId = configuration["Cognito:AppClientId"];
+        var region = builder.Configuration["Cognito:Region"];
+        var userPoolId = builder.Configuration["Cognito:UserPoolId"];
+        var appClientId = builder.Configuration["Cognito:AppClientId"];
 
         ArgumentException.ThrowIfNullOrWhiteSpace(region, nameof(region));
         ArgumentException.ThrowIfNullOrWhiteSpace(userPoolId, nameof(userPoolId));

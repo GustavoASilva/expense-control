@@ -42,7 +42,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configure AWS Cognito authentication
-builder.Services.AddCognitoAuthentication(builder.Configuration);
+builder.Services.AddCognitoAuthentication(builder);
 
 // Configure DbContext
 if (builder.Environment.IsDevelopment())
