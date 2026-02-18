@@ -23,6 +23,12 @@ const api = axios.create({
 
 // Attach Cognito access token to every request
 api.interceptors.request.use(async (config) => {
+  // Check for mock auth
+  if (import.meta.env.VITE_USE_MOCK_AUTH === 'true') {
+    config.headers.Authorization = 'Bearer mock-access-token';
+    return config;
+  }
+
   try {
     const session = await fetchAuthSession();
     const token = session.tokens?.accessToken?.toString();

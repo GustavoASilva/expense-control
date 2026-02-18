@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ExpenseControl.Api.Features.Auth;
 
@@ -13,6 +14,20 @@ public static class CognitoAuthExtensions
     /// </summary>
     public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        var authType = configuration["Authentication:Type"];
+        if (authType == "Mock")
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Mock";
+                options.DefaultChallengeScheme = "Mock";
+            })
+            .AddScheme<AuthenticationSchemeOptions, MockAuthenticationHandler>("Mock", options => { });
+
+            services.AddAuthorization();
+            return services;
+        }
+
         var region = configuration["Cognito:Region"];
         var userPoolId = configuration["Cognito:UserPoolId"];
         var appClientId = configuration["Cognito:AppClientId"];
