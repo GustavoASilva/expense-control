@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Balance;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
@@ -65,8 +66,8 @@ public class GetBalanceEndpointTests
         {
             CreateTransaction(household.Id, incomeCategory.Id, 3000m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-7)), TransactionType.Income),
             CreateTransaction(household.Id, expenseCategory.Id, 500m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-6)), TransactionType.Expense),
-            CreateTransaction(household.Id, expenseCategory.Id, 1000m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-15)), TransactionType.Expense), // Outside range
-            CreateTransaction(household.Id, incomeCategory.Id, 2000m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-3)), TransactionType.Income) // Outside range
+            CreateTransaction(household.Id, expenseCategory.Id, 1000m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-15)), TransactionType.Expense),
+            CreateTransaction(household.Id, incomeCategory.Id, 2000m, DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-3)), TransactionType.Income)
         };
 
         db.Transactions.AddRange(transactions);
@@ -224,7 +225,7 @@ public class GetBalanceEndpointTests
         return transaction;
     }
 
-    private async Task<(decimal Income, decimal Expenses, decimal Balance, DateOnly PeriodStart, DateOnly PeriodEnd, bool HasTransactions)> ExecuteGetBalance(
+    private async Task<BalanceResponse> ExecuteGetBalance(
         ExpenseDbContext db,
         Guid householdId,
         DateOnly? startDate,
@@ -245,6 +246,6 @@ public class GetBalanceEndpointTests
         var income = result.FirstOrDefault(r => r.Type == TransactionType.Income)?.Total ?? 0;
         var expenses = result.FirstOrDefault(r => r.Type == TransactionType.Expense)?.Total ?? 0;
 
-        return (income, expenses, income - expenses, periodStart, periodEnd, result.Any());
+        return new BalanceResponse(income, expenses, income - expenses, periodStart, periodEnd, result.Any());
     }
 }

@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Budgets.Usage;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -43,7 +44,7 @@ public class GetBudgetUsageEndpointTests
         var result = await ExecuteGetBudgetUsage(db, household.Id, category.Id, 2024, 1);
 
         // Assert
-        var okResult = Assert.IsType<Ok<BudgetUsageDto>>(result);
+        var okResult = Assert.IsType<Ok<BudgetUsageResponse>>(result);
         Assert.Equal(1000m, okResult.Value!.Amount);
         Assert.Equal(500m, okResult.Value.Usage);
         Assert.Equal(50m, okResult.Value.Percent);
@@ -84,7 +85,7 @@ public class GetBudgetUsageEndpointTests
         var result = await ExecuteGetBudgetUsage(db, household.Id, category.Id, 2024, 1);
 
         // Assert
-        var okResult = Assert.IsType<Ok<BudgetUsageDto>>(result);
+        var okResult = Assert.IsType<Ok<BudgetUsageResponse>>(result);
         Assert.Equal(1000m, okResult.Value!.Amount);
         Assert.Equal(0m, okResult.Value.Usage);
         Assert.Equal(0m, okResult.Value.Percent);
@@ -116,7 +117,7 @@ public class GetBudgetUsageEndpointTests
         var result = await ExecuteGetBudgetUsage(db, household.Id, category.Id, 2024, 1);
 
         // Assert
-        var okResult = Assert.IsType<Ok<BudgetUsageDto>>(result);
+        var okResult = Assert.IsType<Ok<BudgetUsageResponse>>(result);
         Assert.Equal(1300m, okResult.Value!.Usage);
         Assert.Equal(130m, okResult.Value.Percent);
     }
@@ -147,7 +148,7 @@ public class GetBudgetUsageEndpointTests
         var result = await ExecuteGetBudgetUsage(db, household.Id, category.Id, 2024, 1);
 
         // Assert
-        var okResult = Assert.IsType<Ok<BudgetUsageDto>>(result);
+        var okResult = Assert.IsType<Ok<BudgetUsageResponse>>(result);
         Assert.Equal(200m, okResult.Value!.Usage);
         Assert.Equal(20m, okResult.Value.Percent);
     }
@@ -179,7 +180,7 @@ public class GetBudgetUsageEndpointTests
         var result = await ExecuteGetBudgetUsage(db, household.Id, category.Id, 2024, 1);
 
         // Assert
-        var okResult = Assert.IsType<Ok<BudgetUsageDto>>(result);
+        var okResult = Assert.IsType<Ok<BudgetUsageResponse>>(result);
         Assert.Equal(200m, okResult.Value!.Usage);
     }
 
@@ -258,13 +259,6 @@ public class GetBudgetUsageEndpointTests
                 t.HouseholdId == householdId)
             .SumAsync(t => t.Amount);
         var percent = budget.Amount > 0 ? (usage / budget.Amount) * 100m : 0m;
-        return Results.Ok(new BudgetUsageDto { Amount = budget.Amount, Usage = usage, Percent = percent });
-    }
-
-    private class BudgetUsageDto
-    {
-        public decimal Amount { get; set; }
-        public decimal Usage { get; set; }
-        public decimal Percent { get; set; }
+        return Results.Ok(new BudgetUsageResponse(budget.Amount, usage, percent));
     }
 }

@@ -17,7 +17,7 @@ public static class GetTransactionEndpoint
                 .Where(t => t.HouseholdId == householdId)
                 .FirstOrDefaultAsync(t => t.Id == id);
 
-            return transaction is null ? Results.NotFound() : Results.Ok(transaction);
+            return transaction is null ? Results.NotFound() : Results.Ok(transaction.ToResponse());
         })
         .WithName("GetTransaction")
         .WithOpenApi();

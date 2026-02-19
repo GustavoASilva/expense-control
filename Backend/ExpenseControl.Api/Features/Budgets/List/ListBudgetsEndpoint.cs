@@ -18,7 +18,7 @@ public static class ListBudgetsEndpoint
             if (month.HasValue) query = query.Where(b => b.Month == month);
             if (categoryId.HasValue) query = query.Where(b => b.CategoryId == categoryId);
             var budgets = await query.ToListAsync();
-            return Results.Ok(budgets);
+            return Results.Ok(budgets.ToResponse());
         });
     }
 }

@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Budgets;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ public class ListBudgetsEndpointTests
         var result = await ExecuteListBudgets(db, household.Id, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Budget>>>(result);
+        var okResult = Assert.IsType<Ok<List<BudgetResponse>>>(result);
         Assert.Equal(2, okResult.Value!.Count);
     }
 
@@ -68,7 +69,7 @@ public class ListBudgetsEndpointTests
         var result = await ExecuteListBudgets(db, household.Id, 2024, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Budget>>>(result);
+        var okResult = Assert.IsType<Ok<List<BudgetResponse>>>(result);
         Assert.Single(okResult.Value!);
         Assert.Equal(2024, okResult.Value[0].Year);
     }
@@ -96,7 +97,7 @@ public class ListBudgetsEndpointTests
         var result = await ExecuteListBudgets(db, household.Id, null, 1, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Budget>>>(result);
+        var okResult = Assert.IsType<Ok<List<BudgetResponse>>>(result);
         Assert.Single(okResult.Value!);
         Assert.Equal(1, okResult.Value[0].Month);
     }
@@ -125,7 +126,7 @@ public class ListBudgetsEndpointTests
         var result = await ExecuteListBudgets(db, household.Id, null, null, category1.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Budget>>>(result);
+        var okResult = Assert.IsType<Ok<List<BudgetResponse>>>(result);
         Assert.Single(okResult.Value!);
         Assert.Equal(category1.Id, okResult.Value[0].CategoryId);
     }
@@ -148,7 +149,7 @@ public class ListBudgetsEndpointTests
         var result = await ExecuteListBudgets(db, household.Id, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Budget>>>(result);
+        var okResult = Assert.IsType<Ok<List<BudgetResponse>>>(result);
         Assert.NotNull(okResult.Value![0].Category);
         Assert.Equal("Food", okResult.Value[0].Category!.Name);
     }
@@ -199,6 +200,6 @@ public class ListBudgetsEndpointTests
         if (month.HasValue) query = query.Where(b => b.Month == month);
         if (categoryId.HasValue) query = query.Where(b => b.CategoryId == categoryId);
         var budgets = await query.ToListAsync();
-        return Results.Ok(budgets);
+        return Results.Ok(budgets.ToResponse());
     }
 }

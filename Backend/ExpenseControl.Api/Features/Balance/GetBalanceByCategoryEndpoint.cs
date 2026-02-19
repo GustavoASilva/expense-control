@@ -26,37 +26,34 @@ public static class GetBalanceByCategoryEndpoint
 
             var result = categories.SelectMany(c => new[]
             {
-                new
-                {
-                    CategoryName = c.Name,
-                    TransactionType = TransactionType.Income,
-                    Total = transactions
+                new CategoryBalanceResponse(
+                    c.Name,
+                    TransactionType.Income,
+                    transactions
                         .Where(t => t.CategoryId == c.Id && t.Type == TransactionType.Income)
                         .Sum(t => t.Amount),
-                    Count = transactions
+                    transactions
                         .Count(t => t.CategoryId == c.Id && t.Type == TransactionType.Income)
-                },
-                new
-                {
-                    CategoryName = c.Name,
-                    TransactionType = TransactionType.Expense,
-                    Total = transactions
+                ),
+                new CategoryBalanceResponse(
+                    c.Name,
+                    TransactionType.Expense,
+                    transactions
                         .Where(t => t.CategoryId == c.Id && t.Type == TransactionType.Expense)
                         .Sum(t => t.Amount),
-                    Count = transactions
+                    transactions
                         .Count(t => t.CategoryId == c.Id && t.Type == TransactionType.Expense)
-                }
+                )
             })
             .Where(r => r.Count > 0)
             .OrderByDescending(r => r.Total);
 
-            return Results.Ok(new
-            {
-                Categories = result,
-                PeriodStart = periodStart,
-                PeriodEnd = periodEnd,
-                HasTransactions = transactions.Any()
-            });
+            return Results.Ok(new BalanceByCategoryResponse(
+                result,
+                periodStart,
+                periodEnd,
+                transactions.Any()
+            ));
         })
         .WithName("GetBalanceByCategory")
         .WithOpenApi();

@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Transactions;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, null, null, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Equal(3, okResult.Value!.Count);
     }
 
@@ -70,7 +71,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, TransactionType.Expense, null, null, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Equal(2, okResult.Value!.Count);
         Assert.All(okResult.Value, t => Assert.Equal(TransactionType.Expense, t.Type));
     }
@@ -100,7 +101,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, foodCategory.Id, null, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Equal(2, okResult.Value!.Count);
         Assert.All(okResult.Value, t => Assert.Equal(foodCategory.Id, t.CategoryId));
     }
@@ -132,7 +133,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, null, startDate, endDate, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Single(okResult.Value!);
     }
 
@@ -159,7 +160,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, null, null, null, limit: 5, offset: 2);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Equal(5, okResult.Value!.Count);
     }
 
@@ -191,7 +192,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, null, null, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.Equal(newestDate, okResult.Value![0].Date);
         Assert.Equal(middleDate, okResult.Value[1].Date);
         Assert.Equal(oldestDate, okResult.Value[2].Date);
@@ -216,7 +217,7 @@ public class ListTransactionsEndpointTests
         var result = await ExecuteListTransactions(db, household.Id, null, null, null, null, null, null);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Transaction>>>(result);
+        var okResult = Assert.IsType<Ok<List<TransactionResponse>>>(result);
         Assert.NotNull(okResult.Value![0].Category);
         Assert.Equal("Food", okResult.Value[0].Category!.Name);
     }
@@ -299,6 +300,6 @@ public class ListTransactionsEndpointTests
             query = query.Take(limit.Value);
 
         var transactions = await query.ToListAsync();
-        return Results.Ok(transactions);
+        return Results.Ok(transactions.ToResponse());
     }
 }

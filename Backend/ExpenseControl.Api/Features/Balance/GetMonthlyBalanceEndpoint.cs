@@ -37,26 +37,24 @@ public static class GetMonthlyBalanceEndpoint
                         .Where(t => t.Type == TransactionType.Expense)
                         .Sum(t => t.Amount);
 
-                    return new
-                    {
-                        Month = month,
-                        MonthName = new DateTime(targetYear, month, 1).ToString("MMMM"),
-                        Income = income,
-                        Expenses = expenses,
-                        Balance = income - expenses,
-                        HasTransactions = monthTransactions.Any()
-                    };
+                    return new MonthSummaryResponse(
+                        month,
+                        new DateTime(targetYear, month, 1).ToString("MMMM"),
+                        income,
+                        expenses,
+                        income - expenses,
+                        monthTransactions.Any()
+                    );
                 })
                 .OrderBy(m => m.Month);
 
-            return Results.Ok(new
-            {
-                Year = targetYear,
-                Months = monthlySummary,
-                HasTransactions = transactions.Any(),
-                TotalIncome = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount),
-                TotalExpenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount)
-            });
+            return Results.Ok(new MonthlyBalanceResponse(
+                targetYear,
+                monthlySummary,
+                transactions.Any(),
+                transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount),
+                transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount)
+            ));
         })
         .WithName("GetMonthlyBalance")
         .WithOpenApi();

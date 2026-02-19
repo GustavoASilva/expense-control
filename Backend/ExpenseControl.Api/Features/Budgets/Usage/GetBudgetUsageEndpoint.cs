@@ -28,7 +28,7 @@ public static class GetBudgetUsageEndpoint
                     t.HouseholdId == householdId)
                 .SumAsync(t => t.Amount);
             var percent = budget.Amount > 0 ? (usage / budget.Amount) * 100m : 0m;
-            return Results.Ok(new { budget.Amount, usage, percent });
+            return Results.Ok(new BudgetUsageResponse(budget.Amount, usage, percent));
         });
     }
 }

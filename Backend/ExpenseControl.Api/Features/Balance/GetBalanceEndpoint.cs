@@ -28,15 +28,14 @@ public static class GetBalanceEndpoint
             var income = result.FirstOrDefault(r => r.Type == TransactionType.Income)?.Total ?? 0;
             var expenses = result.FirstOrDefault(r => r.Type == TransactionType.Expense)?.Total ?? 0;
 
-            return Results.Ok(new
-            {
-                Income = income,
-                Expenses = expenses,
-                Balance = income - expenses,
-                PeriodStart = periodStart,
-                PeriodEnd = periodEnd,
-                HasTransactions = result.Any()
-            });
+            return Results.Ok(new BalanceResponse(
+                income,
+                expenses,
+                income - expenses,
+                periodStart,
+                periodEnd,
+                result.Any()
+            ));
         })
         .WithName("GetBalance")
         .WithOpenApi();
