@@ -78,7 +78,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
         calendarValue: recordToUpdate.date,
         flowType: recordToUpdate.type,
         chosenCategoryId: recordToUpdate.categoryId,
-        additionalNotes: '',
+        additionalNotes: recordToUpdate.notes || '',
       });
     } else {
       setFormContainer(createEmptyFormData());
@@ -172,157 +172,6 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
 
   if (!isVisible) return null;
 
-  const TypeToggleButtons = () => (
-    <div className="mb-4">
-      <label className="form-label">Transaction Type</label>
-      <div className="type-toggle">
-        <input
-          type="radio"
-          className="btn-check"
-          name="txnTypeRadio"
-          id="expenseTypeBtn"
-          checked={formContainer.flowType === TransactionType.Expense}
-          onChange={() => handleTypeToggle(TransactionType.Expense)}
-        />
-        <label className="btn btn-outline-danger" htmlFor="expenseTypeBtn">
-          <i className="bi bi-arrow-up-right me-2"></i>Expense
-        </label>
-
-        <input
-          type="radio"
-          className="btn-check"
-          name="txnTypeRadio"
-          id="incomeTypeBtn"
-          checked={formContainer.flowType === TransactionType.Income}
-          onChange={() => handleTypeToggle(TransactionType.Income)}
-        />
-        <label className="btn btn-outline-success" htmlFor="incomeTypeBtn">
-          <i className="bi bi-arrow-down-left me-2"></i>Income
-        </label>
-      </div>
-    </div>
-  );
-
-  const AmountField = () => (
-    <div className="col-md-6">
-      <label htmlFor="dollarInput" className="form-label">Amount</label>
-      <div className="input-group">
-        <span className="input-group-text">$</span>
-        <input
-          type="number"
-          className={`form-control ${errorContainer.dollarAmount ? 'is-invalid' : ''}`}
-          id="dollarInput"
-          value={formContainer.dollarAmount || ''}
-          onChange={(e) => modifyFormField('dollarAmount', parseFloat(e.target.value) || 0)}
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-        />
-        {errorContainer.dollarAmount && (
-          <div className="invalid-feedback">{errorContainer.dollarAmount}</div>
-        )}
-      </div>
-    </div>
-  );
-
-  const DateField = () => (
-    <div className="col-md-6">
-      <label htmlFor="calendarInput" className="form-label">Date</label>
-      <input
-        type="date"
-        className={`form-control ${errorContainer.calendarValue ? 'is-invalid' : ''}`}
-        id="calendarInput"
-        value={formContainer.calendarValue}
-        onChange={(e) => modifyFormField('calendarValue', e.target.value)}
-      />
-      {errorContainer.calendarValue && (
-        <div className="invalid-feedback">{errorContainer.calendarValue}</div>
-      )}
-    </div>
-  );
-
-  const DescriptionField = () => (
-    <div className="col-12">
-      <label htmlFor="descInput" className="form-label">Description</label>
-      <input
-        type="text"
-        className={`form-control ${errorContainer.textualDescription ? 'is-invalid' : ''}`}
-        id="descInput"
-        value={formContainer.textualDescription}
-        onChange={(e) => modifyFormField('textualDescription', e.target.value)}
-        placeholder="What was this transaction for?"
-      />
-      {errorContainer.textualDescription && (
-        <div className="invalid-feedback">{errorContainer.textualDescription}</div>
-      )}
-    </div>
-  );
-
-  const CategoryField = () => (
-    <div className="col-12">
-      <label htmlFor="catSelect" className="form-label">Category</label>
-      <select
-        className={`form-select ${errorContainer.chosenCategoryId ? 'is-invalid' : ''}`}
-        id="catSelect"
-        value={formContainer.chosenCategoryId}
-        onChange={(e) => modifyFormField('chosenCategoryId', e.target.value)}
-      >
-        <option value="">Select a category</option>
-        {filteredCatList.map((cat) => (
-          <option key={cat.id} value={cat.id}>{cat.name}</option>
-        ))}
-      </select>
-      {errorContainer.chosenCategoryId && (
-        <div className="invalid-feedback">{errorContainer.chosenCategoryId}</div>
-      )}
-    </div>
-  );
-
-  const NotesField = () => (
-    <div className="col-12">
-      <label htmlFor="notesArea" className="form-label">
-        Notes <span className="text-muted">(optional)</span>
-      </label>
-      <textarea
-        className="form-control"
-        id="notesArea"
-        value={formContainer.additionalNotes}
-        onChange={(e) => modifyFormField('additionalNotes', e.target.value)}
-        rows={3}
-        placeholder="Add any additional notes..."
-      />
-    </div>
-  );
-
-  const LoadingSpinner = () => (
-    <div className="text-center py-4">
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  );
-
-  const FormButtons = () => (
-    <div className="modal-footer">
-      <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
-        Cancel
-      </button>
-      <button type="submit" className="btn btn-primary" disabled={isSubmittingData || isFetchingCats}>
-        {isSubmittingData ? (
-          <>
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Saving...
-          </>
-        ) : (
-          <>
-            <i className="bi bi-check-lg me-2"></i>
-            {recordToUpdate ? 'Save Changes' : 'Create Transaction'}
-          </>
-        )}
-      </button>
-    </div>
-  );
-
   return createPortal(
     <div 
       className="modal show d-block" 
@@ -345,21 +194,140 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
             </div>
             <div className="modal-body">
               {isFetchingCats ? (
-                <LoadingSpinner />
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                </div>
               ) : (
                 <>
-                  <TypeToggleButtons />
+                  <div className="mb-4">
+                    <label className="form-label">Transaction Type</label>
+                    <div className="type-toggle">
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="txnTypeRadio"
+                        id="expenseTypeBtn"
+                        checked={formContainer.flowType === TransactionType.Expense}
+                        onChange={() => handleTypeToggle(TransactionType.Expense)}
+                      />
+                      <label className="btn btn-outline-danger" htmlFor="expenseTypeBtn">
+                        <i className="bi bi-arrow-up-right me-2"></i>Expense
+                      </label>
+
+                      <input
+                        type="radio"
+                        className="btn-check"
+                        name="txnTypeRadio"
+                        id="incomeTypeBtn"
+                        checked={formContainer.flowType === TransactionType.Income}
+                        onChange={() => handleTypeToggle(TransactionType.Income)}
+                      />
+                      <label className="btn btn-outline-success" htmlFor="incomeTypeBtn">
+                        <i className="bi bi-arrow-down-left me-2"></i>Income
+                      </label>
+                    </div>
+                  </div>
                   <div className="row g-4">
-                    <AmountField />
-                    <DateField />
-                    <DescriptionField />
-                    <CategoryField />
-                    <NotesField />
+                    <div className="col-md-6">
+                      <label htmlFor="dollarInput" className="form-label">Amount</label>
+                      <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input
+                          type="number"
+                          className={`form-control ${errorContainer.dollarAmount ? 'is-invalid' : ''}`}
+                          id="dollarInput"
+                          value={formContainer.dollarAmount || ''}
+                          onChange={(e) => modifyFormField('dollarAmount', parseFloat(e.target.value) || 0)}
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                        />
+                        {errorContainer.dollarAmount && (
+                          <div className="invalid-feedback">{errorContainer.dollarAmount}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="calendarInput" className="form-label">Date</label>
+                      <input
+                        type="date"
+                        className={`form-control ${errorContainer.calendarValue ? 'is-invalid' : ''}`}
+                        id="calendarInput"
+                        value={formContainer.calendarValue}
+                        onChange={(e) => modifyFormField('calendarValue', e.target.value)}
+                      />
+                      {errorContainer.calendarValue && (
+                        <div className="invalid-feedback">{errorContainer.calendarValue}</div>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <label htmlFor="descInput" className="form-label">Description</label>
+                      <input
+                        type="text"
+                        className={`form-control ${errorContainer.textualDescription ? 'is-invalid' : ''}`}
+                        id="descInput"
+                        value={formContainer.textualDescription}
+                        onChange={(e) => modifyFormField('textualDescription', e.target.value)}
+                        placeholder="What was this transaction for?"
+                      />
+                      {errorContainer.textualDescription && (
+                        <div className="invalid-feedback">{errorContainer.textualDescription}</div>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <label htmlFor="catSelect" className="form-label">Category</label>
+                      <select
+                        className={`form-select ${errorContainer.chosenCategoryId ? 'is-invalid' : ''}`}
+                        id="catSelect"
+                        value={formContainer.chosenCategoryId}
+                        onChange={(e) => modifyFormField('chosenCategoryId', e.target.value)}
+                      >
+                        <option value="">Select a category</option>
+                        {filteredCatList.map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                      {errorContainer.chosenCategoryId && (
+                        <div className="invalid-feedback">{errorContainer.chosenCategoryId}</div>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <label htmlFor="notesArea" className="form-label">
+                        Notes <span className="text-muted">(optional)</span>
+                      </label>
+                      <textarea
+                        className="form-control"
+                        id="notesArea"
+                        value={formContainer.additionalNotes}
+                        onChange={(e) => modifyFormField('additionalNotes', e.target.value)}
+                        rows={3}
+                        placeholder="Add any additional notes..."
+                      />
+                    </div>
                   </div>
                 </>
               )}
             </div>
-            <FormButtons />
+            <div className="modal-footer">
+              <button type="button" className="btn btn-outline-secondary" onClick={handleClose}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={isSubmittingData || isFetchingCats}>
+                {isSubmittingData ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-lg me-2"></i>
+                    {recordToUpdate ? 'Save Changes' : 'Create Transaction'}
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

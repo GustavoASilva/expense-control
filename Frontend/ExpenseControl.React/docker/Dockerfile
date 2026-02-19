@@ -4,6 +4,8 @@ WORKDIR /app
 COPY Frontend/ExpenseControl.React/package*.json ./
 RUN npm ci
 COPY Frontend/ExpenseControl.React/. .
+ARG VITE_USE_MOCK_AUTH=false
+ENV VITE_USE_MOCK_AUTH=$VITE_USE_MOCK_AUTH
 RUN npm run build
 
 # Production stage

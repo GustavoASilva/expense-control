@@ -10,7 +10,9 @@ export interface Transaction {
   date: string;
   type: TransactionType;
   categoryId: string;
+  category?: Category;
   categoryName: string;
+  notes?: string;
 }
 
 export interface TransactionForm {
