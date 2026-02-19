@@ -342,6 +342,11 @@ const Dashboard: React.FC = () => {
                         <span className="category-badge me-2" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
                           {transaction.category?.name || transaction.categoryName}
                         </span>
+                        {transaction.notes && (
+                          <span className="me-2" title={transaction.notes} style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            <i className="bi bi-chat-dots"></i> Note
+                          </span>
+                        )}
                         {formatDate(transaction.date)}
                       </div>
                     </div>

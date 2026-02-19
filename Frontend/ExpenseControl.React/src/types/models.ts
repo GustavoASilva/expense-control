@@ -12,6 +12,7 @@ export interface Transaction {
   categoryId: string;
   category?: Category;
   categoryName: string;
+  notes?: string;
 }
 
 export interface TransactionForm {

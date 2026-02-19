@@ -78,7 +78,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
         calendarValue: recordToUpdate.date,
         flowType: recordToUpdate.type,
         chosenCategoryId: recordToUpdate.categoryId,
-        additionalNotes: '',
+        additionalNotes: recordToUpdate.notes || '',
       });
     } else {
       setFormContainer(createEmptyFormData());
