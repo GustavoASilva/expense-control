@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Households;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteCreateHousehold(db, request.Name);
 
         // Assert
-        var createdResult = Assert.IsType<Created<Household>>(result);
+        var createdResult = Assert.IsType<Created<HouseholdResponse>>(result);
         Assert.NotNull(createdResult.Value);
         Assert.Equal(request.Name, createdResult.Value.Name);
         Assert.NotEqual(Guid.Empty, createdResult.Value.Id);
@@ -53,7 +54,7 @@ public class HouseholdEndpointsTests
         var afterCreate = DateTime.UtcNow;
 
         // Assert
-        var createdResult = Assert.IsType<Created<Household>>(result);
+        var createdResult = Assert.IsType<Created<HouseholdResponse>>(result);
         Assert.True(createdResult.Value!.CreatedAt >= beforeCreate && createdResult.Value.CreatedAt <= afterCreate);
     }
 
@@ -78,7 +79,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteListHouseholds(db);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Household>>>(result);
+        var okResult = Assert.IsType<Ok<List<HouseholdResponse>>>(result);
         Assert.Equal(3, okResult.Value!.Count);
     }
 
@@ -103,7 +104,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteListHouseholds(db);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Household>>>(result);
+        var okResult = Assert.IsType<Ok<List<HouseholdResponse>>>(result);
         Assert.Equal("Alpha Household", okResult.Value![0].Name);
         Assert.Equal("Bravo Household", okResult.Value[1].Name);
         Assert.Equal("Charlie Household", okResult.Value[2].Name);
@@ -120,7 +121,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteListHouseholds(db);
 
         // Assert
-        var okResult = Assert.IsType<Ok<List<Household>>>(result);
+        var okResult = Assert.IsType<Ok<List<HouseholdResponse>>>(result);
         Assert.Empty(okResult.Value!);
     }
 
@@ -139,7 +140,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteGetHousehold(db, household.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Household>>(result);
+        var okResult = Assert.IsType<Ok<HouseholdResponse>>(result);
         Assert.Equal(household.Id, okResult.Value!.Id);
         Assert.Equal("Test Household", okResult.Value.Name);
     }
@@ -171,7 +172,7 @@ public class HouseholdEndpointsTests
         var result = await ExecuteCreateHousehold(db, householdName);
 
         // Assert
-        var createdResult = Assert.IsType<Created<Household>>(result);
+        var createdResult = Assert.IsType<Created<HouseholdResponse>>(result);
         var householdInDb = await db.Households.FindAsync(createdResult.Value!.Id);
         Assert.NotNull(householdInDb);
         Assert.Equal(householdName, householdInDb.Name);
@@ -198,7 +199,7 @@ public class HouseholdEndpointsTests
         db.Households.Add(household);
         await db.SaveChangesAsync();
 
-        return Results.Created($"/api/households/{household.Id}", household);
+        return Results.Created($"/api/households/{household.Id}", household.ToResponse());
     }
 
     private async Task<IResult> ExecuteListHouseholds(ExpenseDbContext db)
@@ -207,12 +208,12 @@ public class HouseholdEndpointsTests
             .OrderBy(h => h.Name)
             .ToListAsync();
 
-        return Results.Ok(households);
+        return Results.Ok(households.ToResponse());
     }
 
     private async Task<IResult> ExecuteGetHousehold(ExpenseDbContext db, Guid id)
     {
         var household = await db.Households.FindAsync(id);
-        return household is null ? Results.NotFound() : Results.Ok(household);
+        return household is null ? Results.NotFound() : Results.Ok(household.ToResponse());
     }
 }

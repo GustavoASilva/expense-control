@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Transactions;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,7 @@ public class GetTransactionEndpointTests
         var result = await ExecuteGetTransaction(db, transaction.Id, household.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Transaction>>(result);
+        var okResult = Assert.IsType<Ok<TransactionResponse>>(result);
         Assert.NotNull(okResult.Value);
         Assert.Equal(transaction.Id, okResult.Value.Id);
         Assert.Equal(transaction.Description, okResult.Value.Description);
@@ -177,7 +178,7 @@ public class GetTransactionEndpointTests
         var result = await ExecuteGetTransaction(db, transaction.Id, household.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Transaction>>(result);
+        var okResult = Assert.IsType<Ok<TransactionResponse>>(result);
         Assert.NotNull(okResult.Value!.Category);
         Assert.Equal("Food", okResult.Value.Category!.Name);
         Assert.Equal("Food and groceries", okResult.Value.Category.Description);
@@ -191,6 +192,6 @@ public class GetTransactionEndpointTests
             .Where(t => t.HouseholdId == householdId)
             .FirstOrDefaultAsync(t => t.Id == id);
 
-        return transaction is null ? Results.NotFound() : Results.Ok(transaction);
+        return transaction is null ? Results.NotFound() : Results.Ok(transaction.ToResponse());
     }
 }

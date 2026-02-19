@@ -1,5 +1,6 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Balance;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
@@ -217,7 +218,7 @@ public class GetMonthlyBalanceEndpointTests
         return transaction;
     }
 
-    private async Task<(int Year, IEnumerable<MonthSummary> Months, bool HasTransactions, decimal TotalIncome, decimal TotalExpenses)> ExecuteGetMonthlyBalance(
+    private async Task<MonthlyBalanceResponse> ExecuteGetMonthlyBalance(
         ExpenseDbContext db,
         Guid householdId,
         int? year)
@@ -246,34 +247,23 @@ public class GetMonthlyBalanceEndpointTests
                     .Where(t => t.Type == TransactionType.Expense)
                     .Sum(t => t.Amount);
 
-                return new MonthSummary
-                {
-                    Month = month,
-                    MonthName = new DateTime(targetYear, month, 1).ToString("MMMM"),
-                    Income = income,
-                    Expenses = expenses,
-                    Balance = income - expenses,
-                    HasTransactions = monthTransactions.Any()
-                };
+                return new MonthSummaryResponse(
+                    month,
+                    new DateTime(targetYear, month, 1).ToString("MMMM"),
+                    income,
+                    expenses,
+                    income - expenses,
+                    monthTransactions.Any()
+                );
             })
             .OrderBy(m => m.Month);
 
-        return (
+        return new MonthlyBalanceResponse(
             targetYear,
             monthlySummary,
             transactions.Any(),
             transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount),
             transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount)
         );
-    }
-
-    private class MonthSummary
-    {
-        public int Month { get; set; }
-        public string MonthName { get; set; } = string.Empty;
-        public decimal Income { get; set; }
-        public decimal Expenses { get; set; }
-        public decimal Balance { get; set; }
-        public bool HasTransactions { get; set; }
     }
 }

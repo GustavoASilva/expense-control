@@ -10,35 +10,43 @@ public static class CreateBudgetEndpoint
 {
     public static void MapCreateBudgetEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/budgets", async (ExpenseDbContext db, ClaimsPrincipal user, Budget budget) =>
+        app.MapPost("/api/budgets", async (ExpenseDbContext db, ClaimsPrincipal user, CreateBudgetRequest request) =>
         {
             var householdId = user.GetHouseholdId();
-            budget.HouseholdId = householdId;
 
             var household = await db.Households.FindAsync(householdId);
             if (household == null)
                 return Results.NotFound("Household not found");
 
             var existing = await db.Budgets.FirstOrDefaultAsync(b =>
-                b.CategoryId == budget.CategoryId &&
-                b.Month == budget.Month &&
-                b.Year == budget.Year &&
-                b.HouseholdId == budget.HouseholdId);
+                b.CategoryId == request.CategoryId &&
+                b.Month == request.Month &&
+                b.Year == request.Year &&
+                b.HouseholdId == householdId);
 
             if (existing != null)
             {
-                existing.Amount = budget.Amount;
+                existing.Amount = request.Amount;
                 existing.UpdatedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+                return Results.Ok(existing.ToResponse());
             }
-            else
+
+            var budget = new Budget
             {
-                budget.Id = Guid.NewGuid();
-                budget.CreatedAt = DateTime.UtcNow;
-                budget.UpdatedAt = DateTime.UtcNow;
-                db.Budgets.Add(budget);
-            }
+                Id = Guid.NewGuid(),
+                CategoryId = request.CategoryId,
+                Amount = request.Amount,
+                Month = request.Month,
+                Year = request.Year,
+                HouseholdId = householdId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            db.Budgets.Add(budget);
             await db.SaveChangesAsync();
-            return Results.Ok(budget);
+            return Results.Ok(budget.ToResponse());
         });
     }
 }

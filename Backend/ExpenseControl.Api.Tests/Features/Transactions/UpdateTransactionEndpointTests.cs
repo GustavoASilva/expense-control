@@ -1,5 +1,7 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Transactions;
+using ExpenseControl.Api.Features.Transactions.Update;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -53,21 +55,20 @@ public class UpdateTransactionEndpointTests
         db.Transactions.Add(transaction);
         await db.SaveChangesAsync();
 
-        var updated = new Transaction
-        {
-            Description = "New description",
-            Amount = 200m,
-            Date = DateOnly.FromDateTime(DateTime.UtcNow),
-            CategoryId = category.Id,
-            Type = TransactionType.Expense,
-            Notes = "New notes"
-        };
+        var request = new UpdateTransactionRequest(
+            Description: "New description",
+            Amount: 200m,
+            Date: DateOnly.FromDateTime(DateTime.UtcNow),
+            CategoryId: category.Id,
+            Type: TransactionType.Expense,
+            Notes: "New notes"
+        );
 
         // Act
-        var result = await ExecuteUpdateTransaction(db, transaction.Id, updated, household.Id);
+        var result = await ExecuteUpdateTransaction(db, transaction.Id, request, household.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Transaction>>(result);
+        var okResult = Assert.IsType<Ok<TransactionResponse>>(result);
         Assert.Equal("New description", okResult.Value!.Description);
         Assert.Equal(200m, okResult.Value.Amount);
         Assert.Equal("New notes", okResult.Value.Notes);
@@ -88,18 +89,17 @@ public class UpdateTransactionEndpointTests
         db.Households.Add(household);
         await db.SaveChangesAsync();
 
-        var updated = new Transaction
-        {
-            Description = "New description",
-            Amount = 200m,
-            Date = DateOnly.FromDateTime(DateTime.UtcNow),
-            CategoryId = Guid.NewGuid(),
-            Type = TransactionType.Expense,
-            Notes = "New notes"
-        };
+        var request = new UpdateTransactionRequest(
+            Description: "New description",
+            Amount: 200m,
+            Date: DateOnly.FromDateTime(DateTime.UtcNow),
+            CategoryId: Guid.NewGuid(),
+            Type: TransactionType.Expense,
+            Notes: "New notes"
+        );
 
         // Act
-        var result = await ExecuteUpdateTransaction(db, Guid.NewGuid(), updated, household.Id);
+        var result = await ExecuteUpdateTransaction(db, Guid.NewGuid(), request, household.Id);
 
         // Assert
         Assert.IsType<NotFound>(result);
@@ -146,18 +146,17 @@ public class UpdateTransactionEndpointTests
         db.Transactions.Add(transaction);
         await db.SaveChangesAsync();
 
-        var updated = new Transaction
-        {
-            Description = "New description",
-            Amount = 200m,
-            Date = DateOnly.FromDateTime(DateTime.UtcNow),
-            CategoryId = category.Id,
-            Type = TransactionType.Expense,
-            Notes = "New notes"
-        };
+        var request = new UpdateTransactionRequest(
+            Description: "New description",
+            Amount: 200m,
+            Date: DateOnly.FromDateTime(DateTime.UtcNow),
+            CategoryId: category.Id,
+            Type: TransactionType.Expense,
+            Notes: "New notes"
+        );
 
         // Act - Try to update with wrong household ID
-        var result = await ExecuteUpdateTransaction(db, transaction.Id, updated, household2.Id);
+        var result = await ExecuteUpdateTransaction(db, transaction.Id, request, household2.Id);
 
         // Assert
         Assert.IsType<NotFound>(result);
@@ -199,25 +198,24 @@ public class UpdateTransactionEndpointTests
         db.Transactions.Add(transaction);
         await db.SaveChangesAsync();
 
-        var updated = new Transaction
-        {
-            Description = transaction.Description,
-            Amount = 500.75m,
-            Date = transaction.Date,
-            CategoryId = transaction.CategoryId,
-            Type = transaction.Type,
-            Notes = transaction.Notes
-        };
+        var request = new UpdateTransactionRequest(
+            Description: transaction.Description,
+            Amount: 500.75m,
+            Date: transaction.Date,
+            CategoryId: transaction.CategoryId,
+            Type: transaction.Type,
+            Notes: transaction.Notes
+        );
 
         // Act
-        var result = await ExecuteUpdateTransaction(db, transaction.Id, updated, household.Id);
+        var result = await ExecuteUpdateTransaction(db, transaction.Id, request, household.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Transaction>>(result);
+        var okResult = Assert.IsType<Ok<TransactionResponse>>(result);
         Assert.Equal(500.75m, okResult.Value!.Amount);
     }
 
-    private async Task<IResult> ExecuteUpdateTransaction(ExpenseDbContext db, Guid id, Transaction updated, Guid householdId)
+    private async Task<IResult> ExecuteUpdateTransaction(ExpenseDbContext db, Guid id, UpdateTransactionRequest request, Guid householdId)
     {
         var transaction = await db.Transactions
             .Where(t => t.HouseholdId == householdId)
@@ -225,14 +223,14 @@ public class UpdateTransactionEndpointTests
         if (transaction == null)
             return Results.NotFound();
 
-        transaction.Description = updated.Description;
-        transaction.Amount = updated.Amount;
-        transaction.Date = updated.Date;
-        transaction.CategoryId = updated.CategoryId;
-        transaction.Type = updated.Type;
-        transaction.Notes = updated.Notes;
+        transaction.Description = request.Description;
+        transaction.Amount = request.Amount;
+        transaction.Date = request.Date;
+        transaction.CategoryId = request.CategoryId;
+        transaction.Type = request.Type;
+        transaction.Notes = request.Notes;
 
         await db.SaveChangesAsync();
-        return Results.Ok(transaction);
+        return Results.Ok(transaction.ToResponse());
     }
 }

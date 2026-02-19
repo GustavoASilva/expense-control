@@ -46,7 +46,7 @@ public static class ListTransactionsEndpoint
                 query = query.Take(limit.Value);
 
             var transactions = await query.ToListAsync();
-            return Results.Ok(transactions);
+            return Results.Ok(transactions.ToResponse());
         })
         .WithName("ListTransactions")
         .WithOpenApi();

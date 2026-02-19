@@ -1,7 +1,9 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Categories;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +39,8 @@ public class CategoryEndpointsTests
         var result = await ExecuteGetCategories(db, null);
 
         // Assert
-        Assert.Equal(3, result.Count);
+        var okResult = Assert.IsType<Ok<List<CategoryResponse>>>(result);
+        Assert.Equal(3, okResult.Value!.Count);
     }
 
     [Fact]
@@ -62,8 +65,9 @@ public class CategoryEndpointsTests
         var result = await ExecuteGetCategories(db, TransactionType.Expense);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.All(result, c => Assert.Equal(TransactionType.Expense, c.Type));
+        var okResult = Assert.IsType<Ok<List<CategoryResponse>>>(result);
+        Assert.Equal(2, okResult.Value!.Count);
+        Assert.All(okResult.Value, c => Assert.Equal(TransactionType.Expense, c.Type));
     }
 
     [Fact]
@@ -87,8 +91,9 @@ public class CategoryEndpointsTests
         var result = await ExecuteGetCategories(db, TransactionType.Income);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.All(result, c => Assert.Equal(TransactionType.Income, c.Type));
+        var okResult = Assert.IsType<Ok<List<CategoryResponse>>>(result);
+        Assert.Equal(2, okResult.Value!.Count);
+        Assert.All(okResult.Value, c => Assert.Equal(TransactionType.Income, c.Type));
     }
 
     [Fact]
@@ -106,7 +111,7 @@ public class CategoryEndpointsTests
         var result = await ExecuteGetCategoryById(db, category.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Category>>(result);
+        var okResult = Assert.IsType<Ok<CategoryResponse>>(result);
         Assert.Equal(category.Id, okResult.Value!.Id);
         Assert.Equal("Food", okResult.Value.Name);
     }
@@ -147,7 +152,7 @@ public class CategoryEndpointsTests
         var result = await ExecuteGetCategoryById(db, category.Id);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Category>>(result);
+        var okResult = Assert.IsType<Ok<CategoryResponse>>(result);
         Assert.Equal("Food", okResult.Value!.Name);
         Assert.Equal("Food and groceries", okResult.Value.Description);
         Assert.Equal("food_icon", okResult.Value.IconName);
@@ -163,7 +168,7 @@ public class CategoryEndpointsTests
             .Create();
     }
 
-    private async Task<List<Category>> ExecuteGetCategories(ExpenseDbContext db, TransactionType? type)
+    private async Task<IResult> ExecuteGetCategories(ExpenseDbContext db, TransactionType? type)
     {
         var query = db.Categories.AsQueryable();
 
@@ -172,12 +177,13 @@ public class CategoryEndpointsTests
             query = query.Where(c => c.Type == type.Value);
         }
 
-        return await query.ToListAsync();
+        var categories = await query.ToListAsync();
+        return Results.Ok(categories.ToResponse());
     }
 
-    private async Task<Microsoft.AspNetCore.Http.IResult> ExecuteGetCategoryById(ExpenseDbContext db, Guid id)
+    private async Task<IResult> ExecuteGetCategoryById(ExpenseDbContext db, Guid id)
     {
         var category = await db.Categories.FindAsync(id);
-        return category is null ? Microsoft.AspNetCore.Http.Results.NotFound() : Microsoft.AspNetCore.Http.Results.Ok(category);
+        return category is null ? Results.NotFound() : Results.Ok(category.ToResponse());
     }
 }

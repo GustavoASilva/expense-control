@@ -1,5 +1,7 @@
 using AutoFixture;
 using ExpenseControl.Api.Entities;
+using ExpenseControl.Api.Features.Budgets;
+using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Persistence;
 using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.AspNetCore.Http;
@@ -27,24 +29,22 @@ public class CreateBudgetEndpointTests
         var household = CreateAndAddHousehold(db, "Test Household");
         var category = CreateAndAddCategory(db, "Food", TransactionType.Expense);
 
-        var budget = new Budget
-        {
-            CategoryId = category.Id,
-            Amount = 1000m,
-            Month = 1,
-            Year = 2024,
-            HouseholdId = household.Id
-        };
+        var request = new CreateBudgetRequest(
+            CategoryId: category.Id,
+            Amount: 1000m,
+            Month: 1,
+            Year: 2024
+        );
 
         // Act
-        var result = await ExecuteCreateBudget(db, budget);
+        var result = await ExecuteCreateBudget(db, household.Id, request);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Budget>>(result);
+        var okResult = Assert.IsType<Ok<BudgetResponse>>(result);
         Assert.NotNull(okResult.Value);
-        Assert.Equal(budget.Amount, okResult.Value.Amount);
-        Assert.Equal(budget.Month, okResult.Value.Month);
-        Assert.Equal(budget.Year, okResult.Value.Year);
+        Assert.Equal(request.Amount, okResult.Value.Amount);
+        Assert.Equal(request.Month, okResult.Value.Month);
+        Assert.Equal(request.Year, okResult.Value.Year);
         Assert.NotEqual(Guid.Empty, okResult.Value.Id);
     }
 
@@ -73,20 +73,18 @@ public class CreateBudgetEndpointTests
         db.Budgets.Add(existingBudget);
         await db.SaveChangesAsync();
 
-        var updatedBudget = new Budget
-        {
-            CategoryId = category.Id,
-            Amount = 1500m,
-            Month = 1,
-            Year = 2024,
-            HouseholdId = household.Id
-        };
+        var request = new CreateBudgetRequest(
+            CategoryId: category.Id,
+            Amount: 1500m,
+            Month: 1,
+            Year: 2024
+        );
 
         // Act
-        var result = await ExecuteCreateBudget(db, updatedBudget);
+        var result = await ExecuteCreateBudget(db, household.Id, request);
 
         // Assert
-        var okResult = Assert.IsType<Ok<Budget>>(result);
+        var okResult = Assert.IsType<Ok<BudgetResponse>>(result);
         Assert.Equal(1500m, okResult.Value!.Amount);
         
         var budgetInDb = await db.Budgets.FirstOrDefaultAsync(b => b.Id == existingBudget.Id);
@@ -103,17 +101,15 @@ public class CreateBudgetEndpointTests
 
         var category = CreateAndAddCategory(db, "Food", TransactionType.Expense);
 
-        var budget = new Budget
-        {
-            CategoryId = category.Id,
-            Amount = 1000m,
-            Month = 1,
-            Year = 2024,
-            HouseholdId = Guid.NewGuid()
-        };
+        var request = new CreateBudgetRequest(
+            CategoryId: category.Id,
+            Amount: 1000m,
+            Month: 1,
+            Year: 2024
+        );
 
         // Act
-        var result = await ExecuteCreateBudget(db, budget);
+        var result = await ExecuteCreateBudget(db, Guid.NewGuid(), request);
 
         // Assert
         var notFoundResult = Assert.IsType<NotFound<string>>(result);
@@ -130,26 +126,26 @@ public class CreateBudgetEndpointTests
         var household = CreateAndAddHousehold(db, "Test Household");
         var category = CreateAndAddCategory(db, "Food", TransactionType.Expense);
 
-        var budget = new Budget
-        {
-            CategoryId = category.Id,
-            Amount = 1000m,
-            Month = 1,
-            Year = 2024,
-            HouseholdId = household.Id
-        };
+        var request = new CreateBudgetRequest(
+            CategoryId: category.Id,
+            Amount: 1000m,
+            Month: 1,
+            Year: 2024
+        );
 
         var beforeCreate = DateTime.UtcNow;
 
         // Act
-        var result = await ExecuteCreateBudget(db, budget);
+        var result = await ExecuteCreateBudget(db, household.Id, request);
 
         var afterCreate = DateTime.UtcNow;
 
         // Assert
-        var okResult = Assert.IsType<Ok<Budget>>(result);
-        Assert.True(okResult.Value!.CreatedAt >= beforeCreate && okResult.Value.CreatedAt <= afterCreate);
-        Assert.True(okResult.Value.UpdatedAt >= beforeCreate && okResult.Value.UpdatedAt <= afterCreate);
+        var okResult = Assert.IsType<Ok<BudgetResponse>>(result);
+        var budgetInDb = await db.Budgets.FirstOrDefaultAsync(b => b.Id == okResult.Value!.Id);
+        Assert.NotNull(budgetInDb);
+        Assert.True(budgetInDb.CreatedAt >= beforeCreate && budgetInDb.CreatedAt <= afterCreate);
+        Assert.True(budgetInDb.UpdatedAt >= beforeCreate && budgetInDb.UpdatedAt <= afterCreate);
     }
 
     [Fact]
@@ -178,19 +174,17 @@ public class CreateBudgetEndpointTests
         await db.SaveChangesAsync();
 
         var originalCreatedAt = existingBudget.CreatedAt;
-        var updatedBudget = new Budget
-        {
-            CategoryId = category.Id,
-            Amount = 1500m,
-            Month = 1,
-            Year = 2024,
-            HouseholdId = household.Id
-        };
+        var request = new CreateBudgetRequest(
+            CategoryId: category.Id,
+            Amount: 1500m,
+            Month: 1,
+            Year: 2024
+        );
 
-        await Task.Delay(100); // Ensure time difference
+        await Task.Delay(100);
 
         // Act
-        var result = await ExecuteCreateBudget(db, updatedBudget);
+        var result = await ExecuteCreateBudget(db, household.Id, request);
 
         // Assert
         var budgetInDb = await db.Budgets.FirstOrDefaultAsync(b => b.Id == existingBudget.Id);
@@ -222,31 +216,40 @@ public class CreateBudgetEndpointTests
         return category;
     }
 
-    private async Task<IResult> ExecuteCreateBudget(ExpenseDbContext db, Budget budget)
+    private async Task<IResult> ExecuteCreateBudget(ExpenseDbContext db, Guid householdId, CreateBudgetRequest request)
     {
-        var household = await db.Households.FindAsync(budget.HouseholdId);
+        var household = await db.Households.FindAsync(householdId);
         if (household == null)
             return Results.NotFound("Household not found");
 
         var existing = await db.Budgets.FirstOrDefaultAsync(b =>
-            b.CategoryId == budget.CategoryId &&
-            b.Month == budget.Month &&
-            b.Year == budget.Year &&
-            b.HouseholdId == budget.HouseholdId);
+            b.CategoryId == request.CategoryId &&
+            b.Month == request.Month &&
+            b.Year == request.Year &&
+            b.HouseholdId == householdId);
 
         if (existing != null)
         {
-            existing.Amount = budget.Amount;
+            existing.Amount = request.Amount;
             existing.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(existing.ToResponse());
         }
-        else
+
+        var budget = new Budget
         {
-            budget.Id = Guid.NewGuid();
-            budget.CreatedAt = DateTime.UtcNow;
-            budget.UpdatedAt = DateTime.UtcNow;
-            db.Budgets.Add(budget);
-        }
+            Id = Guid.NewGuid(),
+            CategoryId = request.CategoryId,
+            Amount = request.Amount,
+            Month = request.Month,
+            Year = request.Year,
+            HouseholdId = householdId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        db.Budgets.Add(budget);
         await db.SaveChangesAsync();
-        return Results.Ok(budget);
+        return Results.Ok(budget.ToResponse());
     }
 }

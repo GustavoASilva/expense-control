@@ -22,7 +22,7 @@ public static class HouseholdEndpoints
             db.Households.Add(household);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/households/{household.Id}", household);
+            return Results.Created($"/api/households/{household.Id}", household.ToResponse());
         })
         .WithName("CreateHousehold")
         .WithOpenApi();
@@ -33,7 +33,7 @@ public static class HouseholdEndpoints
                 .OrderBy(h => h.Name)
                 .ToListAsync();
 
-            return Results.Ok(households);
+            return Results.Ok(households.ToResponse());
         })
         .WithName("ListHouseholds")
         .WithOpenApi();
@@ -41,7 +41,7 @@ public static class HouseholdEndpoints
         app.MapGet("/api/households/{id}", async (ExpenseDbContext db, Guid id) =>
         {
             var household = await db.Households.FindAsync(id);
-            return household is null ? Results.NotFound() : Results.Ok(household);
+            return household is null ? Results.NotFound() : Results.Ok(household.ToResponse());
         })
         .WithName("GetHousehold")
         .WithOpenApi();

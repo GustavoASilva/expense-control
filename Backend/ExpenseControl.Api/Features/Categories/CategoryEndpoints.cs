@@ -17,7 +17,8 @@ public static class CategoryEndpoints
                 query = query.Where(c => c.Type == type.Value);
             }
 
-            return await query.ToListAsync();
+            var categories = await query.ToListAsync();
+            return Results.Ok(categories.ToResponse());
         })
         .WithName("GetCategories")
         .WithOpenApi();
@@ -25,7 +26,7 @@ public static class CategoryEndpoints
         app.MapGet("/api/categories/{id}", async (ExpenseDbContext db, Guid id) =>
         {
             var category = await db.Categories.FindAsync(id);
-            return category is null ? Results.NotFound() : Results.Ok(category);
+            return category is null ? Results.NotFound() : Results.Ok(category.ToResponse());
         })
         .WithName("GetCategoryById")
         .WithOpenApi();

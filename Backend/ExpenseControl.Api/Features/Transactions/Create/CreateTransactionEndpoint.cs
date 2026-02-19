@@ -5,7 +5,7 @@ using ExpenseControl.Api.Persistence;
 
 namespace ExpenseControl.Api.Features.Transactions.Create;
 
-public record CreateTransactionCommand(
+public record CreateTransactionRequest(
     string Description,
     decimal Amount,
     DateOnly Date,
@@ -19,13 +19,13 @@ public static class CreateTransactionEndpoint
     public static void MapCreateTransactionEndpoint(this IEndpointRouteBuilder app)
     {
         app.MapPost("/api/transactions", async (
-            CreateTransactionCommand command,
+            CreateTransactionRequest request,
             ClaimsPrincipal user,
             ExpenseDbContext db) =>
         {
             var householdId = user.GetHouseholdId();
 
-            var category = await db.Categories.FindAsync(command.CategoryId);
+            var category = await db.Categories.FindAsync(request.CategoryId);
             if (category == null)
                 return Results.NotFound("Category not found");
 
@@ -33,7 +33,7 @@ public static class CreateTransactionEndpoint
             if (household == null)
                 return Results.NotFound("Household not found");
 
-            Transaction transaction = command.Type switch
+            Transaction transaction = request.Type switch
             {
                 TransactionType.Expense => new Expense(),
                 TransactionType.Income => new Income(),
@@ -41,17 +41,17 @@ public static class CreateTransactionEndpoint
             };
 
             transaction.Id = Guid.NewGuid();
-            transaction.Description = command.Description;
-            transaction.Amount = command.Amount;
-            transaction.Date = command.Date;
-            transaction.CategoryId = command.CategoryId;
-            transaction.Notes = command.Notes ?? string.Empty;
+            transaction.Description = request.Description;
+            transaction.Amount = request.Amount;
+            transaction.Date = request.Date;
+            transaction.CategoryId = request.CategoryId;
+            transaction.Notes = request.Notes ?? string.Empty;
             transaction.HouseholdId = householdId;
 
             db.Transactions.Add(transaction);
             await db.SaveChangesAsync();
 
-            return Results.Created($"/api/transactions/{transaction.Id}", transaction);
+            return Results.Created($"/api/transactions/{transaction.Id}", transaction.ToResponse());
         })
         .WithName("CreateTransaction")
         .WithOpenApi();
