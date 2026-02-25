@@ -5,6 +5,7 @@ namespace ExpenseControl.Api.Features.Households;
 public record HouseholdResponse(
     Guid Id,
     string Name,
+    Guid InviteId,
     DateTime CreatedAt
 );
 
@@ -15,6 +16,7 @@ public static class HouseholdMappingExtensions
         return new HouseholdResponse(
             household.Id,
             household.Name,
+            household.InviteId,
             household.CreatedAt
         );
     }

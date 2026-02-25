@@ -9,6 +9,7 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
     public DbSet<Category> Categories { get; set; }
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<Household> Households { get; set; }
+    public DbSet<HouseholdMember> HouseholdMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -17,7 +18,25 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.InviteId).IsRequired();
+            entity.HasIndex(e => e.InviteId).IsUnique();
             entity.Property(e => e.CreatedAt).IsRequired();
+        });
+
+        // HouseholdMember Configuration
+        modelBuilder.Entity<HouseholdMember>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Role).HasMaxLength(50);
+            entity.Property(e => e.JoinedAt).IsRequired();
+            entity.HasOne(e => e.Household)
+                .WithMany()
+                .HasForeignKey(e => e.HouseholdId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => new { e.HouseholdId, e.UserId }).IsUnique();
         });
 
         // Transaction Configuration
