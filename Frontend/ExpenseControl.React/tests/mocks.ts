@@ -159,10 +159,20 @@ export const mockBudgetUsageRent = {
   percent: 80,
 };
 
+export const mockHousehold = {
+  id: 'household-1',
+  name: 'Test Household',
+  inviteId: 'invite-1',
+  createdAt: '2026-01-01T00:00:00Z',
+};
+
 export async function setupApiMocks(page: Page) {
   // Set up auth mock so the app treats the user as authenticated
   await setupAuthMock(page);
 
+  await page.route('**/api/users/me/household', (route) => {
+    route.fulfill({ json: { household: mockHousehold } });
+  });
   await page.route('**/api/categories', (route) => {
     route.fulfill({ json: mockCategories });
   });

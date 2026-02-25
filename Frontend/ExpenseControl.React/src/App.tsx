@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Budgets from './pages/Budgets';
 import Login from './pages/Login';
+import HouseholdSetup from './pages/HouseholdSetup';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/household/setup" element={<HouseholdSetup />} />
           <Route
             path="/"
             element={
