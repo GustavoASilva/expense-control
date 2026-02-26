@@ -28,4 +28,19 @@ public static class ClaimsPrincipalExtensions
 
         return householdId;
     }
+
+    /// <summary>
+    /// Returns the user identifier from the principal's NameIdentifier claim.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the NameIdentifier claim is missing or empty.
+    /// </exception>
+    public static string GetUserId(this ClaimsPrincipal principal)
+    {
+        var claim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim is null || string.IsNullOrWhiteSpace(claim.Value))
+            throw new InvalidOperationException("The user identifier claim is missing in the token.");
+
+        return claim.Value;
+    }
 }

@@ -90,3 +90,14 @@ export interface BudgetUsage {
   usage: number;
   percent: number;
 }
+
+export interface Household {
+  id: string;
+  name: string;
+  inviteId: string;
+  createdAt: string;
+}
+
+export interface UserHouseholdResponse {
+  household: Household | null;
+}

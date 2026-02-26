@@ -10,6 +10,8 @@ import {
   Budget,
   BudgetForm,
   BudgetUsage,
+  Household,
+  UserHouseholdResponse,
 } from '../types/index';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5293/api';
@@ -164,5 +166,16 @@ export const getBudgetUsage = async (
 ): Promise<BudgetUsage> => {
   const params = { categoryId, year, month };
   const response = await api.get<BudgetUsage>('/budgets/usage', { params });
+  return response.data;
+};
+
+// Households
+export const getUserHousehold = async (): Promise<UserHouseholdResponse> => {
+  const response = await api.get<UserHouseholdResponse>('/users/me/household');
+  return response.data;
+};
+
+export const createHousehold = async (name: string): Promise<Household> => {
+  const response = await api.post<Household>('/households', { name });
   return response.data;
 };

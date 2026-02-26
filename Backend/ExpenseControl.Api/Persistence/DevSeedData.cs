@@ -10,6 +10,7 @@ namespace ExpenseControl.Api.Persistence;
 public static class DevSeedData
 {
     public static readonly Guid MockHouseholdId = new("11111111-1111-1111-1111-111111111111");
+    public const string MockUserId = "mock-user-id";
 
     // Category IDs defined in SeedData.cs
     private static readonly Guid HousingCategoryId       = new("a48cde78-354e-4d5c-9159-cf28368fcaca");
@@ -31,7 +32,17 @@ public static class DevSeedData
         {
             Id = MockHouseholdId,
             Name = "Mock User's Household",
+            InviteId = Guid.NewGuid(),
             CreatedAt = now
+        });
+
+        db.HouseholdMembers.Add(new HouseholdMember
+        {
+            Id = Guid.NewGuid(),
+            HouseholdId = MockHouseholdId,
+            UserId = MockUserId,
+            Role = "Owner",
+            JoinedAt = now
         });
 
         db.Transactions.AddRange(BuildTransactions(now));
