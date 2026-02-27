@@ -7,9 +7,10 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, completeNewPassword, requiresPasswordReset } = useAuth();
+  const { login, completeNewPassword, verifyMfaCode, requiresPasswordReset, requiresMfa, mfaMethod } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,33 +19,55 @@ const Login: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      if (requiresMfa) {
+        await verifyMfaCode(mfaCode.trim());
+        navigate('/');
+        return;
+      }
+
       if (requiresPasswordReset) {
         if (newPassword !== confirmNewPassword) {
           setError('New password and confirmation do not match.');
           return;
         }
 
-        await completeNewPassword(newPassword);
-        navigate('/');
+        const result = await completeNewPassword(newPassword);
+        if (!result.requiresMfa) {
+          navigate('/');
+        }
         return;
       }
 
       const result = await login(username, password);
-      if (result.requiresPasswordReset) {
+      if (result.requiresPasswordReset || result.requiresMfa) {
         setError('');
         return;
       }
 
       navigate('/');
     } catch {
-      setError(
-        requiresPasswordReset
-          ? 'Unable to set a new password. Please ensure it meets the password policy.'
-          : 'Invalid username or password. Please try again.'
-      );
+      if (requiresMfa) {
+        setError('Invalid verification code. Please try again.');
+      } else if (requiresPasswordReset) {
+        setError('Unable to set a new password. Please ensure it meets the password policy.');
+      } else {
+        setError('Invalid username or password. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const submitButtonLabel = () => {
+    if (requiresMfa) {
+      return isSubmitting ? 'Verifying code...' : 'Verify Code';
+    }
+
+    if (requiresPasswordReset) {
+      return isSubmitting ? 'Updating password...' : 'Set New Password';
+    }
+
+    return isSubmitting ? 'Signing in...' : 'Sign In';
   };
 
   return (
@@ -74,7 +97,7 @@ const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            {!requiresPasswordReset ? (
+            {!requiresPasswordReset && !requiresMfa ? (
               <>
                 <div className="mb-3">
                   <label htmlFor="username" className="form-label">Username</label>
@@ -103,7 +126,7 @@ const Login: React.FC = () => {
                   />
                 </div>
               </>
-            ) : (
+            ) : requiresPasswordReset ? (
               <>
                 <div className="alert alert-info py-2 small" role="status">
                   This account requires a new password before you can continue.
@@ -136,6 +159,28 @@ const Login: React.FC = () => {
                   />
                 </div>
               </>
+            ) : (
+              <>
+                <div className="alert alert-info py-2 small" role="status">
+                  Enter the {mfaMethod === 'SMS' ? 'SMS' : 'authenticator app'} verification code.
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="mfaCode" className="form-label">Verification Code</label>
+                  <input
+                    type="text"
+                    id="mfaCode"
+                    className="form-control"
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value)}
+                    required
+                    autoFocus
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </>
             )}
 
             <button
@@ -146,10 +191,10 @@ const Login: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  {requiresPasswordReset ? 'Updating password...' : 'Signing in...'}
+                  {submitButtonLabel()}
                 </>
               ) : (
-                requiresPasswordReset ? 'Set New Password' : 'Sign In'
+                submitButtonLabel()
               )}
             </button>
           </form>

@@ -7,8 +7,11 @@ export interface AuthContextType {
   isLoading: boolean;
   hasHousehold: boolean | null;
   requiresPasswordReset: boolean;
-  login: (username: string, password: string) => Promise<{ requiresPasswordReset: boolean }>;
-  completeNewPassword: (newPassword: string) => Promise<void>;
+  requiresMfa: boolean;
+  mfaMethod: 'SMS' | 'TOTP' | null;
+  login: (username: string, password: string) => Promise<{ requiresPasswordReset: boolean; requiresMfa: boolean }>;
+  completeNewPassword: (newPassword: string) => Promise<{ requiresMfa: boolean }>;
+  verifyMfaCode: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => Promise<string | undefined>;
   checkHousehold: () => Promise<void>;
