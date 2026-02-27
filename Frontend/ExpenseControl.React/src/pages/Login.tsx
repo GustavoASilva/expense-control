@@ -5,9 +5,11 @@ import { useNavigate } from 'react-router-dom';
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, completeNewPassword, requiresPasswordReset } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,10 +18,30 @@ const Login: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await login(username, password);
+      if (requiresPasswordReset) {
+        if (newPassword !== confirmNewPassword) {
+          setError('New password and confirmation do not match.');
+          return;
+        }
+
+        await completeNewPassword(newPassword);
+        navigate('/');
+        return;
+      }
+
+      const result = await login(username, password);
+      if (result.requiresPasswordReset) {
+        setError('');
+        return;
+      }
+
       navigate('/');
     } catch {
-      setError('Invalid username or password. Please try again.');
+      setError(
+        requiresPasswordReset
+          ? 'Unable to set a new password. Please ensure it meets the password policy.'
+          : 'Invalid username or password. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -52,32 +74,69 @@ const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
-              <input
-                type="text"
-                id="username"
-                className="form-control"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                autoFocus
-                disabled={isSubmitting}
-              />
-            </div>
+            {!requiresPasswordReset ? (
+              <>
+                <div className="mb-3">
+                  <label htmlFor="username" className="form-label">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    className="form-control"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    autoFocus
+                    disabled={isSubmitting}
+                  />
+                </div>
 
-            <div className="mb-4">
-              <label htmlFor="password" className="form-label">Password</label>
-              <input
-                type="password"
-                id="password"
-                className="form-control"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
+                <div className="mb-4">
+                  <label htmlFor="password" className="form-label">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    className="form-control"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="alert alert-info py-2 small" role="status">
+                  This account requires a new password before you can continue.
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="newPassword" className="form-label">New Password</label>
+                  <input
+                    type="password"
+                    id="newPassword"
+                    className="form-control"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    autoFocus
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label htmlFor="confirmNewPassword" className="form-label">Confirm New Password</label>
+                  <input
+                    type="password"
+                    id="confirmNewPassword"
+                    className="form-control"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </>
+            )}
 
             <button
               type="submit"
@@ -87,10 +146,10 @@ const Login: React.FC = () => {
               {isSubmitting ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Signing in...
+                  {requiresPasswordReset ? 'Updating password...' : 'Signing in...'}
                 </>
               ) : (
-                'Sign In'
+                requiresPasswordReset ? 'Set New Password' : 'Sign In'
               )}
             </button>
           </form>

@@ -6,7 +6,9 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   hasHousehold: boolean | null;
-  login: (username: string, password: string) => Promise<void>;
+  requiresPasswordReset: boolean;
+  login: (username: string, password: string) => Promise<{ requiresPasswordReset: boolean }>;
+  completeNewPassword: (newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => Promise<string | undefined>;
   checkHousehold: () => Promise<void>;

@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading, hasHousehold } = useAuth();
 
-  if (isLoading || hasHousehold === null) {
+  if (isLoading || (isAuthenticated && hasHousehold === null)) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
         <div className="spinner-border text-primary" role="status">
