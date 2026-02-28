@@ -45,7 +45,7 @@ services:
       context: .
       dockerfile: ./Frontend/ExpenseControl.React/docker/Dockerfile
       args:
-        - VITE_USE_MOCK_AUTH=true
+        - VITE_USE_MOCK_AUTH=false
     container_name: expensecontrol-frontend
     ports:
       - "3000:80"
