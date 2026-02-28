@@ -11,6 +11,8 @@ public static class CognitoAuthExtensions
 {
     /// <summary>
     /// Adds AWS Cognito JWT Bearer authentication and authorization services.
+    /// Registers <see cref="HouseholdClaimsTransformation"/> to resolve the
+    /// household identifier from the database after authentication.
     /// </summary>
     public static IServiceCollection AddCognitoAuthentication(this IServiceCollection services, WebApplicationBuilder builder)
     {
@@ -60,6 +62,9 @@ public static class CognitoAuthExtensions
                 ValidateLifetime = true
             };
         });
+
+        // Resolve householdId from the database for Cognito-authenticated users
+        services.AddScoped<IClaimsTransformation, HouseholdClaimsTransformation>();
 
         services.AddAuthorization();
 
