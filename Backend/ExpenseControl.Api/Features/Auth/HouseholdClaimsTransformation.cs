@@ -35,10 +35,12 @@ public class HouseholdClaimsTransformation(ExpenseDbContext db) : IClaimsTransfo
 
         if (householdId != Guid.Empty)
         {
-            var identity = principal.Identity as ClaimsIdentity;
-            identity?.AddClaim(new Claim(
-                ClaimsPrincipalExtensions.HouseholdIdClaimType,
-                householdId.ToString()));
+            if (principal.Identity is ClaimsIdentity identity)
+            {
+                identity.AddClaim(new Claim(
+                    ClaimsPrincipalExtensions.HouseholdIdClaimType,
+                    householdId.ToString()));
+            }
         }
 
         return principal;
