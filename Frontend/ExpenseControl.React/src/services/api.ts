@@ -4,6 +4,7 @@ import {
   Transaction,
   TransactionForm,
   Category,
+  CategoryForm,
   Balance,
   CategoryBalance,
   MonthlyBalance,
@@ -103,6 +104,11 @@ export const getCategories = async (): Promise<Category[]> => {
   return response.data;
 };
 
+export const createCategory = async (category: CategoryForm): Promise<Category> => {
+  const response = await api.post<Category>('/categories', category);
+  return response.data;
+};
+
 // Balance
 export const getBalance = async (
   startDate?: string,
@@ -177,5 +183,10 @@ export const getUserHousehold = async (): Promise<UserHouseholdResponse> => {
 
 export const createHousehold = async (name: string): Promise<Household> => {
   const response = await api.post<Household>('/households', { name });
+  return response.data;
+};
+
+export const joinHousehold = async (inviteId: string): Promise<Household> => {
+  const response = await api.post<Household>('/households/join', { inviteId });
   return response.data;
 };

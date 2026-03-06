@@ -6,6 +6,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   hasHousehold: boolean | null;
+  householdName: string | null;
   requiresPasswordReset: boolean;
   requiresMfaSetup: boolean;
   requiresMfa: boolean;

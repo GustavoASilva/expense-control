@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const NavMenu: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, householdName, logout } = useAuth();
 
   const toggleNavMenu = () => {
     setCollapsed(!collapsed);
@@ -35,6 +35,34 @@ const NavMenu: React.FC = () => {
       </div>
 
       <div className={`${collapsed ? 'collapse' : ''} nav-scrollable show`}>
+        {householdName && (
+          <div style={{
+            padding: '0.75rem 1rem',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          }}>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: '0.6875rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '0.25rem',
+            }}>
+              Household
+            </div>
+            <div style={{
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}>
+              <i className="bi bi-house-door me-2"></i>
+              {householdName}
+            </div>
+          </div>
+        )}
+
         <nav className="flex-column">
           <div className="nav-item">
             <NavLink
@@ -68,6 +96,28 @@ const NavMenu: React.FC = () => {
             >
               <i className="bi bi-pie-chart-fill"></i>
               <span>Budgets</span>
+            </NavLink>
+          </div>
+          <div className="nav-item">
+            <NavLink
+              className={({ isActive }) =>
+                `nav-link ${isActive ? 'active' : ''}`
+              }
+              to="/categories"
+            >
+              <i className="bi bi-tags"></i>
+              <span>Categories</span>
+            </NavLink>
+          </div>
+          <div className="nav-item">
+            <NavLink
+              className={({ isActive }) =>
+                `nav-link ${isActive ? 'active' : ''}`
+              }
+              to="/household"
+            >
+              <i className="bi bi-house-gear"></i>
+              <span>Household</span>
             </NavLink>
           </div>
         </nav>
