@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getCategories, createTransaction, updateTransaction } from '../services/api';
 import { Category, TransactionForm as TxnPayload, TransactionType, Transaction } from '../types/index';
+import { useToast } from '../hooks/useToast';
 
 interface DialogConfiguration {
   isVisible: boolean;
@@ -48,6 +49,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
   refreshData, 
   recordToUpdate 
 }) => {
+  const { showToast } = useToast();
   const [availableCats, setAvailableCats] = useState<Category[]>([]);
   const [isFetchingCats, setIsFetchingCats] = useState(true);
   const [isSubmittingData, setIsSubmittingData] = useState(false);
@@ -162,7 +164,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
       handleClose();
     } catch (err) {
       console.error('Submission error:', err);
-      alert('Failed to save transaction. Please try again.');
+      showToast('Failed to save transaction. Please try again.', 'danger');
     } finally {
       setIsSubmittingData(false);
     }

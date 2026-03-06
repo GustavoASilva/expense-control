@@ -3,8 +3,12 @@ import DateRangePicker from '../components/DateRangePicker';
 import TransactionForm from '../components/TransactionForm';
 import { getTransactions, deleteTransaction } from '../services/api';
 import { Transaction, TransactionType } from '../types/index';
+import { useToast } from '../hooks/useToast';
+import { useConfirm } from '../hooks/useConfirm';
 
 const Transactions: React.FC = () => {
+  const { showToast } = useToast();
+  const { confirm } = useConfirm();
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [recordForEdit, setRecordForEdit] = useState<Transaction | null>(null);
@@ -59,17 +63,21 @@ const Transactions: React.FC = () => {
   };
 
   const handleDeleteTransaction = async (transaction: Transaction) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete this transaction?\n\n${transaction.description}\n${formatCurrency(transaction.amount)}`
-      )
-    ) {
+    const confirmed = await confirm({
+      title: 'Delete Transaction',
+      message: `Are you sure you want to delete "${transaction.description}" (${formatCurrency(transaction.amount)})?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+
+    if (confirmed) {
       try {
         await deleteTransaction(transaction.id);
         await loadData(startDate, endDate);
       } catch (error) {
         console.error('Failed to delete transaction:', error);
-        alert('Failed to delete transaction. Please try again.');
+        showToast('Failed to delete transaction. Please try again.', 'danger');
       }
     }
   };

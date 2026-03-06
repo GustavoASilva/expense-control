@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Category, BudgetForm as BudgetFormType, Budget, TransactionType } from '../types/index';
 import { getCategories, createBudget } from '../services/api';
+import { useToast } from '../hooks/useToast';
 
 interface BudgetFormProps {
   show: boolean;
@@ -11,6 +12,7 @@ interface BudgetFormProps {
 }
 
 const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudget }) => {
+  const { showToast } = useToast();
   const now = new Date();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -122,7 +124,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
       onClose();
     } catch (error) {
       console.error('Failed to save budget:', error);
-      alert('Failed to save budget. Please try again.');
+      showToast('Failed to save budget. Please try again.', 'danger');
     } finally {
       setIsSaving(false);
     }
