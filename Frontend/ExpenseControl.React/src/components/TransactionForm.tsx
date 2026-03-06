@@ -247,7 +247,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
                               modifyFormField('dollarAmount', 0);
                             } else {
                               const num = parseFloat(val);
-                              if (!isNaN(num) && num >= 0) {
+                              if (!isNaN(num)) {
                                 modifyFormField('dollarAmount', num);
                               }
                             }

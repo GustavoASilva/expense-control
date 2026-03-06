@@ -10,6 +10,8 @@ public record CreateCategoryRequest(string Name, string? Description, Transactio
 
 public static class CategoryEndpoints
 {
+    private const string DefaultIconName = "tag";
+
     public static void MapCategoryEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/categories", async (ExpenseDbContext db, ClaimsPrincipal user, TransactionType? type) =>
@@ -71,7 +73,7 @@ public static class CategoryEndpoints
                 Name = request.Name.Trim(),
                 Description = request.Description?.Trim(),
                 Type = request.Type,
-                IconName = string.IsNullOrWhiteSpace(request.IconName) ? "tag" : request.IconName.Trim(),
+                IconName = string.IsNullOrWhiteSpace(request.IconName) ? DefaultIconName : request.IconName.Trim(),
                 HouseholdId = householdId
             };
 

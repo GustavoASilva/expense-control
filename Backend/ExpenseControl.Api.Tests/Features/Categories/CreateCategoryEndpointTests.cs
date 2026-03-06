@@ -97,7 +97,7 @@ public class CreateCategoryEndpointTests
     }
 
     [Fact]
-    public async Task DefaultCategories_HaveIsDefaultTrue()
+    public void DefaultCategories_HaveIsDefaultTrue()
     {
         var category = new Category
         {
@@ -112,7 +112,7 @@ public class CreateCategoryEndpointTests
     }
 
     [Fact]
-    public async Task CustomCategories_HaveIsDefaultFalse()
+    public void CustomCategories_HaveIsDefaultFalse()
     {
         var category = new Category
         {
