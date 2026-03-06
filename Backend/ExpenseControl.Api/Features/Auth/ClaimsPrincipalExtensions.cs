@@ -8,11 +8,17 @@ namespace ExpenseControl.Api.Features.Auth;
 public static class ClaimsPrincipalExtensions
 {
     /// <summary>
-    /// The claim type used to store the household identifier in the JWT.
-    /// For AWS Cognito, configure the user pool to include a custom attribute
-    /// named <c>householdId</c> in the access token.
+    /// The claim type used to store the household identifier.
+    /// Populated by <see cref="HouseholdClaimsTransformation"/> from the database
+    /// when not already present in the JWT token.
     /// </summary>
     public const string HouseholdIdClaimType = "householdId";
+
+    /// <summary>
+    /// The raw JWT <c>sub</c> claim type used as a fallback for user identification
+    /// when <see cref="ClaimTypes.NameIdentifier"/> is not mapped (e.g., Cognito tokens).
+    /// </summary>
+    public const string SubClaimType = "sub";
 
     /// <summary>
     /// Returns the household identifier stored in the principal's claims.
@@ -30,14 +36,30 @@ public static class ClaimsPrincipalExtensions
     }
 
     /// <summary>
-    /// Returns the user identifier from the principal's NameIdentifier claim.
+    /// Returns the household identifier if present, or <c>null</c> when the claim is missing.
+    /// Use this for endpoints that can operate without a household context.
+    /// </summary>
+    public static Guid? TryGetHouseholdId(this ClaimsPrincipal principal)
+    {
+        var claim = principal.FindFirst(HouseholdIdClaimType);
+        if (claim is not null && Guid.TryParse(claim.Value, out var householdId))
+            return householdId;
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the user identifier from the principal's NameIdentifier or <c>sub</c> claim.
+    /// Checks <see cref="ClaimTypes.NameIdentifier"/> first, then falls back to the
+    /// raw JWT <c>sub</c> claim for compatibility with Cognito tokens.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the NameIdentifier claim is missing or empty.
+    /// Thrown when neither claim is present or both are empty.
     /// </exception>
     public static string GetUserId(this ClaimsPrincipal principal)
     {
-        var claim = principal.FindFirst(ClaimTypes.NameIdentifier);
+        var claim = principal.FindFirst(ClaimTypes.NameIdentifier)
+                 ?? principal.FindFirst(SubClaimType);
         if (claim is null || string.IsNullOrWhiteSpace(claim.Value))
             throw new InvalidOperationException("The user identifier claim is missing in the token.");
 
