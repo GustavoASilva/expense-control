@@ -90,8 +90,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (budget.amount <= 0) {
-      newErrors.amount = 'Amount must be greater than 0';
+    if (isNaN(budget.amount) || budget.amount <= 0) {
+      newErrors.amount = 'Amount must be a valid number greater than 0';
     }
 
     if (!budget.categoryId) {
@@ -221,6 +221,11 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
                       name="year"
                       value={budget.year}
                       onChange={handleInputChange}
+                      onKeyDown={(e) => {
+                        if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       min="2000"
                       max="2100"
                       disabled={!!editBudget}
@@ -244,8 +249,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
                           name="amount"
                           value={budget.amount || ''}
                           onChange={handleInputChange}
+                          onKeyDown={(e) => {
+                            if (['e', 'E', '+', '-'].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
                           step="0.01"
-                          min="0"
+                          min="0.01"
                           placeholder="0.00"
                         />
                       </div>

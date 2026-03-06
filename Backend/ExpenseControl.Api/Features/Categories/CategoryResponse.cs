@@ -7,7 +7,8 @@ public record CategoryResponse(
     string? Name,
     string? Description,
     TransactionType Type,
-    string? IconName
+    string? IconName,
+    bool IsDefault
 );
 
 public static class CategoryMappingExtensions
@@ -19,7 +20,8 @@ public static class CategoryMappingExtensions
             category.Name,
             category.Description,
             category.Type,
-            category.IconName
+            category.IconName,
+            category.HouseholdId is null
         );
     }
 

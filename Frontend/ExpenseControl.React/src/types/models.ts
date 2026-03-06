@@ -31,6 +31,7 @@ export interface Category {
   description?: string;
   type: TransactionType;
   iconName: string;
+  isDefault: boolean;
 }
 
 export interface Balance {
@@ -100,4 +101,11 @@ export interface Household {
 
 export interface UserHouseholdResponse {
   household: Household | null;
+}
+
+export interface CategoryForm {
+  name: string;
+  description?: string;
+  type: TransactionType;
+  iconName?: string;
 }

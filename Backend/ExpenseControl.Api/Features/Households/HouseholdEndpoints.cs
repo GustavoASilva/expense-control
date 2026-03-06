@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ExpenseControl.Api.Features.Households;
 
 public record CreateHouseholdRequest(string Name);
+public record JoinHouseholdRequest(Guid InviteId);
 
 public static class HouseholdEndpoints
 {
@@ -40,6 +41,41 @@ public static class HouseholdEndpoints
             return Results.Created($"/api/households/{household.Id}", household.ToResponse());
         })
         .WithName("CreateHousehold")
+        .WithOpenApi();
+
+        app.MapPost("/api/households/join", async (ExpenseDbContext db, JoinHouseholdRequest request, ClaimsPrincipal user) =>
+        {
+            var userId = user.GetUserId();
+
+            // Check if user already belongs to a household
+            var existingMembership = await db.HouseholdMembers.AnyAsync(m => m.UserId == userId);
+            if (existingMembership)
+            {
+                return Results.Conflict("You already belong to a household.");
+            }
+
+            // Find household by invite ID
+            var household = await db.Households.FirstOrDefaultAsync(h => h.InviteId == request.InviteId);
+            if (household is null)
+            {
+                return Results.NotFound("No household found with this invite code.");
+            }
+
+            var member = new HouseholdMember
+            {
+                Id = Guid.NewGuid(),
+                HouseholdId = household.Id,
+                UserId = userId,
+                Role = "Member",
+                JoinedAt = DateTime.UtcNow
+            };
+
+            db.HouseholdMembers.Add(member);
+            await db.SaveChangesAsync();
+
+            return Results.Ok(household.ToResponse());
+        })
+        .WithName("JoinHousehold")
         .WithOpenApi();
 
         app.MapGet("/api/households", async (ExpenseDbContext db) =>

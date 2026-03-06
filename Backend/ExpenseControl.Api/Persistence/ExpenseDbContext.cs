@@ -69,8 +69,13 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
             entity.Property(e => e.IconName).HasMaxLength(50);
             entity.Property(e => e.Type).HasConversion<string>();
 
-            // Index on Name and Type for faster lookups
-            entity.HasIndex(e => new { e.Name, e.Type }).IsUnique();
+            entity.HasOne(e => e.Household)
+                .WithMany()
+                .HasForeignKey(e => e.HouseholdId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique index on Name, Type, and HouseholdId for per-household uniqueness
+            entity.HasIndex(e => new { e.Name, e.Type, e.HouseholdId }).IsUnique();
         });
 
         // Budget Configuration

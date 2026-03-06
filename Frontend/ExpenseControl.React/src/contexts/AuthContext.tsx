@@ -7,6 +7,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasHousehold, setHasHousehold] = useState<boolean | null>(null);
+  const [householdName, setHouseholdName] = useState<string | null>(null);
   const [requiresPasswordReset, setRequiresPasswordReset] = useState(false);
   const [requiresMfaSetup, setRequiresMfaSetup] = useState(false);
   const [requiresMfa, setRequiresMfa] = useState(false);
@@ -75,8 +76,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await getUserHousehold();
       setHasHousehold(response.household !== null);
+      setHouseholdName(response.household?.name ?? null);
     } catch {
       setHasHousehold(false);
+      setHouseholdName(null);
     }
   }, []);
 
@@ -206,12 +209,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isMock) {
       setUser(null);
       setHasHousehold(null);
+      setHouseholdName(null);
       return;
     }
 
     await signOut();
     setUser(null);
     setHasHousehold(null);
+    setHouseholdName(null);
     setRequiresPasswordReset(false);
     setRequiresMfaSetup(false);
     setRequiresMfa(false);
@@ -240,6 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         hasHousehold,
+        householdName,
         requiresPasswordReset,
         requiresMfaSetup,
         requiresMfa,

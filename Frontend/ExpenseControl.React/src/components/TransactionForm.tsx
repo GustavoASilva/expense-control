@@ -109,8 +109,8 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     const errors = createEmptyErrors();
     let isValid = true;
 
-    if (formContainer.dollarAmount <= 0) {
-      errors.dollarAmount = 'Amount must be greater than 0';
+    if (isNaN(formContainer.dollarAmount) || formContainer.dollarAmount <= 0) {
+      errors.dollarAmount = 'Amount must be a valid number greater than 0';
       isValid = false;
     }
 
@@ -241,9 +241,24 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
                           className={`form-control ${errorContainer.dollarAmount ? 'is-invalid' : ''}`}
                           id="dollarInput"
                           value={formContainer.dollarAmount || ''}
-                          onChange={(e) => modifyFormField('dollarAmount', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') {
+                              modifyFormField('dollarAmount', 0);
+                            } else {
+                              const num = parseFloat(val);
+                              if (!isNaN(num)) {
+                                modifyFormField('dollarAmount', num);
+                              }
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (['e', 'E', '+', '-'].includes(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
                           step="0.01"
-                          min="0"
+                          min="0.01"
                           placeholder="0.00"
                         />
                         {errorContainer.dollarAmount && (
@@ -273,6 +288,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
                         value={formContainer.textualDescription}
                         onChange={(e) => modifyFormField('textualDescription', e.target.value)}
                         placeholder="What was this transaction for?"
+                        maxLength={200}
                       />
                       {errorContainer.textualDescription && (
                         <div className="invalid-feedback">{errorContainer.textualDescription}</div>
@@ -306,6 +322,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
                         onChange={(e) => modifyFormField('additionalNotes', e.target.value)}
                         rows={3}
                         placeholder="Add any additional notes..."
+                        maxLength={1000}
                       />
                     </div>
                   </div>
