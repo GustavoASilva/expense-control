@@ -8,6 +8,7 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Budget> Budgets { get; set; }
+    public DbSet<Saving> Savings { get; set; }
     public DbSet<Household> Households { get; set; }
     public DbSet<HouseholdMember> HouseholdMembers { get; set; }
 
@@ -97,6 +98,24 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(e => new { e.CategoryId, e.Month, e.Year, e.HouseholdId }).IsUnique();
+            entity.HasIndex(e => e.HouseholdId);
+        });
+
+        // Saving Configuration
+        modelBuilder.Entity<Saving>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.CurrentAmount).HasColumnType("numeric(18,2)");
+            entity.Property(e => e.TargetAmount).HasColumnType("numeric(18,2)");
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.HasOne(e => e.Household)
+                .WithMany()
+                .HasForeignKey(e => e.HouseholdId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(e => e.HouseholdId);
         });
 

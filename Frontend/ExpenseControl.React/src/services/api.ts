@@ -11,6 +11,8 @@ import {
   Budget,
   BudgetForm,
   BudgetUsage,
+  Saving,
+  SavingForm,
   Household,
   UserHouseholdResponse,
 } from '../types/index';
@@ -173,6 +175,26 @@ export const getBudgetUsage = async (
   const params = { categoryId, year, month };
   const response = await api.get<BudgetUsage>('/budgets/usage', { params });
   return response.data;
+};
+
+// Savings
+export const getSavings = async (): Promise<Saving[]> => {
+  const response = await api.get<Saving[]>('/savings');
+  return response.data;
+};
+
+export const createSaving = async (saving: SavingForm): Promise<Saving> => {
+  const response = await api.post<Saving>('/savings', saving);
+  return response.data;
+};
+
+export const updateSaving = async (id: string, saving: SavingForm): Promise<Saving> => {
+  const response = await api.patch<Saving>(`/savings/${id}`, saving);
+  return response.data;
+};
+
+export const deleteSaving = async (id: string): Promise<void> => {
+  await api.delete(`/savings/${id}`);
 };
 
 // Households

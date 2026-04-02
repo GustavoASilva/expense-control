@@ -92,6 +92,23 @@ export interface BudgetUsage {
   percent: number;
 }
 
+export interface Saving {
+  id: string;
+  name: string;
+  description?: string;
+  currentAmount: number;
+  targetAmount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavingForm {
+  name: string;
+  description?: string;
+  currentAmount: number;
+  targetAmount?: number;
+}
+
 export interface Household {
   id: string;
   name: string;

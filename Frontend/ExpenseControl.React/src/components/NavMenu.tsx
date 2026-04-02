@@ -103,6 +103,17 @@ const NavMenu: React.FC = () => {
               className={({ isActive }) =>
                 `nav-link ${isActive ? 'active' : ''}`
               }
+              to="/savings"
+            >
+              <i className="bi bi-piggy-bank-fill"></i>
+              <span>Savings</span>
+            </NavLink>
+          </div>
+          <div className="nav-item">
+            <NavLink
+              className={({ isActive }) =>
+                `nav-link ${isActive ? 'active' : ''}`
+              }
               to="/categories"
             >
               <i className="bi bi-tags"></i>
