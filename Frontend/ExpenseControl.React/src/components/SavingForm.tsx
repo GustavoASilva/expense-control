@@ -48,7 +48,7 @@ const SavingForm: React.FC<SavingFormProps> = ({ show, onClose, onSave, editSavi
     let parsedValue: string | number | undefined = value;
 
     if (name === 'currentAmount') {
-      parsedValue = parseFloat(value) || 0;
+      parsedValue = value === '' ? 0 : parseFloat(value) || 0;
     } else if (name === 'targetAmount') {
       parsedValue = value === '' ? undefined : parseFloat(value) || 0;
     }

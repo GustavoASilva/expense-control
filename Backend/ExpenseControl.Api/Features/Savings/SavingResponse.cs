@@ -1,5 +1,4 @@
 using ExpenseControl.Api.Entities;
-using ExpenseControl.Api.Features.Categories;
 
 namespace ExpenseControl.Api.Features.Savings;
 

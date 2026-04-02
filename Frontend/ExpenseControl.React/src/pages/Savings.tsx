@@ -78,7 +78,7 @@ const Savings: React.FC = () => {
   };
 
   const getProgressPercent = (saving: Saving): number => {
-    if (!saving.targetAmount || saving.targetAmount <= 0) return 0;
+    if (saving.targetAmount == null || saving.targetAmount <= 0) return 0;
     return Math.min((saving.currentAmount / saving.targetAmount) * 100, 100);
   };
 
