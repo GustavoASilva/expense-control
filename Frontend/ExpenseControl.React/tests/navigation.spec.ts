@@ -16,6 +16,7 @@ test.describe('Navigation', () => {
     await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Transactions' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Budgets' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Savings' })).toBeVisible();
   });
 
   test('should navigate to Dashboard page', async ({ page }) => {
@@ -37,6 +38,13 @@ test.describe('Navigation', () => {
     await page.getByRole('link', { name: 'Budgets' }).click();
     await expect(page).toHaveURL('/budgets');
     await expect(page.getByRole('heading', { name: 'Budgets' })).toBeVisible();
+  });
+
+  test('should navigate to Savings page', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: 'Savings' }).click();
+    await expect(page).toHaveURL('/savings');
+    await expect(page.getByRole('heading', { name: 'Savings' })).toBeVisible();
   });
 
   test('should highlight active navigation link', async ({ page }) => {

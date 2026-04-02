@@ -159,6 +159,27 @@ export const mockBudgetUsageRent = {
   percent: 80,
 };
 
+export const mockSavings = [
+  {
+    id: 'sav-1',
+    name: 'Emergency Fund',
+    description: '3 months of expenses',
+    currentAmount: 3000,
+    targetAmount: 10000,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+  {
+    id: 'sav-2',
+    name: 'Vacation Fund',
+    description: null,
+    currentAmount: 1500,
+    targetAmount: 2000,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  },
+];
+
 export const mockHousehold = {
   id: 'household-1',
   name: 'Test Household',
@@ -230,6 +251,29 @@ export async function setupApiMocks(page: Page) {
     } else if (route.request().method() === 'POST') {
       route.fulfill({
         json: { ...mockBudgets[0], id: 'bud-new' },
+        status: 201,
+      });
+    } else {
+      route.continue();
+    }
+  });
+
+  await page.route(/\/api\/savings\/[^/]+$/, (route) => {
+    if (route.request().method() === 'PATCH') {
+      route.fulfill({ json: { ...mockSavings[0], id: route.request().url().split('/').pop() } });
+    } else if (route.request().method() === 'DELETE') {
+      route.fulfill({ status: 204 });
+    } else {
+      route.continue();
+    }
+  });
+
+  await page.route(/\/api\/savings(\?|$)/, (route) => {
+    if (route.request().method() === 'GET') {
+      route.fulfill({ json: mockSavings });
+    } else if (route.request().method() === 'POST') {
+      route.fulfill({
+        json: { ...mockSavings[0], id: 'sav-new' },
         status: 201,
       });
     } else {
