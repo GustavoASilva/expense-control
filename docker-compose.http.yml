@@ -52,6 +52,7 @@ services:
         VITE_API_URL: /api
         VITE_COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID:?COGNITO_USER_POOL_ID is required}
         VITE_COGNITO_APP_CLIENT_ID: ${COGNITO_APP_CLIENT_ID:?COGNITO_APP_CLIENT_ID is required}
+        VITE_COGNITO_REGION: ${COGNITO_REGION:?COGNITO_REGION is required}
     container_name: expensecontrol-frontend
     depends_on:
       api:
