@@ -5,12 +5,6 @@ const configuredRegion = import.meta.env.VITE_COGNITO_REGION?.trim();
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID?.trim();
 const userPoolClientId = import.meta.env.VITE_COGNITO_APP_CLIENT_ID?.trim();
 
-console.log('Amplify configuration:');
-console.log(`  VITE_USE_MOCK_AUTH: ${useMockAuth}`);
-console.log(`  VITE_COGNITO_REGION: ${configuredRegion || 'not set'}`);
-console.log(`  VITE_COGNITO_USER_POOL_ID: ${userPoolId || 'not set'}`);
-console.log(`  VITE_COGNITO_APP_CLIENT_ID: ${userPoolClientId || 'not set'}`);
-
 if (useMockAuth) {
   console.warn('Mock auth is enabled (VITE_USE_MOCK_AUTH=true). Cognito is disabled.');
 } else if (!userPoolId || !userPoolClientId) {
