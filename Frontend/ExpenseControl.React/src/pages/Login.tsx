@@ -58,6 +58,26 @@ const Login: React.FC = () => {
     };
   }, [totpSetupUri]);
 
+  const getDebugErrorMessage = (err: unknown, fallback: string) => {
+    if (err instanceof Error && err.message.trim()) {
+      return err.message;
+    }
+
+    if (typeof err === 'object' && err !== null) {
+      const maybeMessage = Reflect.get(err, 'message');
+      if (typeof maybeMessage === 'string' && maybeMessage.trim()) {
+        return maybeMessage;
+      }
+
+      const maybeName = Reflect.get(err, 'name');
+      if (typeof maybeName === 'string' && maybeName.trim()) {
+        return maybeName;
+      }
+    }
+
+    return fallback;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -96,15 +116,17 @@ const Login: React.FC = () => {
       }
 
       navigate('/');
-    } catch {
+    } catch (err) {
+      console.error('Login flow error:', err);
+
       if (requiresMfaSetup) {
-        setError('Unable to complete TOTP setup. Please check the code and try again.');
+        setError(getDebugErrorMessage(err, 'Unable to complete TOTP setup. Please check the code and try again.'));
       } else if (requiresMfa) {
-        setError('Invalid verification code. Please try again.');
+        setError(getDebugErrorMessage(err, 'Invalid verification code. Please try again.'));
       } else if (requiresPasswordReset) {
-        setError('Unable to set a new password. Please ensure it meets the password policy.');
+        setError(getDebugErrorMessage(err, 'Unable to set a new password. Please ensure it meets the password policy.'));
       } else {
-        setError('Invalid username or password. Please try again.');
+        setError(getDebugErrorMessage(err, 'Invalid username or password. Please try again.'));
       }
     } finally {
       setIsSubmitting(false);

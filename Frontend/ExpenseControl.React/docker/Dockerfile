@@ -5,14 +5,16 @@ COPY Frontend/ExpenseControl.React/package*.json ./
 RUN npm ci
 COPY Frontend/ExpenseControl.React/. .
 ARG VITE_USE_MOCK_AUTH=false
-ARG VITE_API_URL=http://localhost:5293/api
-ARG VITE_COGNITO_USER_POOL_ID=
-ARG VITE_COGNITO_APP_CLIENT_ID=
-ENV VITE_USE_MOCK_AUTH=$VITE_USE_MOCK_AUTH
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_COGNITO_USER_POOL_ID=$VITE_COGNITO_USER_POOL_ID
-ENV VITE_COGNITO_APP_CLIENT_ID=$VITE_COGNITO_APP_CLIENT_ID
-RUN npm run build
+ARG VITE_API_URL
+ARG VITE_COGNITO_USER_POOL_ID
+ARG VITE_COGNITO_APP_CLIENT_ID
+RUN set -eu; \
+	: > .env.production.local; \
+	printf 'VITE_USE_MOCK_AUTH=%s\n' "$VITE_USE_MOCK_AUTH" >> .env.production.local; \
+	if [ -n "${VITE_API_URL:-}" ]; then printf 'VITE_API_URL=%s\n' "$VITE_API_URL" >> .env.production.local; fi; \
+	if [ -n "${VITE_COGNITO_USER_POOL_ID:-}" ]; then printf 'VITE_COGNITO_USER_POOL_ID=%s\n' "$VITE_COGNITO_USER_POOL_ID" >> .env.production.local; fi; \
+	if [ -n "${VITE_COGNITO_APP_CLIENT_ID:-}" ]; then printf 'VITE_COGNITO_APP_CLIENT_ID=%s\n' "$VITE_COGNITO_APP_CLIENT_ID" >> .env.production.local; fi; \
+	npm run build
 
 # Production stage
 FROM nginx:alpine AS production
