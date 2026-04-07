@@ -11,6 +11,10 @@ using ExpenseControl.Api.Features.Balance;
 using ExpenseControl.Api.Features.Budgets.Create;
 using ExpenseControl.Api.Features.Budgets.List;
 using ExpenseControl.Api.Features.Budgets.Usage;
+using ExpenseControl.Api.Features.Savings.Create;
+using ExpenseControl.Api.Features.Savings.List;
+using ExpenseControl.Api.Features.Savings.Update;
+using ExpenseControl.Api.Features.Savings.Delete;
 using ExpenseControl.Api.Features.Households;
 using ExpenseControl.Api.Features.Auth;
 
@@ -90,6 +94,12 @@ api.MapGetMonthlyBalanceEndpoint();
 api.MapCreateBudgetEndpoint();
 api.MapListBudgetsEndpoint();
 api.MapGetBudgetUsageEndpoint();
+
+// Savings endpoints
+api.MapCreateSavingEndpoint();
+api.MapListSavingsEndpoint();
+api.MapUpdateSavingEndpoint();
+api.MapDeleteSavingEndpoint();
 
 // Household endpoints
 api.MapHouseholdEndpoints();
