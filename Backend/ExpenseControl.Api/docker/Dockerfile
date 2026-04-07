@@ -3,6 +3,7 @@ WORKDIR /app
 EXPOSE 80
 RUN apt-get update && apt-get install -y curl
 
+ENV ASPNETCORE_URLS=http://+:80
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 COPY Backend/ExpenseControl.Api/ExpenseControl.Api.csproj Backend/ExpenseControl.Api/

@@ -45,11 +45,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCognitoAuthentication(builder);
 
 // Configure DbContext
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDbContext<ExpenseDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
+builder.Services.AddDbContext<ExpenseDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable System.Text.Json enum serialization as strings for Minimal APIs
 builder.Services.Configure<JsonOptions>(options => options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));

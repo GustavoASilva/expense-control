@@ -1,0 +1,85 @@
+services:
+  expensecontrol-postgres:
+    image: postgres:16
+    container_name: expensecontrol-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ExpenseControlDb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - expensecontrol-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h localhost || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: ./Backend/ExpenseControl.Api/docker/Dockerfile
+    container_name: expensecontrol-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: Host=expensecontrol-postgres;Port=5432;Database=${POSTGRES_DB:-ExpenseControlDb};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      Cognito__Region: ${COGNITO_REGION:?COGNITO_REGION is required}
+      Cognito__UserPoolId: ${COGNITO_USER_POOL_ID:?COGNITO_USER_POOL_ID is required}
+      Cognito__AppClientId: ${COGNITO_APP_CLIENT_ID:?COGNITO_APP_CLIENT_ID is required}
+    depends_on:
+      expensecontrol-postgres:
+        condition: service_healthy
+    networks:
+      - expensecontrol-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./Frontend/ExpenseControl.React/docker/Dockerfile
+      args:
+        VITE_USE_MOCK_AUTH: "false"
+        VITE_API_URL: /api
+        VITE_COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID:?COGNITO_USER_POOL_ID is required}
+        VITE_COGNITO_APP_CLIENT_ID: ${COGNITO_APP_CLIENT_ID:?COGNITO_APP_CLIENT_ID is required}
+        VITE_COGNITO_REGION: ${COGNITO_REGION:?COGNITO_REGION is required}
+    container_name: expensecontrol-frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - expensecontrol-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: expensecontrol-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/http.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - expensecontrol-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  expensecontrol-network:
+    driver: bridge

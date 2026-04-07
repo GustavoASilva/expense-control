@@ -5,8 +5,20 @@ COPY Frontend/ExpenseControl.React/package*.json ./
 RUN npm ci
 COPY Frontend/ExpenseControl.React/. .
 ARG VITE_USE_MOCK_AUTH=false
-ENV VITE_USE_MOCK_AUTH=$VITE_USE_MOCK_AUTH
-RUN npm run build
+ARG VITE_API_URL
+ARG VITE_COGNITO_USER_POOL_ID
+ARG VITE_COGNITO_APP_CLIENT_ID
+ARG VITE_COGNITO_REGION
+
+RUN set -eu; \
+	: > .env.production.local; \
+	printf 'VITE_USE_MOCK_AUTH=%s\n' "$VITE_USE_MOCK_AUTH" >> .env.production.local; \
+	if [ -n "${VITE_API_URL:-}" ]; then printf 'VITE_API_URL=%s\n' "$VITE_API_URL" >> .env.production.local; fi; \
+	if [ -n "${VITE_COGNITO_USER_POOL_ID:-}" ]; then printf 'VITE_COGNITO_USER_POOL_ID=%s\n' "$VITE_COGNITO_USER_POOL_ID" >> .env.production.local; fi; \
+	if [ -n "${VITE_COGNITO_APP_CLIENT_ID:-}" ]; then printf 'VITE_COGNITO_APP_CLIENT_ID=%s\n' "$VITE_COGNITO_APP_CLIENT_ID" >> .env.production.local; fi; \
+	if [ -n "${VITE_COGNITO_REGION:-}" ]; then printf 'VITE_COGNITO_REGION=%s\n' "$VITE_COGNITO_REGION" >> .env.production.local; fi; \
+    cat .env.production.local; \
+	npm run build
 
 # Production stage
 FROM nginx:alpine AS production
