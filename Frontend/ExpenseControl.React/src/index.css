@@ -419,14 +419,51 @@ main {
   color: white;
 }
 
+/* Mobile nav backdrop */
+.nav-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
 /* Mobile styles - screens smaller than 641px */
 @media (max-width: 640px) {
+  .page {
+    position: relative;
+  }
+
   .top-row {
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
   }
 
   .top-row a, .top-row .btn-link {
     margin-left: 0;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  /* Mobile nav expands as a dropdown overlay below the top-row */
+  .collapse.nav-scrollable.show {
+    position: fixed;
+    top: 4rem;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    background: var(--sidebar-bg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
   .content {
@@ -459,6 +496,87 @@ main {
   .stat-card-grid {
     grid-template-columns: 1fr;
   }
+
+  /* Transaction row mobile adjustments */
+  .transaction-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .transaction-details {
+    min-width: 0;
+  }
+
+  .transaction-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .transaction-amount {
+    font-size: 0.9375rem;
+  }
+
+  /* Date range picker on mobile - horizontal scroll */
+  .date-range-picker {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+    width: 100%;
+  }
+
+  .date-range-picker .btn {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  /* Budget/savings selects on mobile */
+  .page-header .form-select {
+    font-size: 0.875rem;
+  }
+
+  /* Modal bottom-sheet on mobile */
+  .modal-dialog {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .modal-dialog-centered {
+    align-items: flex-end;
+    min-height: 100dvh;
+  }
+
+  .modal-content {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 92dvh;
+    width: 100%;
+  }
+
+  /* Small confirm dialog stays centered */
+  .modal-dialog.modal-sm {
+    width: 90%;
+    max-width: 360px;
+    margin: auto;
+    min-height: unset;
+    align-items: center;
+  }
+
+  .modal-dialog.modal-sm .modal-content {
+    border-radius: var(--radius-lg);
+    max-height: 80dvh;
+  }
+
+  /* Stat card value size on mobile */
+  .stat-card-value {
+    font-size: 1.5rem;
+  }
 }
 
 /* Tablet and up - sidebar shows at 641px+ */
@@ -485,8 +603,13 @@ main {
     display: none;
   }
 
-  .collapse {
+  /* On desktop, always show the nav regardless of collapse state */
+  .sidebar .collapse {
     display: block;
+  }
+
+  .nav-backdrop {
+    display: none;
   }
 
   .nav-scrollable {
@@ -994,4 +1117,26 @@ code {
   background: rgba(102, 126, 234, 0.1);
   padding: 0.125rem 0.375rem;
   border-radius: var(--radius-sm);
+}
+
+/* Toast positioning - top-right on desktop, bottom-center on mobile */
+.toast-position {
+  top: 0;
+  right: 0;
+}
+
+@media (max-width: 640px) {
+  .toast-position {
+    top: unset;
+    right: unset;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 2rem);
+    max-width: 400px;
+  }
+
+  .toast-position .toast {
+    width: 100%;
+  }
 }

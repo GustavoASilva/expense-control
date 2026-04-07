@@ -55,12 +55,14 @@ const HouseholdSettings: React.FC = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
-      <div className="d-flex align-items-center mb-4">
-        <i className="bi bi-house-gear fs-4 me-3 text-primary"></i>
-        <div>
-          <h1 className="h3 mb-0">Household Settings</h1>
-          <p className="text-muted small mb-0">Manage your household and invite members</p>
+    <div className="fade-in">
+      <div className="page-header">
+        <div className="d-flex align-items-center gap-3">
+          <i className="bi bi-house-gear fs-4 text-primary"></i>
+          <div>
+            <h1 className="page-title mb-0">Household Settings</h1>
+            <p className="text-muted small mb-0">Manage your household and invite members</p>
+          </div>
         </div>
       </div>
 

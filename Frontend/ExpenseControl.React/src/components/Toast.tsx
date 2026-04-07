@@ -84,7 +84,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       {createPortal(
         <div
-          className="toast-container position-fixed top-0 end-0 p-3"
+          className="toast-container position-fixed p-3 toast-position"
           style={{ zIndex: 1090 }}
           aria-label="Notifications"
         >
