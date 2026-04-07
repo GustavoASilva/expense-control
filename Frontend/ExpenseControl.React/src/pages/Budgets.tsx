@@ -101,33 +101,31 @@ const Budgets: React.FC = () => {
     <div className="fade-in">
       <div className="page-header">
         <h1 className="page-title">Budgets</h1>
-        <div className="d-flex gap-3 align-items-center flex-wrap">
-          <div className="d-flex gap-2">
-            <select
-              className="form-select"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-              style={{ width: 'auto' }}
-            >
-              {monthNames.map((name, index) => (
-                <option key={index + 1} value={index + 1}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="form-select"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              style={{ width: 'auto' }}
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="d-flex gap-2 align-items-center flex-wrap">
+          <select
+            className="form-select"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+            style={{ width: 'auto' }}
+          >
+            {monthNames.map((name, index) => (
+              <option key={index + 1} value={index + 1}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <select
+            className="form-select"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            style={{ width: 'auto' }}
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
           <button className="btn btn-primary" onClick={handleCreateBudget}>
             <i className="bi bi-plus-lg me-2"></i>New Budget
           </button>

@@ -182,7 +182,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
       onClick={handleClose}
     >
       <div 
-        className="modal-dialog modal-dialog-centered modal-lg" 
+        className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-content">

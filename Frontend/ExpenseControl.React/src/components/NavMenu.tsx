@@ -1,21 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const NavMenu: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const { user, householdName, logout } = useAuth();
 
+  const closeNav = useCallback(() => setIsNavOpen(false), []);
+
+  // Close nav on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeNav();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [closeNav]);
+
   const toggleNavMenu = () => {
-    setCollapsed(!collapsed);
+    setIsNavOpen((prev) => !prev);
   };
 
   const handleLogout = async () => {
+    closeNav();
     await logout();
   };
 
   return (
     <>
+      {/* Backdrop for mobile nav */}
+      {isNavOpen && (
+        <div
+          className="nav-backdrop"
+          onClick={closeNav}
+          aria-hidden="true"
+        />
+      )}
+
       <div className="top-row navbar navbar-dark">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
@@ -27,6 +48,8 @@ const NavMenu: React.FC = () => {
           <button
             title="Navigation menu"
             className="navbar-toggler"
+            aria-expanded={isNavOpen}
+            aria-controls="nav-menu"
             onClick={toggleNavMenu}
           >
             <span className="navbar-toggler-icon"></span>
@@ -34,7 +57,10 @@ const NavMenu: React.FC = () => {
         </div>
       </div>
 
-      <div className={`${collapsed ? 'collapse' : ''} nav-scrollable show`}>
+      <div
+        id="nav-menu"
+        className={`collapse nav-scrollable${isNavOpen ? ' show' : ''}`}
+      >
         {householdName && (
           <div style={{
             padding: '0.75rem 1rem',
@@ -71,6 +97,7 @@ const NavMenu: React.FC = () => {
               }
               to="/"
               end
+              onClick={closeNav}
             >
               <i className="bi bi-grid-1x2-fill"></i>
               <span>Dashboard</span>
@@ -82,6 +109,7 @@ const NavMenu: React.FC = () => {
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/transactions"
+              onClick={closeNav}
             >
               <i className="bi bi-arrow-left-right"></i>
               <span>Transactions</span>
@@ -93,6 +121,7 @@ const NavMenu: React.FC = () => {
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/budgets"
+              onClick={closeNav}
             >
               <i className="bi bi-pie-chart-fill"></i>
               <span>Budgets</span>
@@ -104,6 +133,7 @@ const NavMenu: React.FC = () => {
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/savings"
+              onClick={closeNav}
             >
               <i className="bi bi-piggy-bank-fill"></i>
               <span>Savings</span>
@@ -115,6 +145,7 @@ const NavMenu: React.FC = () => {
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/categories"
+              onClick={closeNav}
             >
               <i className="bi bi-tags"></i>
               <span>Categories</span>
@@ -126,6 +157,7 @@ const NavMenu: React.FC = () => {
                 `nav-link ${isActive ? 'active' : ''}`
               }
               to="/household"
+              onClick={closeNav}
             >
               <i className="bi bi-house-gear"></i>
               <span>Household</span>

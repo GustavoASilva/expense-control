@@ -30,12 +30,12 @@ const Categories: React.FC = () => {
   const incomeCategories = categories.filter(c => c.type === TransactionType.Income);
 
   return (
-    <div className="container-fluid py-4">
-      <div className="d-flex align-items-center justify-content-between mb-4">
-        <div className="d-flex align-items-center">
-          <i className="bi bi-tags fs-4 me-3 text-primary"></i>
+    <div className="fade-in">
+      <div className="page-header">
+        <div className="d-flex align-items-center gap-3">
+          <i className="bi bi-tags fs-4 text-primary"></i>
           <div>
-            <h1 className="h3 mb-0">Categories</h1>
+            <h1 className="page-title mb-0">Categories</h1>
             <p className="text-muted small mb-0">Manage transaction categories</p>
           </div>
         </div>
@@ -217,7 +217,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
-      <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
           <form onSubmit={handleSubmit}>
             <div className="modal-header">
