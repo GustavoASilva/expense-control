@@ -43,6 +43,15 @@ const SavingForm: React.FC<SavingFormProps> = ({ show, onClose, onSave, editSavi
     }
   }, [show, editSaving]);
 
+  useEffect(() => {
+    if (show) {
+      document.body.classList.add('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [show]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let parsedValue: string | number | undefined = value;
@@ -121,7 +130,7 @@ const SavingForm: React.FC<SavingFormProps> = ({ show, onClose, onSave, editSavi
 
   return createPortal(
     <div
-      className="modal show d-block"
+      className="modal show d-block form-modal"
       tabIndex={-1}
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}

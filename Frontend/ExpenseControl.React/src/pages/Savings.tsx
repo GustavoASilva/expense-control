@@ -4,6 +4,7 @@ import { Saving } from '../types/index';
 import SavingForm from '../components/SavingForm';
 import { useToast } from '../hooks/useToast';
 import { useConfirm } from '../hooks/useConfirm';
+import { shouldShowHeaderCreateButton } from '../utils/listUiState';
 
 const Savings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -98,9 +99,11 @@ const Savings: React.FC = () => {
     <div className="fade-in">
       <div className="page-header">
         <h1 className="page-title">Savings</h1>
-        <button className="btn btn-primary" onClick={handleCreateSaving}>
-          <i className="bi bi-plus-lg me-2"></i>New Savings Fund
-        </button>
+        {shouldShowHeaderCreateButton(isLoading, savings.length) && (
+          <button className="btn btn-primary" onClick={handleCreateSaving}>
+            <i className="bi bi-plus-lg me-2"></i>New Savings Fund
+          </button>
+        )}
       </div>
 
       {!isLoading && savings.length > 0 && (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getBudgets, getBudgetUsage } from '../services/api';
 import { Budget, BudgetUsage } from '../types/index';
 import BudgetForm from '../components/BudgetForm';
+import { shouldShowHeaderCreateButton } from '../utils/listUiState';
 
 interface BudgetWithUsage extends Budget {
   usage?: BudgetUsage;
@@ -126,9 +127,11 @@ const Budgets: React.FC = () => {
               </option>
             ))}
           </select>
-          <button className="btn btn-primary" onClick={handleCreateBudget}>
-            <i className="bi bi-plus-lg me-2"></i>New Budget
-          </button>
+          {shouldShowHeaderCreateButton(isLoading, budgets.length) && (
+            <button className="btn btn-primary" onClick={handleCreateBudget}>
+              <i className="bi bi-plus-lg me-2"></i>New Budget
+            </button>
+          )}
         </div>
       </div>
 

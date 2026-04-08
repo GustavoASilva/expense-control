@@ -180,4 +180,23 @@ test.describe('Savings', () => {
       await expect(page.getByRole('alert').filter({ hasText: 'Failed to save' })).toBeVisible();
     });
   });
+
+  test('should display full-screen form modal on mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.getByRole('button', { name: /New Savings Fund/i }).click();
+
+    await test.step('Verify form header is visible', async () => {
+      await expect(page.getByRole('heading', { name: 'New Savings Fund' })).toBeVisible();
+    });
+
+    await test.step('Verify form fields are accessible', async () => {
+      await expect(page.getByLabel('Name')).toBeVisible();
+      await expect(page.getByLabel('Current Amount')).toBeVisible();
+    });
+
+    await test.step('Verify action buttons are reachable', async () => {
+      await expect(page.locator('.form-modal').getByRole('button', { name: /Create Savings Fund/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
+    });
+  });
 });

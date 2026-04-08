@@ -5,6 +5,7 @@ import { getTransactions, deleteTransaction } from '../services/api';
 import { Transaction, TransactionType } from '../types/index';
 import { useToast } from '../hooks/useToast';
 import { useConfirm } from '../hooks/useConfirm';
+import { shouldShowHeaderCreateButton } from '../utils/listUiState';
 
 const Transactions: React.FC = () => {
   const { showToast } = useToast();
@@ -117,9 +118,11 @@ const Transactions: React.FC = () => {
             endDate={endDate}
             onChanged={handleDateRangeChanged}
           />
-          <button className="btn btn-primary" onClick={openFormForNew}>
-            <i className="bi bi-plus-lg me-2"></i>New Transaction
-          </button>
+          {shouldShowHeaderCreateButton(isLoading, transactions.length) && (
+            <button className="btn btn-primary" onClick={openFormForNew}>
+              <i className="bi bi-plus-lg me-2"></i>New Transaction
+            </button>
+          )}
         </div>
       </div>
 

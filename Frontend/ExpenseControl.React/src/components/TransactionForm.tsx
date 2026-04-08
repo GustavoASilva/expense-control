@@ -89,6 +89,15 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     setErrorContainer(createEmptyErrors());
   }, [isVisible, recordToUpdate]);
 
+  useEffect(() => {
+    if (isVisible) {
+      document.body.classList.add('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isVisible]);
+
   const modifyFormField = (key: keyof FormDataContainer, value: string | number) => {
     setFormContainer(prev => ({ ...prev, [key]: value }));
     if (key in errorContainer) {
@@ -176,7 +185,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
 
   return createPortal(
     <div 
-      className="modal show d-block" 
+      className="modal show d-block form-modal" 
       tabIndex={-1} 
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={handleClose}

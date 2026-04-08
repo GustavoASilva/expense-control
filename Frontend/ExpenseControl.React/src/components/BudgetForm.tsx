@@ -49,6 +49,15 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
     }
   }, [show, editBudget]);
 
+  useEffect(() => {
+    if (show) {
+      document.body.classList.add('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [show]);
+
   const loadCategories = async () => {
     setIsLoading(true);
     try {
@@ -139,7 +148,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
 
   return createPortal(
     <div 
-      className="modal show d-block" 
+      className="modal show d-block form-modal" 
       tabIndex={-1} 
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}

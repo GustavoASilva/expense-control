@@ -159,6 +159,15 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
     }
   }, [show]);
 
+  useEffect(() => {
+    if (show) {
+      document.body.classList.add('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [show]);
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     const trimmedName = form.name.trim();
@@ -212,7 +221,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
 
   return createPortal(
     <div
-      className="modal show d-block"
+      className="modal show d-block form-modal"
       tabIndex={-1}
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
