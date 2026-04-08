@@ -539,17 +539,11 @@ main {
   }
 
   /* Full-screen form modals on mobile */
-  .form-modal {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .form-modal .modal-dialog {
     width: 100%;
     max-width: 100%;
     max-height: none;
     margin: 0;
-    min-height: 100dvh;
     height: 100dvh;
     display: flex;
     flex-direction: column;
@@ -564,7 +558,7 @@ main {
   .form-modal .modal-content {
     border-radius: 0;
     max-height: none;
-    height: 100dvh;
+    height: 100%;
     min-height: 0;
     width: 100%;
     display: flex;
@@ -572,10 +566,18 @@ main {
     overflow: hidden;
   }
 
+  /* The <form> sits between .modal-content and the header/body/footer.
+     It must participate in the flex chain so .modal-body can scroll. */
+  .form-modal .modal-content > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .form-modal .modal-header {
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    flex-shrink: 0;
     background: var(--card-bg);
   }
 
@@ -587,9 +589,7 @@ main {
   }
 
   .form-modal .modal-footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 1;
+    flex-shrink: 0;
     background: var(--card-bg);
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
@@ -632,6 +632,7 @@ main {
   /* Body scroll lock when modal is open */
   body.modal-open {
     overflow: hidden;
+    position: fixed;
     width: 100%;
     overscroll-behavior: contain;
   }
