@@ -234,8 +234,17 @@ For complex features (Transactions, Budgets), each operation gets its own sub-fo
 
 ---
 
-## 25. Configuration in a Dedicated Folder
+## 26. Application-Level Field Encryption
 
-**Decision:** Store `appsettings.json` and environment-specific config files in a `Configuration/` subfolder instead of the project root.
+**Decision:** Encrypt sensitive fields in `Transactions` (Amount, Description, Notes), `Budgets` (Amount), and `Savings` (Name, Description, CurrentAmount, TargetAmount) at the application layer using AES-256-CBC before they are stored in the database.
 
-**Why:** Keeps the project root cleaner. The configuration base path is explicitly set in `Program.cs` to load from this folder.
+**Why:** A system administrator with direct database access should not be able to read users' financial data. By encrypting these fields in the application before writing to PostgreSQL, the raw data in the database is opaque to anyone without the application's encryption key. This protects user privacy even if the database is compromised or inspected by privileged infrastructure personnel.
+
+**Implementation:**
+- `IEncryptionService` / `AesEncryptionService`: A singleton service that encrypts/decrypts string values using AES-256-CBC with a per-value random IV. The 256-bit key is derived from a configurable passphrase using SHA-256.
+- EF Core `ValueConverter`: Converters are registered in `ExpenseDbContext.OnModelCreating` and transparently encrypt on write and decrypt on read. Application code (endpoints, tests) works with plaintext values.
+- Encrypted columns are stored as `text` in PostgreSQL (previously `numeric` or `varchar`). The EF Core migration `AddFieldLevelEncryption` handles the schema change.
+- **Key management:** The encryption key is supplied via the `Encryption:Key` configuration value. In production this must be set via the `ENCRYPTION_KEY` environment variable (never committed to source control). The development default key in `appsettings.Development.json` must not be used in production.
+- **Aggregation:** Because encrypted amounts are stored as text, SQL-level aggregates (`SUM`, `GroupBy`) are not possible. Affected endpoints (`GetBalance`, `GetBudgetUsage`) load matching rows into memory before summing.
+- **Tests:** `NullEncryptionService` is a passthrough no-op used exclusively by unit tests so that in-memory databases remain readable and LINQ aggregations continue to work without change.
+

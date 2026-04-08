@@ -22,10 +22,11 @@ public class ExpenseDbContextFactory : IDesignTimeDbContextFactory<ExpenseDbCont
 
         var configuration = builder.Build();
         var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var encryptionKey = configuration["Encryption:Key"] ?? throw new InvalidOperationException("Encryption:Key is not configured.");
 
         var optionsBuilder = new DbContextOptionsBuilder<ExpenseDbContext>();
         optionsBuilder.UseNpgsql(connectionString);
 
-        return new ExpenseDbContext(optionsBuilder.Options);
+        return new ExpenseDbContext(optionsBuilder.Options, new AesEncryptionService(encryptionKey));
     }
 }

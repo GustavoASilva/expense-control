@@ -21,12 +21,16 @@ public static class GetBalanceEndpoint
 
             query = query.Where(t => t.Date >= periodStart && t.Date <= periodEnd);
 
-            var result = await query.GroupBy(t => t.Type)
-                .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
-                .ToListAsync();
+            // Load transactions into memory before aggregating because Amount is encrypted
+            // and cannot be summed directly in the database
+            var transactions = await query.ToListAsync();
 
-            var income = result.FirstOrDefault(r => r.Type == TransactionType.Income)?.Total ?? 0;
-            var expenses = result.FirstOrDefault(r => r.Type == TransactionType.Expense)?.Total ?? 0;
+            var income = transactions
+                .Where(t => t.Type == TransactionType.Income)
+                .Sum(t => t.Amount);
+            var expenses = transactions
+                .Where(t => t.Type == TransactionType.Expense)
+                .Sum(t => t.Amount);
 
             return Results.Ok(new BalanceResponse(
                 income,
@@ -34,7 +38,7 @@ public static class GetBalanceEndpoint
                 income - expenses,
                 periodStart,
                 periodEnd,
-                result.Any()
+                transactions.Count > 0
             ));
         })
         .WithName("GetBalance")

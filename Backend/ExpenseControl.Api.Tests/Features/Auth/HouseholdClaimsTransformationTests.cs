@@ -2,6 +2,7 @@ using System.Security.Claims;
 using ExpenseControl.Api.Entities;
 using ExpenseControl.Api.Features.Auth;
 using ExpenseControl.Api.Persistence;
+using ExpenseControl.Api.Tests.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseControl.Api.Tests.Features.Auth;
@@ -17,7 +18,7 @@ public class HouseholdClaimsTransformationTests : IDisposable
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        _db = new ExpenseDbContext(options);
+        _db = new ExpenseDbContext(options, new NullEncryptionService());
         _transformation = new HouseholdClaimsTransformation(_db);
     }
 

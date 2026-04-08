@@ -29,6 +29,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - Encryption__Key=dev-encryption-key-not-for-production
     depends_on:
       expensecontrol-postgres:
         condition: service_healthy

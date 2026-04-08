@@ -30,6 +30,7 @@ services:
       Cognito__Region: ${COGNITO_REGION:?COGNITO_REGION is required}
       Cognito__UserPoolId: ${COGNITO_USER_POOL_ID:?COGNITO_USER_POOL_ID is required}
       Cognito__AppClientId: ${COGNITO_APP_CLIENT_ID:?COGNITO_APP_CLIENT_ID is required}
+      Encryption__Key: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required}
     depends_on:
       expensecontrol-postgres:
         condition: service_healthy

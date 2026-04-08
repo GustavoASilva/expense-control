@@ -20,13 +20,16 @@ public static class GetBudgetUsageEndpoint
                 b.HouseholdId == householdId);
             if (budget == null) return Results.NotFound();
 
-            var usage = await db.Transactions
+            // Load into memory before summing because Amount is encrypted
+            // and cannot be aggregated directly in the database
+            var transactions = await db.Transactions
                 .Where(t => t.CategoryId == categoryId &&
                     t.Date.Year == year &&
                     t.Date.Month == month &&
                     t.Type == TransactionType.Expense &&
                     t.HouseholdId == householdId)
-                .SumAsync(t => t.Amount);
+                .ToListAsync();
+            var usage = transactions.Sum(t => t.Amount);
             var percent = budget.Amount > 0 ? (usage / budget.Amount) * 100m : 0m;
             return Results.Ok(new BudgetUsageResponse(budget.Amount, usage, percent));
         });

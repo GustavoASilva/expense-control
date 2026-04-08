@@ -1,9 +1,11 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ExpenseControl.Api.Entities;
 
 namespace ExpenseControl.Api.Persistence;
 
-public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbContext(options)
+public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options, IEncryptionService encryptionService) : DbContext(options)
 {
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -14,6 +16,23 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Value converters for encrypted fields
+        var encryptedString = new ValueConverter<string, string>(
+            v => encryptionService.Encrypt(v),
+            v => encryptionService.Decrypt(v));
+
+        var encryptedNullableString = new ValueConverter<string?, string?>(
+            v => v == null ? null : encryptionService.Encrypt(v),
+            v => v == null ? null : encryptionService.Decrypt(v));
+
+        var encryptedDecimal = new ValueConverter<decimal, string>(
+            v => encryptionService.Encrypt(v.ToString(CultureInfo.InvariantCulture)),
+            v => decimal.Parse(encryptionService.Decrypt(v), CultureInfo.InvariantCulture));
+
+        var encryptedNullableDecimal = new ValueConverter<decimal?, string?>(
+            v => v == null ? null : encryptionService.Encrypt(v.Value.ToString(CultureInfo.InvariantCulture)),
+            v => v == null ? null : decimal.Parse(encryptionService.Decrypt(v), CultureInfo.InvariantCulture));
+
         // Household Configuration
         modelBuilder.Entity<Household>(entity =>
         {
@@ -41,12 +60,13 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
         });
 
         // Transaction Configuration
+        // Amount, Description, and Notes are encrypted at rest; stored as text columns
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Amount).HasColumnType("numeric(18,2)");
-            entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
-            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.Property(e => e.Amount).HasConversion(encryptedDecimal);
+            entity.Property(e => e.Description).IsRequired().HasConversion(encryptedNullableString);
+            entity.Property(e => e.Notes).HasConversion(encryptedNullableString);
             entity.Property(e => e.Type).HasConversion<string>();
 
             // TPH (Table Per Hierarchy) inheritance for PostgreSQL
@@ -80,10 +100,11 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
         });
 
         // Budget Configuration
+        // Amount is encrypted at rest; stored as a text column
         modelBuilder.Entity<Budget>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Amount).HasColumnType("numeric(18,2)");
+            entity.Property(e => e.Amount).HasConversion(encryptedDecimal);
             entity.Property(e => e.Month).IsRequired();
             entity.Property(e => e.Year).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
@@ -102,13 +123,14 @@ public class ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : DbCo
         });
 
         // Saving Configuration
+        // Name, Description, CurrentAmount, and TargetAmount are encrypted at rest
         modelBuilder.Entity<Saving>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(500);
-            entity.Property(e => e.CurrentAmount).HasColumnType("numeric(18,2)");
-            entity.Property(e => e.TargetAmount).HasColumnType("numeric(18,2)");
+            entity.Property(e => e.Name).IsRequired().HasConversion(encryptedString);
+            entity.Property(e => e.Description).HasConversion(encryptedNullableString);
+            entity.Property(e => e.CurrentAmount).HasConversion(encryptedDecimal);
+            entity.Property(e => e.TargetAmount).HasConversion(encryptedNullableDecimal);
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
             entity.HasOne(e => e.Household)

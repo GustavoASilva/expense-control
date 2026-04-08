@@ -11,6 +11,6 @@ public static class DbContextHelper
             .UseInMemoryDatabase(databaseName: databaseName)
             .Options;
 
-        return new ExpenseDbContext(options);
+        return new ExpenseDbContext(options, new NullEncryptionService());
     }
 }
