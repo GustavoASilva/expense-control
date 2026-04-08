@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getCategories, createCategory } from '../services/api';
 import { Category, TransactionType, CategoryForm } from '../types/index';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -159,14 +160,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
     }
   }, [show]);
 
-  useEffect(() => {
-    if (show) {
-      document.body.classList.add('modal-open');
-    }
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
-  }, [show]);
+  useBodyScrollLock(show);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};

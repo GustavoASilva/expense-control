@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getCategories, createTransaction, updateTransaction } from '../services/api';
 import { Category, TransactionForm as TxnPayload, TransactionType, Transaction } from '../types/index';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface DialogConfiguration {
   isVisible: boolean;
@@ -89,14 +90,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     setErrorContainer(createEmptyErrors());
   }, [isVisible, recordToUpdate]);
 
-  useEffect(() => {
-    if (isVisible) {
-      document.body.classList.add('modal-open');
-    }
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
-  }, [isVisible]);
+  useBodyScrollLock(isVisible);
 
   const modifyFormField = (key: keyof FormDataContainer, value: string | number) => {
     setFormContainer(prev => ({ ...prev, [key]: value }));
@@ -119,7 +113,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     let isValid = true;
 
     if (isNaN(formContainer.dollarAmount) || formContainer.dollarAmount <= 0) {
-      errors.dollarAmount = 'Amount must be a valid number greater than 0';
+      errors.dollarAmount = 'Amount must be greater than 0';
       isValid = false;
     }
 

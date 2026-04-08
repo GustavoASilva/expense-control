@@ -171,7 +171,7 @@ test.describe('Savings', () => {
     await page.goto('/savings');
 
     await test.step('Open form and submit', async () => {
-      await page.getByRole('button', { name: /New Savings Fund/i }).click();
+      await page.getByRole('button', { name: /Create Savings Fund/i }).click();
       await page.getByLabel('Name').fill('Test Fund');
       await page.locator('.modal').getByRole('button', { name: /Create Savings Fund/i }).click();
     });
