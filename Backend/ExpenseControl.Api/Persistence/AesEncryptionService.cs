@@ -5,17 +5,26 @@ namespace ExpenseControl.Api.Persistence;
 
 /// <summary>
 /// Encrypts and decrypts field values using AES-256-CBC with a random IV per encryption.
-/// A 256-bit key is derived from the configured key string using SHA-256.
+/// The 256-bit encryption key is derived from the configured passphrase using PBKDF2-SHA256
+/// with a fixed application-specific salt and 100,000 iterations.
 /// The encrypted output is Base64-encoded with the 16-byte IV prepended to the ciphertext.
 /// </summary>
 public sealed class AesEncryptionService : IEncryptionService
 {
+    // Fixed application-specific salt — not secret, prevents cross-application key reuse
+    private static readonly byte[] ApplicationSalt = Encoding.UTF8.GetBytes("ExpenseControl.Api.FieldEncryption.v1");
+
     private readonly byte[] _key;
 
     public AesEncryptionService(string key)
     {
-        // Derive a stable 256-bit key from the provided passphrase
-        _key = SHA256.HashData(Encoding.UTF8.GetBytes(key));
+        // Derive a 256-bit key from the passphrase using PBKDF2-SHA256
+        _key = Rfc2898DeriveBytes.Pbkdf2(
+            password: Encoding.UTF8.GetBytes(key),
+            salt: ApplicationSalt,
+            iterations: 100_000,
+            hashAlgorithm: HashAlgorithmName.SHA256,
+            outputLength: 32);
     }
 
     /// <inheritdoc/>
@@ -40,14 +49,27 @@ public sealed class AesEncryptionService : IEncryptionService
     /// <inheritdoc/>
     public string Decrypt(string ciphertext)
     {
-        var data = Convert.FromBase64String(ciphertext);
+        if (string.IsNullOrEmpty(ciphertext))
+            throw new ArgumentException("Ciphertext cannot be null or empty.", nameof(ciphertext));
+
+        byte[] data;
+        try
+        {
+            data = Convert.FromBase64String(ciphertext);
+        }
+        catch (FormatException ex)
+        {
+            throw new CryptographicException("The stored value is not valid Base64. The field may not be encrypted or the data is corrupt.", ex);
+        }
+
+        const int ivSize = 16; // AES block size in bytes
+        if (data.Length < ivSize)
+            throw new CryptographicException("The stored value is too short to contain a valid AES IV. The field may not be encrypted or the data is corrupt.");
 
         using var aes = Aes.Create();
         aes.Key = _key;
-
-        // The first 16 bytes are the IV
-        aes.IV = data[..16];
-        var encrypted = data[16..];
+        aes.IV = data[..ivSize];
+        var encrypted = data[ivSize..];
 
         using var decryptor = aes.CreateDecryptor();
         var plaintextBytes = decryptor.TransformFinalBlock(encrypted, 0, encrypted.Length);

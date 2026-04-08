@@ -21,14 +21,16 @@ public static class GetBalanceEndpoint
 
             query = query.Where(t => t.Date >= periodStart && t.Date <= periodEnd);
 
-            // Load transactions into memory before aggregating because Amount is encrypted
-            // and cannot be summed directly in the database
-            var transactions = await query.ToListAsync();
+            // Project to only the fields needed for aggregation, then load into memory.
+            // Amount is stored as encrypted text and cannot be aggregated directly in the database.
+            var summaries = await query
+                .Select(t => new { t.Type, t.Amount })
+                .ToListAsync();
 
-            var income = transactions
+            var income = summaries
                 .Where(t => t.Type == TransactionType.Income)
                 .Sum(t => t.Amount);
-            var expenses = transactions
+            var expenses = summaries
                 .Where(t => t.Type == TransactionType.Expense)
                 .Sum(t => t.Amount);
 
@@ -38,7 +40,7 @@ public static class GetBalanceEndpoint
                 income - expenses,
                 periodStart,
                 periodEnd,
-                transactions.Count > 0
+                summaries.Count > 0
             ));
         })
         .WithName("GetBalance")
