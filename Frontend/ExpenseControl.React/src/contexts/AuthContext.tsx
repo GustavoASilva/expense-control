@@ -120,7 +120,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { requiresPasswordReset: false, requiresMfa: false, requiresMfaSetup: false };
     }
 
-    const signInResult = await signIn({ username, password });
+    let signInResult;
+    try {
+      signInResult = await signIn({ username, password });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'There is already a signed in user.') {
+        await signOut();
+        signInResult = await signIn({ username, password });
+      } else {
+        throw error;
+      }
+    }
     const nextAction = await handleSignInStep(signInResult.nextStep);
 
     if (nextAction === 'NEW_PASSWORD_REQUIRED') {
