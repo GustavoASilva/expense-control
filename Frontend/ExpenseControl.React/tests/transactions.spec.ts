@@ -111,6 +111,23 @@ test.describe('Transactions', () => {
       await expect(page.getByLabel('Description')).toBeVisible();
     });
 
+    await test.step('Verify form body can scroll to reach notes field', async () => {
+      const scrollState = await page.locator('.form-modal .modal-body').evaluate((element) => {
+        const before = element.scrollTop;
+        element.scrollTop = element.scrollHeight;
+        return {
+          before,
+          after: element.scrollTop,
+          maxScrollTop: element.scrollHeight - element.clientHeight,
+        };
+      });
+
+      if (scrollState.maxScrollTop > 0) {
+        expect(scrollState.after).toBeGreaterThan(scrollState.before);
+      }
+      await expect(page.getByLabel('Notes (optional)')).toBeVisible();
+    });
+
     await test.step('Verify action buttons are reachable', async () => {
       await expect(page.getByRole('button', { name: /Create Transaction/i })).toBeVisible();
       await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();

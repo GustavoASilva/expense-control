@@ -539,6 +539,11 @@ main {
   }
 
   /* Full-screen form modals on mobile */
+  .form-modal {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .form-modal .modal-dialog {
     width: 100%;
     max-width: 100%;
@@ -560,6 +565,7 @@ main {
     border-radius: 0;
     max-height: none;
     height: 100dvh;
+    min-height: 0;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -575,6 +581,7 @@ main {
 
   .form-modal .modal-body {
     flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -625,8 +632,8 @@ main {
   /* Body scroll lock when modal is open */
   body.modal-open {
     overflow: hidden;
-    position: fixed;
     width: 100%;
+    overscroll-behavior: contain;
   }
 
   /* Stat card value size on mobile */
