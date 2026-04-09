@@ -87,4 +87,23 @@ test.describe('Budgets', () => {
     await expect(page.getByText('Edit Budget')).toBeVisible();
     await expect(page.getByRole('button', { name: /Save Changes/i })).toBeVisible();
   });
+
+  test('should display full-screen form modal on mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.getByRole('button', { name: /New Budget/i }).click();
+
+    await test.step('Verify form header is visible', async () => {
+      await expect(page.getByText('New Budget', { exact: false }).last()).toBeVisible();
+    });
+
+    await test.step('Verify form fields are accessible', async () => {
+      await expect(page.getByLabel('Category')).toBeVisible();
+      await expect(page.getByLabel('Budget Amount')).toBeVisible();
+    });
+
+    await test.step('Verify action buttons are reachable', async () => {
+      await expect(page.locator('.form-modal').getByRole('button', { name: /Create Budget/i })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
+    });
+  });
 });

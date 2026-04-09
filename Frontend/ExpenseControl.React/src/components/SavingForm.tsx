@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Saving, SavingForm as SavingFormType } from '../types/index';
 import { createSaving, updateSaving } from '../services/api';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface SavingFormProps {
   show: boolean;
@@ -42,6 +43,8 @@ const SavingForm: React.FC<SavingFormProps> = ({ show, onClose, onSave, editSavi
       setErrors({});
     }
   }, [show, editSaving]);
+
+  useBodyScrollLock(show);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -121,7 +124,7 @@ const SavingForm: React.FC<SavingFormProps> = ({ show, onClose, onSave, editSavi
 
   return createPortal(
     <div
-      className="modal show d-block"
+      className="modal show d-block form-modal"
       tabIndex={-1}
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}

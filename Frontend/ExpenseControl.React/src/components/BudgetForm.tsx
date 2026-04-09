@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Category, BudgetForm as BudgetFormType, Budget, TransactionType } from '../types/index';
 import { getCategories, createBudget } from '../services/api';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface BudgetFormProps {
   show: boolean;
@@ -49,6 +50,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
     }
   }, [show, editBudget]);
 
+  useBodyScrollLock(show);
+
   const loadCategories = async () => {
     setIsLoading(true);
     try {
@@ -91,7 +94,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
     const newErrors: Record<string, string> = {};
 
     if (isNaN(budget.amount) || budget.amount <= 0) {
-      newErrors.amount = 'Amount must be a valid number greater than 0';
+      newErrors.amount = 'Amount must be greater than 0';
     }
 
     if (!budget.categoryId) {
@@ -139,7 +142,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ show, onClose, onSave, editBudg
 
   return createPortal(
     <div 
-      className="modal show d-block" 
+      className="modal show d-block form-modal" 
       tabIndex={-1} 
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}

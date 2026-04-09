@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getCategories, createCategory } from '../services/api';
 import { Category, TransactionType, CategoryForm } from '../types/index';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -159,6 +160,8 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
     }
   }, [show]);
 
+  useBodyScrollLock(show);
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     const trimmedName = form.name.trim();
@@ -212,7 +215,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({ show, onClose, on
 
   return createPortal(
     <div
-      className="modal show d-block"
+      className="modal show d-block form-modal"
       tabIndex={-1}
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}

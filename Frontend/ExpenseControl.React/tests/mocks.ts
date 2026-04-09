@@ -195,7 +195,14 @@ export async function setupApiMocks(page: Page) {
     route.fulfill({ json: { household: mockHousehold } });
   });
   await page.route('**/api/categories', (route) => {
-    route.fulfill({ json: mockCategories });
+    if (route.request().method() === 'POST') {
+      route.fulfill({
+        json: { id: 'cat-new', name: 'New Category', type: 'Expense', iconName: 'tag' },
+        status: 201,
+      });
+    } else {
+      route.fulfill({ json: mockCategories });
+    }
   });
 
   await page.route('**/api/transactions*', (route) => {

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getCategories, createTransaction, updateTransaction } from '../services/api';
 import { Category, TransactionForm as TxnPayload, TransactionType, Transaction } from '../types/index';
 import { useToast } from '../hooks/useToast';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface DialogConfiguration {
   isVisible: boolean;
@@ -89,6 +90,8 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     setErrorContainer(createEmptyErrors());
   }, [isVisible, recordToUpdate]);
 
+  useBodyScrollLock(isVisible);
+
   const modifyFormField = (key: keyof FormDataContainer, value: string | number) => {
     setFormContainer(prev => ({ ...prev, [key]: value }));
     if (key in errorContainer) {
@@ -110,7 +113,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
     let isValid = true;
 
     if (isNaN(formContainer.dollarAmount) || formContainer.dollarAmount <= 0) {
-      errors.dollarAmount = 'Amount must be a valid number greater than 0';
+      errors.dollarAmount = 'Amount must be greater than 0';
       isValid = false;
     }
 
@@ -176,7 +179,7 @@ const TransactionForm: React.FC<DialogConfiguration> = ({
 
   return createPortal(
     <div 
-      className="modal show d-block" 
+      className="modal show d-block form-modal" 
       tabIndex={-1} 
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={handleClose}
