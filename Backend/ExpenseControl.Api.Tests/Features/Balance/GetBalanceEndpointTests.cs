@@ -239,13 +239,17 @@ public class GetBalanceEndpointTests
 
         query = query.Where(t => t.Date >= periodStart && t.Date <= periodEnd);
 
-        var result = await query.GroupBy(t => t.Type)
-            .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
+        var summaries = await query
+            .Select(t => new { t.Type, t.Amount })
             .ToListAsync();
 
-        var income = result.FirstOrDefault(r => r.Type == TransactionType.Income)?.Total ?? 0;
-        var expenses = result.FirstOrDefault(r => r.Type == TransactionType.Expense)?.Total ?? 0;
+        var income = summaries
+            .Where(s => s.Type == TransactionType.Income)
+            .Sum(s => s.Amount);
+        var expenses = summaries
+            .Where(s => s.Type == TransactionType.Expense)
+            .Sum(s => s.Amount);
 
-        return new BalanceResponse(income, expenses, income - expenses, periodStart, periodEnd, result.Any());
+        return new BalanceResponse(income, expenses, income - expenses, periodStart, periodEnd, summaries.Count > 0);
     }
 }

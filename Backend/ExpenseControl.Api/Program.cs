@@ -48,9 +48,17 @@ builder.Services.AddSwaggerGen();
 // Configure AWS Cognito authentication
 builder.Services.AddCognitoAuthentication(builder);
 
+// Register field-level encryption service
+// The key is read from configuration and should be set via environment variable in production
+var encryptionKey = builder.Configuration["Encryption:Key"]
+    ?? throw new InvalidOperationException("Encryption:Key is not configured.");
+builder.Services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey));
+
 // Configure DbContext
-builder.Services.AddDbContext<ExpenseDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ExpenseDbContext>((serviceProvider, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 // Enable System.Text.Json enum serialization as strings for Minimal APIs
 builder.Services.Configure<JsonOptions>(options => options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
